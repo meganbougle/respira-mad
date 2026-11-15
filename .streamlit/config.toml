@@ -1,0 +1,6 @@
+# App appearance (safe to commit - secrets go in secrets.toml, which is ignored by git)
+[theme]
+base = "light"
+
+[browser]
+gatherUsageStats = false

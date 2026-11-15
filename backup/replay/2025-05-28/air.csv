@@ -1,0 +1,2114 @@
+station,source,lat,lon,pollutant,value,timestamp,flag
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,NO2,2.0,2025-05-28 01:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,NO2,16.0,2025-05-28 01:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,O3,59.0,2025-05-28 01:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM10,23.0,2025-05-28 01:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM2.5,13.0,2025-05-28 01:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,NO2,18.0,2025-05-28 01:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,O3,2.0,2025-05-28 01:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM10,39.0,2025-05-28 01:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM2.5,11.0,2025-05-28 01:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,PM10,15.0,2025-05-28 01:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,NO2,76.0,2025-05-28 01:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,PM2.5,4.0,2025-05-28 01:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,NO2,20.0,2025-05-28 01:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,O3,90.0,2025-05-28 01:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,PM10,14.0,2025-05-28 01:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,NO2,3.0,2025-05-28 01:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,O3,69.0,2025-05-28 01:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,PM2.5,10.0,2025-05-28 01:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,NO2,11.0,2025-05-28 01:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,O3,35.0,2025-05-28 01:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,NO2,7.0,2025-05-28 01:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,PM10,20.0,2025-05-28 01:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,O3,69.0,2025-05-28 01:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,O3,38.0,2025-05-28 01:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,PM10,13.0,2025-05-28 01:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,NO2,25.0,2025-05-28 01:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,O3,84.0,2025-05-28 01:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,PM2.5,4.0,2025-05-28 01:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,NO2,3.0,2025-05-28 01:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,O3,66.0,2025-05-28 01:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,PM10,11.0,2025-05-28 01:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,NO2,11.0,2025-05-28 01:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,O3,25.0,2025-05-28 01:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM10,30.0,2025-05-28 01:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM2.5,15.0,2025-05-28 01:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,NO2,31.0,2025-05-28 01:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,O3,48.0,2025-05-28 01:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,PM2.5,8.0,2025-05-28 01:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,NO2,19.0,2025-05-28 01:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,O3,41.0,2025-05-28 01:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,PM10,18.0,2025-05-28 01:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,NO2,2.0,2025-05-28 01:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,O3,62.0,2025-05-28 01:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM10,6.0,2025-05-28 01:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,O3,53.0,2025-05-28 01:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,NO2,2.0,2025-05-28 01:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,NO2,4.0,2025-05-28 01:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,O3,60.0,2025-05-28 01:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,PM10,21.0,2025-05-28 01:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,NO2,8.0,2025-05-28 01:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,O3,38.0,2025-05-28 01:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,PM10,118.0,2025-05-28 01:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,NO2,37.0,2025-05-28 01:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,O3,107.0,2025-05-28 01:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM10,1.0,2025-05-28 01:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM2.5,4.0,2025-05-28 01:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,NO2,1.0,2025-05-28 01:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,O3,28.0,2025-05-28 01:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,PM2.5,14.0,2025-05-28 01:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,NO2,12.0,2025-05-28 01:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,O3,48.0,2025-05-28 01:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,PM2.5,11.0,2025-05-28 01:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,NO2,16.0,2025-05-28 01:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,O3,105.0,2025-05-28 01:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM2.5,1.0,2025-05-28 01:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,PM10,12.0,2025-05-28 01:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,O3,40.0,2025-05-28 01:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,PM10,9.0,2025-05-28 01:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM2.5,3.0,2025-05-28 01:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,O3,42.0,2025-05-28 01:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,PM2.5,10.0,2025-05-28 01:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,NO2,9.0,2025-05-28 01:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,O3,92.0,2025-05-28 01:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM10,7.0,2025-05-28 01:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,NO2,1.0,2025-05-28 01:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,NO2,2.0,2025-05-28 01:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,O3,54.0,2025-05-28 01:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM2.5,19.0,2025-05-28 01:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM10,37.0,2025-05-28 01:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,O3,43.0,2025-05-28 01:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,PM10,13.0,2025-05-28 01:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,NO2,15.0,2025-05-28 01:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,O3,17.0,2025-05-28 01:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,PM10,23.0,2025-05-28 01:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,NO2,8.0,2025-05-28 01:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,O3,66.0,2025-05-28 01:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,PM10,10.0,2025-05-28 01:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,NO2,16.0,2025-05-28 01:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,O3,20.0,2025-05-28 02:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM10,38.0,2025-05-28 02:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,NO2,11.0,2025-05-28 02:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,O3,55.0,2025-05-28 02:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM10,18.0,2025-05-28 02:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,O3,58.0,2025-05-28 02:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,NO2,17.0,2025-05-28 02:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM2.5,11.0,2025-05-28 02:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM2.5,7.0,2025-05-28 02:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,NO2,11.0,2025-05-28 02:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,O3,22.0,2025-05-28 02:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,PM2.5,9.0,2025-05-28 02:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,NO2,28.0,2025-05-28 02:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,O3,87.0,2025-05-28 02:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,PM10,12.0,2025-05-28 02:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,NO2,3.0,2025-05-28 02:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,O3,76.0,2025-05-28 02:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,PM2.5,13.0,2025-05-28 02:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,PM10,17.0,2025-05-28 02:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,NO2,45.0,2025-05-28 02:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,NO2,5.0,2025-05-28 02:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM2.5,14.0,2025-05-28 02:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,O3,69.0,2025-05-28 02:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,O3,60.0,2025-05-28 02:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,PM10,12.0,2025-05-28 02:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,NO2,14.0,2025-05-28 02:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,O3,81.0,2025-05-28 02:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,PM2.5,5.0,2025-05-28 02:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,NO2,3.0,2025-05-28 02:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,O3,82.0,2025-05-28 02:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,PM10,10.0,2025-05-28 02:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,PM10,18.0,2025-05-28 02:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,NO2,5.0,2025-05-28 02:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM10,27.0,2025-05-28 02:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,NO2,29.0,2025-05-28 02:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,O3,61.0,2025-05-28 02:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,PM2.5,12.0,2025-05-28 02:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,NO2,12.0,2025-05-28 02:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,O3,35.0,2025-05-28 02:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,PM10,18.0,2025-05-28 02:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,NO2,2.0,2025-05-28 02:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,O3,26.0,2025-05-28 02:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM10,9.0,2025-05-28 02:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,O3,50.0,2025-05-28 02:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,NO2,2.0,2025-05-28 02:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,NO2,4.0,2025-05-28 02:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,O3,65.0,2025-05-28 02:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,PM10,14.0,2025-05-28 02:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,NO2,8.0,2025-05-28 02:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,O3,59.0,2025-05-28 02:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,PM10,59.0,2025-05-28 02:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,NO2,17.0,2025-05-28 02:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,O3,110.0,2025-05-28 02:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM10,1.0,2025-05-28 02:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM2.5,2.0,2025-05-28 02:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,NO2,1.0,2025-05-28 02:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,O3,28.0,2025-05-28 02:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,PM2.5,13.0,2025-05-28 02:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,NO2,10.0,2025-05-28 02:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,O3,23.0,2025-05-28 02:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,PM2.5,12.0,2025-05-28 02:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,NO2,35.0,2025-05-28 02:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,O3,90.0,2025-05-28 02:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,PM10,7.0,2025-05-28 02:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,PM10,16.0,2025-05-28 02:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,O3,35.0,2025-05-28 02:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,NO2,2.0,2025-05-28 02:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,NO2,1.0,2025-05-28 02:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,O3,20.0,2025-05-28 02:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,PM2.5,11.0,2025-05-28 02:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,NO2,36.0,2025-05-28 02:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,O3,89.0,2025-05-28 02:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM10,5.0,2025-05-28 02:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM2.5,3.0,2025-05-28 02:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,NO2,2.0,2025-05-28 02:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,O3,49.0,2025-05-28 02:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM10,34.0,2025-05-28 02:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM2.5,3.0,2025-05-28 02:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,NO2,15.0,2025-05-28 02:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,O3,37.0,2025-05-28 02:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,PM10,17.0,2025-05-28 02:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,NO2,13.0,2025-05-28 02:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,O3,17.0,2025-05-28 02:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,PM10,21.0,2025-05-28 02:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,NO2,6.0,2025-05-28 02:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,O3,68.0,2025-05-28 02:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,PM10,12.0,2025-05-28 02:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM2.5,20.0,2025-05-28 02:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM10,30.0,2025-05-28 03:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,O3,36.0,2025-05-28 03:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,NO2,13.0,2025-05-28 03:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,NO2,14.0,2025-05-28 03:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM10,21.0,2025-05-28 03:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,O3,50.0,2025-05-28 03:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM2.5,11.0,2025-05-28 03:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM2.5,11.0,2025-05-28 03:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,NO2,24.0,2025-05-28 03:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,O3,86.0,2025-05-28 03:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,PM2.5,11.0,2025-05-28 03:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,NO2,27.0,2025-05-28 03:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,PM10,18.0,2025-05-28 03:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,PM10,12.0,2025-05-28 03:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,NO2,4.0,2025-05-28 03:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,O3,83.0,2025-05-28 03:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,PM2.5,10.0,2025-05-28 03:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,NO2,8.0,2025-05-28 03:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,O3,48.0,2025-05-28 03:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,O3,22.0,2025-05-28 03:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,O3,57.0,2025-05-28 03:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,PM10,18.0,2025-05-28 03:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,PM10,16.0,2025-05-28 03:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM10,8.0,2025-05-28 03:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,PM10,14.0,2025-05-28 03:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,NO2,8.0,2025-05-28 03:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,O3,69.0,2025-05-28 03:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,PM2.5,7.0,2025-05-28 03:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,NO2,3.0,2025-05-28 03:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,O3,78.0,2025-05-28 03:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,PM10,9.0,2025-05-28 03:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,NO2,4.0,2025-05-28 03:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,O3,32.0,2025-05-28 03:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM10,29.0,2025-05-28 03:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM2.5,15.0,2025-05-28 03:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,O3,76.0,2025-05-28 03:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,O3,70.0,2025-05-28 03:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,PM2.5,12.0,2025-05-28 03:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,NO2,8.0,2025-05-28 03:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,O3,35.0,2025-05-28 03:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,NO2,2.0,2025-05-28 03:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,O3,70.0,2025-05-28 03:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,NO2,6.0,2025-05-28 03:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,NO2,26.0,2025-05-28 03:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM2.5,6.0,2025-05-28 03:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,O3,26.0,2025-05-28 03:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,PM10,15.0,2025-05-28 03:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,NO2,5.0,2025-05-28 03:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,O3,58.0,2025-05-28 03:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,PM10,28.0,2025-05-28 03:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,NO2,13.0,2025-05-28 03:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,O3,107.0,2025-05-28 03:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM10,3.0,2025-05-28 03:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,NO2,1.0,2025-05-28 03:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,O3,69.0,2025-05-28 03:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,O3,28.0,2025-05-28 03:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,NO2,8.0,2025-05-28 03:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,O3,29.0,2025-05-28 03:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,PM2.5,14.0,2025-05-28 03:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,NO2,38.0,2025-05-28 03:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,O3,98.0,2025-05-28 03:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,PM10,9.0,2025-05-28 03:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,NO2,2.0,2025-05-28 03:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,NO2,3.0,2025-05-28 03:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,PM2.5,12.0,2025-05-28 03:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,NO2,4.0,2025-05-28 03:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM2.5,3.0,2025-05-28 03:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,O3,32.0,2025-05-28 03:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,PM2.5,15.0,2025-05-28 03:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,PM10,15.0,2025-05-28 03:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,NO2,40.0,2025-05-28 03:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,O3,90.0,2025-05-28 03:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM10,7.0,2025-05-28 03:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM2.5,5.0,2025-05-28 03:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,NO2,2.0,2025-05-28 03:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM10,28.0,2025-05-28 03:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM2.5,10.0,2025-05-28 03:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,NO2,11.0,2025-05-28 03:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,O3,46.0,2025-05-28 03:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,PM10,11.0,2025-05-28 03:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,PM10,18.0,2025-05-28 03:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,NO2,16.0,2025-05-28 03:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,O3,10.0,2025-05-28 03:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,PM10,19.0,2025-05-28 03:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,NO2,6.0,2025-05-28 03:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,O3,66.0,2025-05-28 03:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,O3,35.0,2025-05-28 03:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,NO2,1.0,2025-05-28 03:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,O3,36.0,2025-05-28 04:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,NO2,10.0,2025-05-28 04:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM2.5,10.0,2025-05-28 04:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,PM10,18.0,2025-05-28 04:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,O3,54.0,2025-05-28 04:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,NO2,36.0,2025-05-28 04:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM10,22.0,2025-05-28 04:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM10,17.0,2025-05-28 04:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM2.5,8.0,2025-05-28 04:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,NO2,16.0,2025-05-28 04:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,O3,14.0,2025-05-28 04:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,PM2.5,8.0,2025-05-28 04:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,NO2,39.0,2025-05-28 04:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,O3,78.0,2025-05-28 04:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,PM10,13.0,2025-05-28 04:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,NO2,9.0,2025-05-28 04:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,O3,64.0,2025-05-28 04:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,PM2.5,8.0,2025-05-28 04:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,O3,33.0,2025-05-28 04:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,NO2,22.0,2025-05-28 04:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,NO2,6.0,2025-05-28 04:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,O3,57.0,2025-05-28 04:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,O3,66.0,2025-05-28 04:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,O3,43.0,2025-05-28 04:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,PM10,10.0,2025-05-28 04:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,NO2,15.0,2025-05-28 04:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,O3,70.0,2025-05-28 04:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,PM2.5,6.0,2025-05-28 04:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,NO2,2.0,2025-05-28 04:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,O3,76.0,2025-05-28 04:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,PM10,10.0,2025-05-28 04:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,NO2,4.0,2025-05-28 04:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,O3,35.0,2025-05-28 04:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM10,27.0,2025-05-28 04:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM2.5,15.0,2025-05-28 04:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,NO2,31.0,2025-05-28 04:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,O3,60.0,2025-05-28 04:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,PM2.5,13.0,2025-05-28 04:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,NO2,12.0,2025-05-28 04:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,O3,24.0,2025-05-28 04:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,PM10,18.0,2025-05-28 04:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,NO2,2.0,2025-05-28 04:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,PM10,13.0,2025-05-28 04:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM10,10.0,2025-05-28 04:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,NO2,6.0,2025-05-28 04:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,NO2,3.0,2025-05-28 04:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,PM10,14.0,2025-05-28 04:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,NO2,6.0,2025-05-28 04:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,O3,53.0,2025-05-28 04:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,PM10,14.0,2025-05-28 04:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,NO2,11.0,2025-05-28 04:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,O3,102.0,2025-05-28 04:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM10,6.0,2025-05-28 04:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM2.5,8.0,2025-05-28 04:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,O3,69.0,2025-05-28 04:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,NO2,1.0,2025-05-28 04:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,PM2.5,11.0,2025-05-28 04:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,NO2,7.0,2025-05-28 04:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,O3,33.0,2025-05-28 04:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,PM2.5,16.0,2025-05-28 04:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,NO2,36.0,2025-05-28 04:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,O3,92.0,2025-05-28 04:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,PM10,10.0,2025-05-28 04:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM2.5,7.0,2025-05-28 04:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,O3,42.0,2025-05-28 04:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,PM10,18.0,2025-05-28 04:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,NO2,2.0,2025-05-28 04:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,NO2,1.0,2025-05-28 04:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,O3,31.0,2025-05-28 04:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,PM2.5,17.0,2025-05-28 04:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,NO2,31.0,2025-05-28 04:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,O3,79.0,2025-05-28 04:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM10,7.0,2025-05-28 04:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM2.5,4.0,2025-05-28 04:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,O3,28.0,2025-05-28 04:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,O3,44.0,2025-05-28 04:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM10,23.0,2025-05-28 04:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM2.5,1.0,2025-05-28 04:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,NO2,2.0,2025-05-28 04:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,O3,29.0,2025-05-28 04:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,PM10,18.0,2025-05-28 04:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,NO2,15.0,2025-05-28 04:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,O3,19.0,2025-05-28 04:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,PM10,16.0,2025-05-28 04:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,NO2,5.0,2025-05-28 04:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,O3,55.0,2025-05-28 04:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,PM10,9.0,2025-05-28 04:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,NO2,20.0,2025-05-28 04:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM10,19.0,2025-05-28 05:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,O3,22.0,2025-05-28 05:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,NO2,24.0,2025-05-28 05:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,O3,37.0,2025-05-28 05:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,NO2,31.0,2025-05-28 05:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM10,18.0,2025-05-28 05:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM2.5,9.0,2025-05-28 05:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM2.5,10.0,2025-05-28 05:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,PM2.5,9.0,2025-05-28 05:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,O3,12.0,2025-05-28 05:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,PM2.5,6.0,2025-05-28 05:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,NO2,47.0,2025-05-28 05:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,O3,44.0,2025-05-28 05:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,PM10,13.0,2025-05-28 05:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,NO2,31.0,2025-05-28 05:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,O3,68.0,2025-05-28 05:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,PM10,19.0,2025-05-28 05:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,NO2,13.0,2025-05-28 05:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,NO2,40.0,2025-05-28 05:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,O3,40.0,2025-05-28 05:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM2.5,12.0,2025-05-28 05:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,PM10,12.0,2025-05-28 05:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,O3,29.0,2025-05-28 05:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,O3,53.0,2025-05-28 05:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,PM10,13.0,2025-05-28 05:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,O3,84.0,2025-05-28 05:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,PM2.5,3.0,2025-05-28 05:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,NO2,3.0,2025-05-28 05:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,O3,67.0,2025-05-28 05:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,PM10,12.0,2025-05-28 05:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,NO2,12.0,2025-05-28 05:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,O3,30.0,2025-05-28 05:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM10,21.0,2025-05-28 05:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,NO2,39.0,2025-05-28 05:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,O3,44.0,2025-05-28 05:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,PM2.5,18.0,2025-05-28 05:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,NO2,26.0,2025-05-28 05:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,O3,23.0,2025-05-28 05:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,PM10,17.0,2025-05-28 05:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,NO2,5.0,2025-05-28 05:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,O3,55.0,2025-05-28 05:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,NO2,14.0,2025-05-28 05:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM10,10.0,2025-05-28 05:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,NO2,31.0,2025-05-28 05:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,NO2,3.0,2025-05-28 05:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,O3,65.0,2025-05-28 05:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,PM10,13.0,2025-05-28 05:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,NO2,9.0,2025-05-28 05:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,O3,50.0,2025-05-28 05:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,PM10,11.0,2025-05-28 05:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,NO2,16.0,2025-05-28 05:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,O3,98.0,2025-05-28 05:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM10,6.0,2025-05-28 05:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,NO2,8.0,2025-05-28 05:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM2.5,7.0,2025-05-28 05:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,O3,26.0,2025-05-28 05:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,PM2.5,11.0,2025-05-28 05:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,NO2,18.0,2025-05-28 05:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,O3,27.0,2025-05-28 05:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,PM2.5,16.0,2025-05-28 05:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,NO2,42.0,2025-05-28 05:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,O3,89.0,2025-05-28 05:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,PM10,10.0,2025-05-28 05:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,NO2,1.0,2025-05-28 05:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,PM10,21.0,2025-05-28 05:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,NO2,2.0,2025-05-28 05:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,NO2,3.0,2025-05-28 05:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,O3,27.0,2025-05-28 05:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,O3,29.0,2025-05-28 05:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,PM2.5,17.0,2025-05-28 05:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,NO2,33.0,2025-05-28 05:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,O3,85.0,2025-05-28 05:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM10,6.0,2025-05-28 05:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM2.5,3.0,2025-05-28 05:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,NO2,2.0,2025-05-28 05:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,O3,36.0,2025-05-28 05:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM10,21.0,2025-05-28 05:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM2.5,6.0,2025-05-28 05:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,NO2,24.0,2025-05-28 05:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,O3,22.0,2025-05-28 05:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,PM10,19.0,2025-05-28 05:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,NO2,20.0,2025-05-28 05:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,O3,15.0,2025-05-28 05:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,PM10,14.0,2025-05-28 05:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,NO2,3.0,2025-05-28 05:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,O3,55.0,2025-05-28 05:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,PM10,9.0,2025-05-28 05:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM2.5,5.0,2025-05-28 05:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,NO2,53.0,2025-05-28 06:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM2.5,8.0,2025-05-28 06:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM10,19.0,2025-05-28 06:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM10,19.0,2025-05-28 06:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,NO2,29.0,2025-05-28 06:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM2.5,9.0,2025-05-28 06:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,O3,13.0,2025-05-28 06:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,O3,4.0,2025-05-28 06:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,PM10,16.0,2025-05-28 06:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,NO2,62.0,2025-05-28 06:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,O3,37.0,2025-05-28 06:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,O3,33.0,2025-05-28 06:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,NO2,43.0,2025-05-28 06:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,O3,69.0,2025-05-28 06:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,PM2.5,11.0,2025-05-28 06:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,NO2,11.0,2025-05-28 06:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,O3,47.0,2025-05-28 06:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM10,9.0,2025-05-28 06:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,PM2.5,8.0,2025-05-28 06:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,NO2,51.0,2025-05-28 06:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,O3,46.0,2025-05-28 06:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,O3,24.0,2025-05-28 06:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM2.5,5.0,2025-05-28 06:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,O3,53.0,2025-05-28 06:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,PM2.5,4.0,2025-05-28 06:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,NO2,16.0,2025-05-28 06:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,O3,58.0,2025-05-28 06:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,PM10,11.0,2025-05-28 06:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,NO2,21.0,2025-05-28 06:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,O3,33.0,2025-05-28 06:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,PM10,18.0,2025-05-28 06:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM10,23.0,2025-05-28 06:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,NO2,41.0,2025-05-28 06:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,PM2.5,10.0,2025-05-28 06:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,NO2,32.0,2025-05-28 06:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,O3,11.0,2025-05-28 06:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,PM10,17.0,2025-05-28 06:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,NO2,16.0,2025-05-28 06:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,PM10,12.0,2025-05-28 06:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,NO2,24.0,2025-05-28 06:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM2.5,11.0,2025-05-28 06:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,O3,40.0,2025-05-28 06:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,O3,30.0,2025-05-28 06:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,PM2.5,16.0,2025-05-28 06:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,PM10,16.0,2025-05-28 06:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,NO2,22.0,2025-05-28 06:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,O3,34.0,2025-05-28 06:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,PM10,10.0,2025-05-28 06:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,NO2,31.0,2025-05-28 06:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,O3,96.0,2025-05-28 06:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM10,7.0,2025-05-28 06:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,NO2,1.0,2025-05-28 06:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,O3,57.0,2025-05-28 06:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,O3,10.0,2025-05-28 06:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,NO2,41.0,2025-05-28 06:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,O3,16.0,2025-05-28 06:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,PM2.5,15.0,2025-05-28 06:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,NO2,54.0,2025-05-28 06:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,O3,83.0,2025-05-28 06:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,PM10,10.0,2025-05-28 06:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,NO2,2.0,2025-05-28 06:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,NO2,3.0,2025-05-28 06:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,PM2.5,11.0,2025-05-28 06:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,NO2,8.0,2025-05-28 06:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM2.5,5.0,2025-05-28 06:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,O3,26.0,2025-05-28 06:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,PM10,19.0,2025-05-28 06:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,O3,92.0,2025-05-28 06:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM10,8.0,2025-05-28 06:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM2.5,3.0,2025-05-28 06:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,NO2,1.0,2025-05-28 06:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,O3,23.0,2025-05-28 06:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM10,20.0,2025-05-28 06:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM2.5,5.0,2025-05-28 06:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,NO2,41.0,2025-05-28 06:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,NO2,35.0,2025-05-28 06:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,PM10,19.0,2025-05-28 06:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,O3,16.0,2025-05-28 06:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,PM10,10.0,2025-05-28 06:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,O3,60.0,2025-05-28 06:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,NO2,6.0,2025-05-28 06:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,NO2,3.0,2025-05-28 06:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,O3,12.0,2025-05-28 06:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,NO2,31.0,2025-05-28 06:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,PM10,14.0,2025-05-28 06:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,NO2,49.0,2025-05-28 07:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM10,28.0,2025-05-28 07:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM2.5,10.0,2025-05-28 07:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,NO2,40.0,2025-05-28 07:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,O3,22.0,2025-05-28 07:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM10,21.0,2025-05-28 07:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,O3,23.0,2025-05-28 07:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM2.5,14.0,2025-05-28 07:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,O3,16.0,2025-05-28 07:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,PM10,18.0,2025-05-28 07:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,NO2,57.0,2025-05-28 07:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,O3,53.0,2025-05-28 07:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,NO2,39.0,2025-05-28 07:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,PM2.5,10.0,2025-05-28 07:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,NO2,25.0,2025-05-28 07:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,O3,55.0,2025-05-28 07:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM10,11.0,2025-05-28 07:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,NO2,49.0,2025-05-28 07:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,PM2.5,11.0,2025-05-28 07:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,PM10,19.0,2025-05-28 07:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM2.5,4.0,2025-05-28 07:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,NO2,20.0,2025-05-28 07:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,O3,64.0,2025-05-28 07:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,PM2.5,6.0,2025-05-28 07:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,NO2,6.0,2025-05-28 07:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,O3,64.0,2025-05-28 07:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,PM10,14.0,2025-05-28 07:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,NO2,16.0,2025-05-28 07:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,O3,27.0,2025-05-28 07:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM10,23.0,2025-05-28 07:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,O3,30.0,2025-05-28 07:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM2.5,11.0,2025-05-28 07:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,O3,40.0,2025-05-28 07:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,PM2.5,7.0,2025-05-28 07:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,NO2,36.0,2025-05-28 07:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,O3,27.0,2025-05-28 07:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,PM10,19.0,2025-05-28 07:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,NO2,14.0,2025-05-28 07:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,O3,56.0,2025-05-28 07:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,PM10,14.0,2025-05-28 07:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,NO2,49.0,2025-05-28 07:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,NO2,4.0,2025-05-28 07:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,NO2,1.0,2025-05-28 07:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,PM2.5,13.0,2025-05-28 07:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,PM10,14.0,2025-05-28 07:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,NO2,17.0,2025-05-28 07:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,O3,33.0,2025-05-28 07:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,PM10,11.0,2025-05-28 07:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,NO2,37.0,2025-05-28 07:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,O3,98.0,2025-05-28 07:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM10,5.0,2025-05-28 07:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM2.5,5.0,2025-05-28 07:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,O3,37.0,2025-05-28 07:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,O3,35.0,2025-05-28 07:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,PM2.5,9.0,2025-05-28 07:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,NO2,34.0,2025-05-28 07:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,O3,30.0,2025-05-28 07:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,PM2.5,15.0,2025-05-28 07:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,NO2,42.0,2025-05-28 07:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,O3,73.0,2025-05-28 07:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,PM10,12.0,2025-05-28 07:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,O3,60.0,2025-05-28 07:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,NO2,11.0,2025-05-28 07:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,NO2,2.0,2025-05-28 07:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,O3,26.0,2025-05-28 07:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,PM10,24.0,2025-05-28 07:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,NO2,34.0,2025-05-28 07:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,O3,79.0,2025-05-28 07:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM10,8.0,2025-05-28 07:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM2.5,4.0,2025-05-28 07:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,NO2,3.0,2025-05-28 07:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM10,21.0,2025-05-28 07:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM2.5,9.0,2025-05-28 07:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,NO2,26.0,2025-05-28 07:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,O3,38.0,2025-05-28 07:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,PM10,21.0,2025-05-28 07:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,NO2,29.0,2025-05-28 07:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,NO2,3.0,2025-05-28 07:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,O3,45.0,2025-05-28 07:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,PM10,19.0,2025-05-28 07:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,NO2,4.0,2025-05-28 07:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,O3,58.0,2025-05-28 07:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,PM10,13.0,2025-05-28 07:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,O3,30.0,2025-05-28 07:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,NO2,33.0,2025-05-28 08:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM2.5,12.0,2025-05-28 08:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,PM10,19.0,2025-05-28 08:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,O3,36.0,2025-05-28 08:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,NO2,40.0,2025-05-28 08:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,O3,26.0,2025-05-28 08:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM10,25.0,2025-05-28 08:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM10,25.0,2025-05-28 08:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,O3,66.0,2025-05-28 08:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,NO2,50.0,2025-05-28 08:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,O3,52.0,2025-05-28 08:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,PM2.5,21.0,2025-05-28 08:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,NO2,36.0,2025-05-28 08:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,O3,77.0,2025-05-28 08:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,PM10,17.0,2025-05-28 08:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,NO2,18.0,2025-05-28 08:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,O3,43.0,2025-05-28 08:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM2.5,15.0,2025-05-28 08:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,NO2,12.0,2025-05-28 08:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM2.5,10.0,2025-05-28 08:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,O3,65.0,2025-05-28 08:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM10,10.0,2025-05-28 08:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,PM10,24.0,2025-05-28 08:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,NO2,43.0,2025-05-28 08:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,O3,70.0,2025-05-28 08:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,PM2.5,6.0,2025-05-28 08:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,NO2,6.0,2025-05-28 08:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,O3,70.0,2025-05-28 08:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,PM10,13.0,2025-05-28 08:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,PM10,17.0,2025-05-28 08:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,NO2,12.0,2025-05-28 08:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM10,23.0,2025-05-28 08:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,NO2,48.0,2025-05-28 08:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,O3,41.0,2025-05-28 08:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,PM2.5,7.0,2025-05-28 08:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,NO2,42.0,2025-05-28 08:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,O3,50.0,2025-05-28 08:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,PM10,20.0,2025-05-28 08:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,NO2,14.0,2025-05-28 08:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,O3,39.0,2025-05-28 08:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM2.5,2.0,2025-05-28 08:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,NO2,3.0,2025-05-28 08:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,O3,60.0,2025-05-28 08:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,O3,72.0,2025-05-28 08:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,PM10,12.0,2025-05-28 08:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,NO2,10.0,2025-05-28 08:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,O3,42.0,2025-05-28 08:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,PM10,14.0,2025-05-28 08:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,NO2,34.0,2025-05-28 08:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM10,9.0,2025-05-28 08:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,NO2,1.0,2025-05-28 08:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,O3,48.0,2025-05-28 08:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,PM2.5,8.0,2025-05-28 08:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,NO2,27.0,2025-05-28 08:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,O3,36.0,2025-05-28 08:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,PM2.5,17.0,2025-05-28 08:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,NO2,43.0,2025-05-28 08:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,O3,68.0,2025-05-28 08:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,PM10,12.0,2025-05-28 08:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,NO2,3.0,2025-05-28 08:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,NO2,9.0,2025-05-28 08:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,PM10,26.0,2025-05-28 08:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM2.5,9.0,2025-05-28 08:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,NO2,6.0,2025-05-28 08:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,O3,47.0,2025-05-28 08:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,NO2,21.0,2025-05-28 08:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,O3,86.0,2025-05-28 08:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM10,9.0,2025-05-28 08:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM2.5,2.0,2025-05-28 08:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,O3,46.0,2025-05-28 08:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM10,18.0,2025-05-28 08:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM2.5,9.0,2025-05-28 08:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,NO2,25.0,2025-05-28 08:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,PM2.5,13.0,2025-05-28 08:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,PM10,27.0,2025-05-28 08:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,NO2,24.0,2025-05-28 08:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,O3,60.0,2025-05-28 08:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,PM10,20.0,2025-05-28 08:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,NO2,6.0,2025-05-28 08:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,O3,57.0,2025-05-28 08:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,PM10,19.0,2025-05-28 08:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,O3,45.0,2025-05-28 08:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,O3,54.0,2025-05-28 09:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,NO2,27.0,2025-05-28 09:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM2.5,15.0,2025-05-28 09:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,PM10,24.0,2025-05-28 09:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,O3,53.0,2025-05-28 09:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,NO2,33.0,2025-05-28 09:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,O3,47.0,2025-05-28 09:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM10,29.0,2025-05-28 09:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM10,30.0,2025-05-28 09:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,PM2.5,20.0,2025-05-28 09:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,NO2,35.0,2025-05-28 09:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,O3,85.0,2025-05-28 09:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,NO2,18.0,2025-05-28 09:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,O3,86.0,2025-05-28 09:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,PM10,16.0,2025-05-28 09:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,NO2,12.0,2025-05-28 09:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,O3,86.0,2025-05-28 09:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM2.5,13.0,2025-05-28 09:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,NO2,11.0,2025-05-28 09:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,PM10,25.0,2025-05-28 09:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,O3,74.0,2025-05-28 09:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,O3,79.0,2025-05-28 09:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,NO2,43.0,2025-05-28 09:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,O3,82.0,2025-05-28 09:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,PM2.5,7.0,2025-05-28 09:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,NO2,4.0,2025-05-28 09:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,O3,80.0,2025-05-28 09:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,PM10,13.0,2025-05-28 09:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,NO2,8.0,2025-05-28 09:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,PM10,16.0,2025-05-28 09:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,O3,56.0,2025-05-28 09:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM2.5,10.0,2025-05-28 09:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,NO2,39.0,2025-05-28 09:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,O3,53.0,2025-05-28 09:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,PM2.5,17.0,2025-05-28 09:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,NO2,41.0,2025-05-28 09:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,O3,81.0,2025-05-28 09:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,PM10,23.0,2025-05-28 09:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,NO2,5.0,2025-05-28 09:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM10,26.0,2025-05-28 09:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM10,10.0,2025-05-28 09:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,NO2,1.0,2025-05-28 09:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,NO2,5.0,2025-05-28 09:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,NO2,4.0,2025-05-28 09:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,O3,84.0,2025-05-28 09:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,PM10,17.0,2025-05-28 09:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,NO2,7.0,2025-05-28 09:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,O3,64.0,2025-05-28 09:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,PM10,16.0,2025-05-28 09:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,NO2,23.0,2025-05-28 09:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM2.5,11.0,2025-05-28 09:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,O3,66.0,2025-05-28 09:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,PM2.5,9.0,2025-05-28 09:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,NO2,23.0,2025-05-28 09:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,O3,60.0,2025-05-28 09:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,PM2.5,18.0,2025-05-28 09:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,NO2,28.0,2025-05-28 09:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,O3,88.0,2025-05-28 09:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,PM10,11.0,2025-05-28 09:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM2.5,5.0,2025-05-28 09:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,PM10,22.0,2025-05-28 09:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,O3,79.0,2025-05-28 09:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM10,21.0,2025-05-28 09:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,PM10,31.0,2025-05-28 09:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,NO2,8.0,2025-05-28 09:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,PM2.5,12.0,2025-05-28 09:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,NO2,12.0,2025-05-28 09:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,O3,87.0,2025-05-28 09:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM10,10.0,2025-05-28 09:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM2.5,1.0,2025-05-28 09:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,O3,75.0,2025-05-28 09:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM10,20.0,2025-05-28 09:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM2.5,10.0,2025-05-28 09:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,O3,81.0,2025-05-28 09:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,O3,52.0,2025-05-28 09:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,O3,54.0,2025-05-28 09:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,PM10,34.0,2025-05-28 09:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,NO2,23.0,2025-05-28 09:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,O3,80.0,2025-05-28 09:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,PM10,17.0,2025-05-28 09:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,NO2,4.0,2025-05-28 09:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,NO2,15.0,2025-05-28 09:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,NO2,23.0,2025-05-28 10:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM2.5,12.0,2025-05-28 10:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM10,30.0,2025-05-28 10:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,O3,65.0,2025-05-28 10:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,NO2,33.0,2025-05-28 10:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,O3,67.0,2025-05-28 10:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,PM10,27.0,2025-05-28 10:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,O3,72.0,2025-05-28 10:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM10,30.0,2025-05-28 10:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,NO2,12.0,2025-05-28 10:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,NO2,29.0,2025-05-28 10:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,O3,93.0,2025-05-28 10:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,PM2.5,13.0,2025-05-28 10:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,O3,93.0,2025-05-28 10:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,PM10,16.0,2025-05-28 10:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,NO2,11.0,2025-05-28 10:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,O3,78.0,2025-05-28 10:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,PM2.5,4.0,2025-05-28 10:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM2.5,23.0,2025-05-28 10:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,NO2,13.0,2025-05-28 10:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,PM10,28.0,2025-05-28 10:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,O3,85.0,2025-05-28 10:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,O3,91.0,2025-05-28 10:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,NO2,37.0,2025-05-28 10:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,O3,98.0,2025-05-28 10:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,PM2.5,8.0,2025-05-28 10:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,NO2,3.0,2025-05-28 10:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,O3,92.0,2025-05-28 10:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,PM10,12.0,2025-05-28 10:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,NO2,11.0,2025-05-28 10:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,PM10,16.0,2025-05-28 10:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,O3,68.0,2025-05-28 10:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM2.5,11.0,2025-05-28 10:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,NO2,35.0,2025-05-28 10:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,O3,72.0,2025-05-28 10:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,PM2.5,27.0,2025-05-28 10:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,NO2,34.0,2025-05-28 10:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,O3,92.0,2025-05-28 10:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,PM10,19.0,2025-05-28 10:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,NO2,2.0,2025-05-28 10:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM10,29.0,2025-05-28 10:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM10,14.0,2025-05-28 10:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,O3,96.0,2025-05-28 10:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,NO2,8.0,2025-05-28 10:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,O3,92.0,2025-05-28 10:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,PM10,14.0,2025-05-28 10:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,NO2,6.0,2025-05-28 10:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,O3,87.0,2025-05-28 10:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,PM10,16.0,2025-05-28 10:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,NO2,19.0,2025-05-28 10:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,O3,113.0,2025-05-28 10:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM10,42.0,2025-05-28 10:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,NO2,4.0,2025-05-28 10:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM2.5,44.0,2025-05-28 10:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,PM2.5,7.0,2025-05-28 10:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,NO2,23.0,2025-05-28 10:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,O3,85.0,2025-05-28 10:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,PM2.5,17.0,2025-05-28 10:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,NO2,18.0,2025-05-28 10:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,O3,93.0,2025-05-28 10:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,PM10,12.0,2025-05-28 10:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,NO2,1.0,2025-05-28 10:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,O3,80.0,2025-05-28 10:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,PM10,20.0,2025-05-28 10:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM2.5,8.0,2025-05-28 10:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,NO2,4.0,2025-05-28 10:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,O3,92.0,2025-05-28 10:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,PM2.5,10.0,2025-05-28 10:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,NO2,8.0,2025-05-28 10:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,O3,94.0,2025-05-28 10:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM10,10.0,2025-05-28 10:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,O3,87.0,2025-05-28 10:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,O3,92.0,2025-05-28 10:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM10,21.0,2025-05-28 10:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM2.5,15.0,2025-05-28 10:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM2.5,1.0,2025-05-28 10:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,O3,78.0,2025-05-28 10:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,PM10,36.0,2025-05-28 10:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,NO2,19.0,2025-05-28 10:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,O3,94.0,2025-05-28 10:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,PM10,13.0,2025-05-28 10:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,NO2,5.0,2025-05-28 10:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,O3,75.0,2025-05-28 10:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,PM10,33.0,2025-05-28 10:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,NO2,15.0,2025-05-28 10:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,O3,95.0,2025-05-28 11:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,NO2,18.0,2025-05-28 11:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM2.5,10.0,2025-05-28 11:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,PM10,28.0,2025-05-28 11:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,O3,96.0,2025-05-28 11:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,NO2,25.0,2025-05-28 11:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM10,21.0,2025-05-28 11:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM10,30.0,2025-05-28 11:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,PM2.5,4.0,2025-05-28 11:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,NO2,23.0,2025-05-28 11:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,O3,102.0,2025-05-28 11:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,PM2.5,7.0,2025-05-28 11:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,NO2,7.0,2025-05-28 11:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,O3,102.0,2025-05-28 11:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,PM10,13.0,2025-05-28 11:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,NO2,7.0,2025-05-28 11:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,O3,105.0,2025-05-28 11:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,O3,93.0,2025-05-28 11:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM2.5,17.0,2025-05-28 11:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,NO2,12.0,2025-05-28 11:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM2.5,11.0,2025-05-28 11:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,O3,92.0,2025-05-28 11:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,O3,101.0,2025-05-28 11:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,PM10,28.0,2025-05-28 11:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,NO2,27.0,2025-05-28 11:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,O3,105.0,2025-05-28 11:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,PM2.5,4.0,2025-05-28 11:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,NO2,3.0,2025-05-28 11:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,O3,104.0,2025-05-28 11:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,PM10,14.0,2025-05-28 11:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,PM10,15.0,2025-05-28 11:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,NO2,17.0,2025-05-28 11:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM10,35.0,2025-05-28 11:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,NO2,32.0,2025-05-28 11:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,O3,94.0,2025-05-28 11:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,PM2.5,32.0,2025-05-28 11:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,NO2,24.0,2025-05-28 11:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,O3,97.0,2025-05-28 11:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,PM10,15.0,2025-05-28 11:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,NO2,2.0,2025-05-28 11:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,O3,84.0,2025-05-28 11:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM10,18.0,2025-05-28 11:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,O3,99.0,2025-05-28 11:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,NO2,13.0,2025-05-28 11:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,O3,102.0,2025-05-28 11:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,PM10,21.0,2025-05-28 11:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,NO2,5.0,2025-05-28 11:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,O3,103.0,2025-05-28 11:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,PM10,20.0,2025-05-28 11:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,NO2,19.0,2025-05-28 11:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,O3,117.0,2025-05-28 11:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM10,26.0,2025-05-28 11:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,NO2,4.0,2025-05-28 11:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM2.5,10.0,2025-05-28 11:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,PM2.5,5.0,2025-05-28 11:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,NO2,23.0,2025-05-28 11:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,O3,112.0,2025-05-28 11:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,PM2.5,16.0,2025-05-28 11:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,NO2,16.0,2025-05-28 11:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,O3,104.0,2025-05-28 11:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,PM10,13.0,2025-05-28 11:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,NO2,1.0,2025-05-28 11:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,O3,99.0,2025-05-28 11:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,PM10,13.0,2025-05-28 11:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM2.5,11.0,2025-05-28 11:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,NO2,2.0,2025-05-28 11:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,O3,103.0,2025-05-28 11:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,PM2.5,9.0,2025-05-28 11:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,NO2,7.0,2025-05-28 11:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM10,9.0,2025-05-28 11:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM2.5,1.0,2025-05-28 11:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,O3,101.0,2025-05-28 11:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,O3,122.0,2025-05-28 11:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM10,20.0,2025-05-28 11:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM2.5,9.0,2025-05-28 11:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,NO2,9.0,2025-05-28 11:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,O3,103.0,2025-05-28 11:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,PM10,37.0,2025-05-28 11:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,NO2,15.0,2025-05-28 11:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,O3,104.0,2025-05-28 11:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,PM10,11.0,2025-05-28 11:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,NO2,8.0,2025-05-28 11:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,O3,90.0,2025-05-28 11:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,PM10,26.0,2025-05-28 11:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,NO2,18.0,2025-05-28 11:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,O3,103.0,2025-05-28 12:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,NO2,10.0,2025-05-28 12:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM2.5,10.0,2025-05-28 12:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,PM10,28.0,2025-05-28 12:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,O3,111.0,2025-05-28 12:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,NO2,14.0,2025-05-28 12:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM10,27.0,2025-05-28 12:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM10,29.0,2025-05-28 12:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,PM2.5,5.0,2025-05-28 12:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,NO2,19.0,2025-05-28 12:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,O3,104.0,2025-05-28 12:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,PM2.5,3.0,2025-05-28 12:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,NO2,9.0,2025-05-28 12:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,O3,108.0,2025-05-28 12:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,PM10,13.0,2025-05-28 12:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,NO2,9.0,2025-05-28 12:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,O3,112.0,2025-05-28 12:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,O3,114.0,2025-05-28 12:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM2.5,20.0,2025-05-28 12:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,NO2,17.0,2025-05-28 12:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM2.5,11.0,2025-05-28 12:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,O3,103.0,2025-05-28 12:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,NO2,6.0,2025-05-28 12:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,PM10,18.0,2025-05-28 12:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,NO2,11.0,2025-05-28 12:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,O3,115.0,2025-05-28 12:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,PM2.5,5.0,2025-05-28 12:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,NO2,4.0,2025-05-28 12:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,O3,117.0,2025-05-28 12:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,PM10,29.0,2025-05-28 12:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,PM10,12.0,2025-05-28 12:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,NO2,12.0,2025-05-28 12:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM10,37.0,2025-05-28 12:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,NO2,20.0,2025-05-28 12:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,O3,112.0,2025-05-28 12:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,PM2.5,28.0,2025-05-28 12:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,NO2,11.0,2025-05-28 12:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,O3,99.0,2025-05-28 12:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,PM10,11.0,2025-05-28 12:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,NO2,2.0,2025-05-28 12:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,O3,105.0,2025-05-28 12:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,O3,121.0,2025-05-28 12:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,O3,120.0,2025-05-28 12:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM2.5,10.0,2025-05-28 12:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,O3,117.0,2025-05-28 12:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,PM10,15.0,2025-05-28 12:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,NO2,11.0,2025-05-28 12:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,O3,122.0,2025-05-28 12:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,PM10,23.0,2025-05-28 12:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,NO2,10.0,2025-05-28 12:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,O3,119.0,2025-05-28 12:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM2.5,1.0,2025-05-28 12:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,NO2,4.0,2025-05-28 12:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,O3,110.0,2025-05-28 12:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,NO2,16.0,2025-05-28 12:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,O3,119.0,2025-05-28 12:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,PM2.5,16.0,2025-05-28 12:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,NO2,9.0,2025-05-28 12:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,O3,106.0,2025-05-28 12:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,PM10,12.0,2025-05-28 12:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,NO2,1.0,2025-05-28 12:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM10,19.0,2025-05-28 12:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,PM2.5,5.0,2025-05-28 12:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,PM10,11.0,2025-05-28 12:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM10,14.0,2025-05-28 12:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,NO2,3.0,2025-05-28 12:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,O3,105.0,2025-05-28 12:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,O3,112.0,2025-05-28 12:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,PM2.5,11.0,2025-05-28 12:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,NO2,9.0,2025-05-28 12:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM10,10.0,2025-05-28 12:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM2.5,9.0,2025-05-28 12:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,NO2,1.0,2025-05-28 12:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,O3,128.0,2025-05-28 12:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM10,22.0,2025-05-28 12:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,NO2,8.0,2025-05-28 12:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,NO2,11.0,2025-05-28 12:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM2.5,13.0,2025-05-28 12:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,O3,96.0,2025-05-28 12:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,NO2,11.0,2025-05-28 12:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,PM10,7.0,2025-05-28 12:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,PM10,19.0,2025-05-28 12:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,NO2,10.0,2025-05-28 12:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,PM10,33.0,2025-05-28 12:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,O3,114.0,2025-05-28 12:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,O3,113.0,2025-05-28 13:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,PM10,25.0,2025-05-28 13:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,NO2,9.0,2025-05-28 13:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,O3,118.0,2025-05-28 13:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM10,20.0,2025-05-28 13:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM2.5,6.0,2025-05-28 13:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,O3,119.0,2025-05-28 13:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,NO2,7.0,2025-05-28 13:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM10,27.0,2025-05-28 13:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,PM2.5,2.0,2025-05-28 13:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,NO2,12.0,2025-05-28 13:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,O3,106.0,2025-05-28 13:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,NO2,8.0,2025-05-28 13:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,O3,112.0,2025-05-28 13:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,PM10,13.0,2025-05-28 13:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,NO2,6.0,2025-05-28 13:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,O3,113.0,2025-05-28 13:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,NO2,11.0,2025-05-28 13:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM2.5,18.0,2025-05-28 13:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,PM10,13.0,2025-05-28 13:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,PM2.5,5.0,2025-05-28 13:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,NO2,2.0,2025-05-28 13:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,O3,132.0,2025-05-28 13:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,PM10,15.0,2025-05-28 13:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,NO2,6.0,2025-05-28 13:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,O3,125.0,2025-05-28 13:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,PM2.5,6.0,2025-05-28 13:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,NO2,9.0,2025-05-28 13:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,O3,121.0,2025-05-28 13:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,PM10,29.0,2025-05-28 13:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,O3,119.0,2025-05-28 13:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,NO2,6.0,2025-05-28 13:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM10,32.0,2025-05-28 13:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM2.5,11.0,2025-05-28 13:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,NO2,13.0,2025-05-28 13:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,O3,123.0,2025-05-28 13:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,PM2.5,27.0,2025-05-28 13:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,NO2,8.0,2025-05-28 13:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,O3,108.0,2025-05-28 13:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,PM10,10.0,2025-05-28 13:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,O3,117.0,2025-05-28 13:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,NO2,6.0,2025-05-28 13:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,NO2,7.0,2025-05-28 13:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM10,17.0,2025-05-28 13:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,O3,119.0,2025-05-28 13:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,PM10,18.0,2025-05-28 13:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,NO2,8.0,2025-05-28 13:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,O3,121.0,2025-05-28 13:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,PM10,22.0,2025-05-28 13:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,NO2,9.0,2025-05-28 13:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,O3,121.0,2025-05-28 13:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM10,9.0,2025-05-28 13:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,NO2,3.0,2025-05-28 13:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,NO2,1.0,2025-05-28 13:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,PM2.5,7.0,2025-05-28 13:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,NO2,11.0,2025-05-28 13:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,O3,118.0,2025-05-28 13:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,PM2.5,16.0,2025-05-28 13:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,NO2,7.0,2025-05-28 13:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,O3,111.0,2025-05-28 13:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,PM10,11.0,2025-05-28 13:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,NO2,1.0,2025-05-28 13:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,O3,118.0,2025-05-28 13:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,PM10,11.0,2025-05-28 13:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM2.5,1.0,2025-05-28 13:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,NO2,3.0,2025-05-28 13:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,O3,109.0,2025-05-28 13:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM2.5,9.0,2025-05-28 13:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,NO2,3.0,2025-05-28 13:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,O3,113.0,2025-05-28 13:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,PM2.5,12.0,2025-05-28 13:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,NO2,6.0,2025-05-28 13:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM10,9.0,2025-05-28 13:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM2.5,21.0,2025-05-28 13:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,NO2,1.0,2025-05-28 13:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,O3,107.0,2025-05-28 13:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,O3,97.0,2025-05-28 13:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM10,21.0,2025-05-28 13:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM2.5,7.0,2025-05-28 13:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,O3,114.0,2025-05-28 13:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,O3,129.0,2025-05-28 13:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,PM10,6.0,2025-05-28 13:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,NO2,7.0,2025-05-28 13:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,O3,127.0,2025-05-28 13:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,PM10,11.0,2025-05-28 13:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM2.5,1.0,2025-05-28 14:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM10,20.0,2025-05-28 14:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,O3,134.0,2025-05-28 14:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,NO2,11.0,2025-05-28 14:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,PM10,18.0,2025-05-28 14:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,O3,118.0,2025-05-28 14:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,NO2,10.0,2025-05-28 14:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,NO2,9.0,2025-05-28 14:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,O3,129.0,2025-05-28 14:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,O3,117.0,2025-05-28 14:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM2.5,8.0,2025-05-28 14:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,NO2,13.0,2025-05-28 14:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,O3,108.0,2025-05-28 14:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,PM2.5,5.0,2025-05-28 14:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,NO2,9.0,2025-05-28 14:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,O3,124.0,2025-05-28 14:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,PM10,13.0,2025-05-28 14:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,NO2,8.0,2025-05-28 14:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,PM10,16.0,2025-05-28 14:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM10,25.0,2025-05-28 14:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,O3,127.0,2025-05-28 14:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,O3,131.0,2025-05-28 14:00:00,V
+Getafe,Comunidad de Madrid,40.314577,-3.716879,O3,129.0,2025-05-28 14:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,PM2.5,7.0,2025-05-28 14:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,PM10,9.0,2025-05-28 14:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,NO2,6.0,2025-05-28 14:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,O3,142.0,2025-05-28 14:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,PM2.5,7.0,2025-05-28 14:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,NO2,8.0,2025-05-28 14:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,O3,124.0,2025-05-28 14:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,PM10,23.0,2025-05-28 14:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,NO2,4.0,2025-05-28 14:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,O3,124.0,2025-05-28 14:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM10,25.0,2025-05-28 14:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM2.5,13.0,2025-05-28 14:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,NO2,12.0,2025-05-28 14:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,O3,127.0,2025-05-28 14:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,PM2.5,24.0,2025-05-28 14:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,NO2,6.0,2025-05-28 14:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,O3,113.0,2025-05-28 14:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,PM10,9.0,2025-05-28 14:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,NO2,2.0,2025-05-28 14:00:00,V
+Getafe,Comunidad de Madrid,40.314577,-3.716879,NO2,7.0,2025-05-28 14:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,O3,115.0,2025-05-28 14:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,NO2,4.0,2025-05-28 14:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM2.5,10.0,2025-05-28 14:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,NO2,4.0,2025-05-28 14:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,O3,118.0,2025-05-28 14:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,PM10,17.0,2025-05-28 14:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,NO2,9.0,2025-05-28 14:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,O3,140.0,2025-05-28 14:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,PM10,19.0,2025-05-28 14:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,NO2,12.0,2025-05-28 14:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,O3,120.0,2025-05-28 14:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM10,3.0,2025-05-28 14:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,PM10,10.0,2025-05-28 14:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM2.5,1.0,2025-05-28 14:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,O3,122.0,2025-05-28 14:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,PM2.5,7.0,2025-05-28 14:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,NO2,7.0,2025-05-28 14:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,O3,119.0,2025-05-28 14:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,PM2.5,14.0,2025-05-28 14:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,NO2,8.0,2025-05-28 14:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,O3,121.0,2025-05-28 14:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,PM10,10.0,2025-05-28 14:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM10,16.0,2025-05-28 14:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,NO2,1.0,2025-05-28 14:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,O3,112.0,2025-05-28 14:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,NO2,1.0,2025-05-28 14:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,PM10,11.0,2025-05-28 14:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,NO2,2.0,2025-05-28 14:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,NO2,3.0,2025-05-28 14:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,O3,117.0,2025-05-28 14:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,PM2.5,12.0,2025-05-28 14:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,NO2,5.0,2025-05-28 14:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,O3,110.0,2025-05-28 14:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM2.5,25.0,2025-05-28 14:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,NO2,2.0,2025-05-28 14:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,O3,142.0,2025-05-28 14:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM10,11.0,2025-05-28 14:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM2.5,1.0,2025-05-28 14:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,NO2,10.0,2025-05-28 14:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,O3,131.0,2025-05-28 14:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,O3,90.0,2025-05-28 14:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,PM10,34.0,2025-05-28 14:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,NO2,4.0,2025-05-28 14:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,O3,130.0,2025-05-28 14:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,PM10,7.0,2025-05-28 14:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,NO2,3.0,2025-05-28 14:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM10,21.0,2025-05-28 14:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,NO2,14.0,2025-05-28 15:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM2.5,2.0,2025-05-28 15:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM10,19.0,2025-05-28 15:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,O3,121.0,2025-05-28 15:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,NO2,7.0,2025-05-28 15:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,PM10,15.0,2025-05-28 15:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,O3,133.0,2025-05-28 15:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,O3,146.0,2025-05-28 15:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM10,24.0,2025-05-28 15:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,PM2.5,7.0,2025-05-28 15:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,NO2,11.0,2025-05-28 15:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,O3,106.0,2025-05-28 15:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,PM2.5,9.0,2025-05-28 15:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,NO2,7.0,2025-05-28 15:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,O3,116.0,2025-05-28 15:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,PM10,15.0,2025-05-28 15:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,NO2,6.0,2025-05-28 15:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,O3,122.0,2025-05-28 15:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,NO2,7.0,2025-05-28 15:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM2.5,8.0,2025-05-28 15:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,PM10,15.0,2025-05-28 15:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM2.5,13.0,2025-05-28 15:00:00,V
+Getafe,Comunidad de Madrid,40.314577,-3.716879,NO2,8.0,2025-05-28 15:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,NO2,4.0,2025-05-28 15:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,O3,130.0,2025-05-28 15:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,PM10,14.0,2025-05-28 15:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,NO2,6.0,2025-05-28 15:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,O3,136.0,2025-05-28 15:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,PM2.5,9.0,2025-05-28 15:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,NO2,6.0,2025-05-28 15:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,O3,122.0,2025-05-28 15:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,PM10,19.0,2025-05-28 15:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,O3,121.0,2025-05-28 15:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,NO2,5.0,2025-05-28 15:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM10,23.0,2025-05-28 15:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,NO2,10.0,2025-05-28 15:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,O3,123.0,2025-05-28 15:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,PM2.5,21.0,2025-05-28 15:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,NO2,5.0,2025-05-28 15:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,O3,117.0,2025-05-28 15:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,PM10,13.0,2025-05-28 15:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,NO2,3.0,2025-05-28 15:00:00,V
+Getafe,Comunidad de Madrid,40.314577,-3.716879,O3,128.0,2025-05-28 15:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,O3,122.0,2025-05-28 15:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,O3,113.0,2025-05-28 15:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,NO2,2.0,2025-05-28 15:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM2.5,9.0,2025-05-28 15:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,NO2,3.0,2025-05-28 15:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,O3,117.0,2025-05-28 15:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,PM10,17.0,2025-05-28 15:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,NO2,9.0,2025-05-28 15:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,O3,153.0,2025-05-28 15:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,PM10,20.0,2025-05-28 15:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,NO2,11.0,2025-05-28 15:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,O3,119.0,2025-05-28 15:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM2.5,1.0,2025-05-28 15:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,NO2,1.0,2025-05-28 15:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,O3,118.0,2025-05-28 15:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,PM2.5,7.0,2025-05-28 15:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,NO2,12.0,2025-05-28 15:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,O3,121.0,2025-05-28 15:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,PM2.5,14.0,2025-05-28 15:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,NO2,9.0,2025-05-28 15:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,O3,129.0,2025-05-28 15:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,PM10,13.0,2025-05-28 15:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM10,15.0,2025-05-28 15:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,PM10,9.0,2025-05-28 15:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,O3,119.0,2025-05-28 15:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM10,4.0,2025-05-28 15:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,PM10,12.0,2025-05-28 15:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,NO2,2.0,2025-05-28 15:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,O3,119.0,2025-05-28 15:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,PM2.5,11.0,2025-05-28 15:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,NO2,6.0,2025-05-28 15:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,O3,112.0,2025-05-28 15:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM10,10.0,2025-05-28 15:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM2.5,21.0,2025-05-28 15:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,NO2,1.0,2025-05-28 15:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,O3,156.0,2025-05-28 15:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM10,22.0,2025-05-28 15:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,NO2,2.0,2025-05-28 15:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,NO2,9.0,2025-05-28 15:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,O3,152.0,2025-05-28 15:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,PM10,27.0,2025-05-28 15:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,NO2,7.0,2025-05-28 15:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,O3,131.0,2025-05-28 15:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,PM10,11.0,2025-05-28 15:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,NO2,2.0,2025-05-28 15:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,O3,91.0,2025-05-28 15:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM2.5,4.0,2025-05-28 15:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,PM10,16.0,2025-05-28 16:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM2.5,7.0,2025-05-28 16:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM10,23.0,2025-05-28 16:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,O3,157.0,2025-05-28 16:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,NO2,7.0,2025-05-28 16:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,PM10,12.0,2025-05-28 16:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,O3,119.0,2025-05-28 16:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,NO2,9.0,2025-05-28 16:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,NO2,8.0,2025-05-28 16:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,O3,137.0,2025-05-28 16:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,PM2.5,10.0,2025-05-28 16:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM2.5,10.0,2025-05-28 16:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,NO2,12.0,2025-05-28 16:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,O3,106.0,2025-05-28 16:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,NO2,9.0,2025-05-28 16:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,O3,116.0,2025-05-28 16:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,PM10,15.0,2025-05-28 16:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,NO2,6.0,2025-05-28 16:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,O3,137.0,2025-05-28 16:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM10,21.0,2025-05-28 16:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,O3,120.0,2025-05-28 16:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,NO2,6.0,2025-05-28 16:00:00,V
+Getafe,Comunidad de Madrid,40.314577,-3.716879,O3,125.0,2025-05-28 16:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,O3,129.0,2025-05-28 16:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,PM10,11.0,2025-05-28 16:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,NO2,4.0,2025-05-28 16:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,O3,138.0,2025-05-28 16:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,PM2.5,11.0,2025-05-28 16:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,NO2,6.0,2025-05-28 16:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,O3,120.0,2025-05-28 16:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,PM10,16.0,2025-05-28 16:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,NO2,4.0,2025-05-28 16:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,O3,118.0,2025-05-28 16:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM10,20.0,2025-05-28 16:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM2.5,11.0,2025-05-28 16:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,NO2,11.0,2025-05-28 16:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,O3,120.0,2025-05-28 16:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,PM2.5,17.0,2025-05-28 16:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,NO2,5.0,2025-05-28 16:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,O3,117.0,2025-05-28 16:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,PM10,16.0,2025-05-28 16:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,NO2,2.0,2025-05-28 16:00:00,V
+Getafe,Comunidad de Madrid,40.314577,-3.716879,NO2,8.0,2025-05-28 16:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,O3,109.0,2025-05-28 16:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,PM2.5,4.0,2025-05-28 16:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM2.5,8.0,2025-05-28 16:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,NO2,4.0,2025-05-28 16:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,O3,111.0,2025-05-28 16:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,PM10,17.0,2025-05-28 16:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,NO2,13.0,2025-05-28 16:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,O3,150.0,2025-05-28 16:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,PM10,20.0,2025-05-28 16:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,NO2,9.0,2025-05-28 16:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,O3,120.0,2025-05-28 16:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM10,6.0,2025-05-28 16:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM2.5,3.0,2025-05-28 16:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,NO2,1.0,2025-05-28 16:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,O3,112.0,2025-05-28 16:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,PM2.5,7.0,2025-05-28 16:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,NO2,13.0,2025-05-28 16:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,O3,123.0,2025-05-28 16:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,PM2.5,13.0,2025-05-28 16:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,NO2,10.0,2025-05-28 16:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,O3,149.0,2025-05-28 16:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,PM10,13.0,2025-05-28 16:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,PM10,11.0,2025-05-28 16:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,O3,129.0,2025-05-28 16:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,NO2,3.0,2025-05-28 16:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,PM10,9.0,2025-05-28 16:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,NO2,2.0,2025-05-28 16:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,NO2,1.0,2025-05-28 16:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM10,12.0,2025-05-28 16:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,O3,123.0,2025-05-28 16:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,PM2.5,10.0,2025-05-28 16:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,NO2,5.0,2025-05-28 16:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM10,9.0,2025-05-28 16:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM2.5,15.0,2025-05-28 16:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,NO2,2.0,2025-05-28 16:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,O3,156.0,2025-05-28 16:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,O3,114.0,2025-05-28 16:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM2.5,4.0,2025-05-28 16:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,NO2,8.0,2025-05-28 16:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,O3,153.0,2025-05-28 16:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,O3,89.0,2025-05-28 16:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,PM10,18.0,2025-05-28 16:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,NO2,8.0,2025-05-28 16:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,O3,132.0,2025-05-28 16:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,PM10,14.0,2025-05-28 16:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,NO2,3.0,2025-05-28 16:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM10,22.0,2025-05-28 16:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,NO2,10.0,2025-05-28 17:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM2.5,10.0,2025-05-28 17:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM10,22.0,2025-05-28 17:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,O3,116.0,2025-05-28 17:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,NO2,12.0,2025-05-28 17:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,PM10,10.0,2025-05-28 17:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,O3,133.0,2025-05-28 17:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,O3,157.0,2025-05-28 17:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM10,21.0,2025-05-28 17:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,PM2.5,4.0,2025-05-28 17:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,NO2,10.0,2025-05-28 17:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,O3,101.0,2025-05-28 17:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,PM2.5,8.0,2025-05-28 17:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,NO2,13.0,2025-05-28 17:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,O3,117.0,2025-05-28 17:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,PM10,14.0,2025-05-28 17:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,NO2,5.0,2025-05-28 17:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,O3,151.0,2025-05-28 17:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,NO2,6.0,2025-05-28 17:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM2.5,13.0,2025-05-28 17:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,PM10,17.0,2025-05-28 17:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,NO2,14.0,2025-05-28 17:00:00,V
+Getafe,Comunidad de Madrid,40.314577,-3.716879,NO2,10.0,2025-05-28 17:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,NO2,7.0,2025-05-28 17:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,PM10,10.0,2025-05-28 17:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,NO2,4.0,2025-05-28 17:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,O3,136.0,2025-05-28 17:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,PM2.5,11.0,2025-05-28 17:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,NO2,6.0,2025-05-28 17:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,O3,117.0,2025-05-28 17:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,PM10,15.0,2025-05-28 17:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,NO2,4.0,2025-05-28 17:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,O3,118.0,2025-05-28 17:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,O3,114.0,2025-05-28 17:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM2.5,9.0,2025-05-28 17:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,O3,119.0,2025-05-28 17:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,PM2.5,10.0,2025-05-28 17:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,NO2,5.0,2025-05-28 17:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,O3,113.0,2025-05-28 17:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,PM10,17.0,2025-05-28 17:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,NO2,2.0,2025-05-28 17:00:00,V
+Getafe,Comunidad de Madrid,40.314577,-3.716879,O3,123.0,2025-05-28 17:00:00,V
+Getafe,Comunidad de Madrid,40.314577,-3.716879,PM10,31.0,2025-05-28 17:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM10,17.0,2025-05-28 17:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,O3,102.0,2025-05-28 17:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,O3,127.0,2025-05-28 17:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM2.5,7.0,2025-05-28 17:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,O3,106.0,2025-05-28 17:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,PM10,17.0,2025-05-28 17:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,NO2,15.0,2025-05-28 17:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,O3,147.0,2025-05-28 17:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,PM10,21.0,2025-05-28 17:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,NO2,9.0,2025-05-28 17:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,O3,123.0,2025-05-28 17:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM10,6.0,2025-05-28 17:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM2.5,6.0,2025-05-28 17:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,NO2,1.0,2025-05-28 17:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,O3,107.0,2025-05-28 17:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,PM2.5,5.0,2025-05-28 17:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,NO2,15.0,2025-05-28 17:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,O3,120.0,2025-05-28 17:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,PM2.5,13.0,2025-05-28 17:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,NO2,11.0,2025-05-28 17:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,O3,164.0,2025-05-28 17:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,PM10,15.0,2025-05-28 17:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,NO2,4.0,2025-05-28 17:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,NO2,6.0,2025-05-28 17:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,PM10,14.0,2025-05-28 17:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM10,11.0,2025-05-28 17:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,NO2,3.0,2025-05-28 17:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,O3,129.0,2025-05-28 17:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,NO2,2.0,2025-05-28 17:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,O3,125.0,2025-05-28 17:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,PM2.5,9.0,2025-05-28 17:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,NO2,5.0,2025-05-28 17:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,O3,114.0,2025-05-28 17:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM2.5,10.0,2025-05-28 17:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,NO2,2.0,2025-05-28 17:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,O3,157.0,2025-05-28 17:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM10,23.0,2025-05-28 17:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM10,8.0,2025-05-28 17:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,NO2,10.0,2025-05-28 17:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,O3,150.0,2025-05-28 17:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,PM10,13.0,2025-05-28 17:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,PM10,8.0,2025-05-28 17:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,NO2,6.0,2025-05-28 17:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,O3,127.0,2025-05-28 17:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,PM10,15.0,2025-05-28 17:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,NO2,2.0,2025-05-28 17:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,O3,86.0,2025-05-28 17:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM2.5,9.0,2025-05-28 17:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,NO2,12.0,2025-05-28 18:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM2.5,11.0,2025-05-28 18:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM10,21.0,2025-05-28 18:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,O3,116.0,2025-05-28 18:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,NO2,9.0,2025-05-28 18:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,PM10,11.0,2025-05-28 18:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,O3,131.0,2025-05-28 18:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,O3,155.0,2025-05-28 18:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM10,20.0,2025-05-28 18:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,PM2.5,6.0,2025-05-28 18:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,NO2,11.0,2025-05-28 18:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,O3,98.0,2025-05-28 18:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,PM2.5,7.0,2025-05-28 18:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,NO2,18.0,2025-05-28 18:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,O3,114.0,2025-05-28 18:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,PM10,15.0,2025-05-28 18:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,NO2,5.0,2025-05-28 18:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,O3,145.0,2025-05-28 18:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,NO2,7.0,2025-05-28 18:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM2.5,12.0,2025-05-28 18:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,PM10,16.0,2025-05-28 18:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,NO2,21.0,2025-05-28 18:00:00,V
+Getafe,Comunidad de Madrid,40.314577,-3.716879,NO2,12.0,2025-05-28 18:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,NO2,7.0,2025-05-28 18:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,PM10,10.0,2025-05-28 18:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,NO2,5.0,2025-05-28 18:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,O3,137.0,2025-05-28 18:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,PM2.5,10.0,2025-05-28 18:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,NO2,6.0,2025-05-28 18:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,O3,112.0,2025-05-28 18:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,PM10,14.0,2025-05-28 18:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,NO2,4.0,2025-05-28 18:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,O3,115.0,2025-05-28 18:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,O3,105.0,2025-05-28 18:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM2.5,9.0,2025-05-28 18:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,O3,115.0,2025-05-28 18:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,PM2.5,15.0,2025-05-28 18:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,NO2,5.0,2025-05-28 18:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,O3,110.0,2025-05-28 18:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,PM10,16.0,2025-05-28 18:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,NO2,2.0,2025-05-28 18:00:00,V
+Getafe,Comunidad de Madrid,40.314577,-3.716879,O3,116.0,2025-05-28 18:00:00,V
+Getafe,Comunidad de Madrid,40.314577,-3.716879,PM10,23.0,2025-05-28 18:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM10,15.0,2025-05-28 18:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,O3,126.0,2025-05-28 18:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,O3,101.0,2025-05-28 18:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM2.5,9.0,2025-05-28 18:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,O3,106.0,2025-05-28 18:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,PM10,21.0,2025-05-28 18:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,NO2,13.0,2025-05-28 18:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,O3,140.0,2025-05-28 18:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,PM10,19.0,2025-05-28 18:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,NO2,15.0,2025-05-28 18:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,O3,124.0,2025-05-28 18:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM2.5,2.0,2025-05-28 18:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,NO2,1.0,2025-05-28 18:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,O3,95.0,2025-05-28 18:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,PM2.5,7.0,2025-05-28 18:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,NO2,25.0,2025-05-28 18:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,O3,116.0,2025-05-28 18:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,PM2.5,11.0,2025-05-28 18:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,NO2,14.0,2025-05-28 18:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,O3,161.0,2025-05-28 18:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,PM10,17.0,2025-05-28 18:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,NO2,3.0,2025-05-28 18:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM10,14.0,2025-05-28 18:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,NO2,5.0,2025-05-28 18:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,PM10,12.0,2025-05-28 18:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM10,5.0,2025-05-28 18:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,NO2,3.0,2025-05-28 18:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,O3,128.0,2025-05-28 18:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,O3,123.0,2025-05-28 18:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,PM2.5,7.0,2025-05-28 18:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,NO2,6.0,2025-05-28 18:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,O3,115.0,2025-05-28 18:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM10,8.0,2025-05-28 18:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM2.5,7.0,2025-05-28 18:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,NO2,1.0,2025-05-28 18:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,O3,151.0,2025-05-28 18:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM10,24.0,2025-05-28 18:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,NO2,2.0,2025-05-28 18:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,NO2,11.0,2025-05-28 18:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM2.5,9.0,2025-05-28 18:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,O3,83.0,2025-05-28 18:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,NO2,2.0,2025-05-28 18:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,PM10,15.0,2025-05-28 18:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,PM10,5.0,2025-05-28 18:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,NO2,6.0,2025-05-28 18:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,PM10,11.0,2025-05-28 18:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,O3,143.0,2025-05-28 18:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,O3,124.0,2025-05-28 18:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,NO2,15.0,2025-05-28 19:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,PM10,14.0,2025-05-28 19:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,O3,116.0,2025-05-28 19:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,NO2,14.0,2025-05-28 19:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,O3,141.0,2025-05-28 19:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM10,22.0,2025-05-28 19:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,O3,106.0,2025-05-28 19:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM2.5,10.0,2025-05-28 19:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,O3,108.0,2025-05-28 19:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,PM2.5,6.0,2025-05-28 19:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM2.5,12.0,2025-05-28 19:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,NO2,35.0,2025-05-28 19:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,O3,90.0,2025-05-28 19:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,NO2,24.0,2025-05-28 19:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,O3,110.0,2025-05-28 19:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,PM10,14.0,2025-05-28 19:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,NO2,8.0,2025-05-28 19:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,O3,132.0,2025-05-28 19:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,NO2,8.0,2025-05-28 19:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM10,20.0,2025-05-28 19:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,PM10,19.0,2025-05-28 19:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,PM2.5,9.0,2025-05-28 19:00:00,V
+Getafe,Comunidad de Madrid,40.314577,-3.716879,NO2,22.0,2025-05-28 19:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,PM10,13.0,2025-05-28 19:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,NO2,7.0,2025-05-28 19:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,O3,135.0,2025-05-28 19:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,PM2.5,11.0,2025-05-28 19:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,NO2,8.0,2025-05-28 19:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,O3,104.0,2025-05-28 19:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,PM10,14.0,2025-05-28 19:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,NO2,10.0,2025-05-28 19:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,O3,97.0,2025-05-28 19:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,O3,112.0,2025-05-28 19:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM10,15.0,2025-05-28 19:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,NO2,24.0,2025-05-28 19:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,O3,108.0,2025-05-28 19:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,PM2.5,19.0,2025-05-28 19:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,NO2,11.0,2025-05-28 19:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,O3,97.0,2025-05-28 19:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,PM10,15.0,2025-05-28 19:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,NO2,4.0,2025-05-28 19:00:00,V
+Getafe,Comunidad de Madrid,40.314577,-3.716879,O3,98.0,2025-05-28 19:00:00,V
+Getafe,Comunidad de Madrid,40.314577,-3.716879,PM10,20.0,2025-05-28 19:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM2.5,10.0,2025-05-28 19:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,NO2,13.0,2025-05-28 19:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,PM10,16.0,2025-05-28 19:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM10,14.0,2025-05-28 19:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,O3,94.0,2025-05-28 19:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,PM10,15.0,2025-05-28 19:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,NO2,21.0,2025-05-28 19:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,O3,129.0,2025-05-28 19:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,PM10,15.0,2025-05-28 19:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,NO2,12.0,2025-05-28 19:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,O3,117.0,2025-05-28 19:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM10,3.0,2025-05-28 19:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM2.5,11.0,2025-05-28 19:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,NO2,2.0,2025-05-28 19:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,O3,85.0,2025-05-28 19:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,PM2.5,7.0,2025-05-28 19:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,NO2,30.0,2025-05-28 19:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,O3,103.0,2025-05-28 19:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,PM2.5,11.0,2025-05-28 19:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,NO2,22.0,2025-05-28 19:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,O3,157.0,2025-05-28 19:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,PM10,17.0,2025-05-28 19:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,NO2,3.0,2025-05-28 19:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,NO2,10.0,2025-05-28 19:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,PM10,13.0,2025-05-28 19:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,O3,95.0,2025-05-28 19:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,NO2,4.0,2025-05-28 19:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,O3,122.0,2025-05-28 19:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM2.5,10.0,2025-05-28 19:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,NO2,2.0,2025-05-28 19:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,O3,115.0,2025-05-28 19:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,PM2.5,7.0,2025-05-28 19:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,NO2,9.0,2025-05-28 19:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM10,8.0,2025-05-28 19:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM2.5,7.0,2025-05-28 19:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,NO2,2.0,2025-05-28 19:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,O3,137.0,2025-05-28 19:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,O3,110.0,2025-05-28 19:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM2.5,5.0,2025-05-28 19:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,NO2,13.0,2025-05-28 19:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,O3,117.0,2025-05-28 19:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,PM10,4.0,2025-05-28 19:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,PM10,13.0,2025-05-28 19:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,NO2,15.0,2025-05-28 19:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,O3,107.0,2025-05-28 19:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,NO2,3.0,2025-05-28 19:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,O3,75.0,2025-05-28 19:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM10,24.0,2025-05-28 19:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,NO2,25.0,2025-05-28 20:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM2.5,9.0,2025-05-28 20:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM10,24.0,2025-05-28 20:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,O3,83.0,2025-05-28 20:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,NO2,28.0,2025-05-28 20:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,PM10,17.0,2025-05-28 20:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,O3,91.0,2025-05-28 20:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,O3,109.0,2025-05-28 20:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM10,20.0,2025-05-28 20:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,PM2.5,13.0,2025-05-28 20:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,NO2,37.0,2025-05-28 20:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,O3,57.0,2025-05-28 20:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,PM2.5,4.0,2025-05-28 20:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,NO2,44.0,2025-05-28 20:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,O3,90.0,2025-05-28 20:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,PM10,16.0,2025-05-28 20:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,NO2,21.0,2025-05-28 20:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,O3,98.0,2025-05-28 20:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,NO2,17.0,2025-05-28 20:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM2.5,12.0,2025-05-28 20:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,PM10,19.0,2025-05-28 20:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,NO2,51.0,2025-05-28 20:00:00,V
+Getafe,Comunidad de Madrid,40.314577,-3.716879,NO2,31.0,2025-05-28 20:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,NO2,27.0,2025-05-28 20:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,PM10,13.0,2025-05-28 20:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,NO2,18.0,2025-05-28 20:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,O3,126.0,2025-05-28 20:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,PM2.5,13.0,2025-05-28 20:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,NO2,15.0,2025-05-28 20:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,O3,86.0,2025-05-28 20:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,PM10,14.0,2025-05-28 20:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,NO2,19.0,2025-05-28 20:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,O3,96.0,2025-05-28 20:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,O3,65.0,2025-05-28 20:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM2.5,10.0,2025-05-28 20:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,O3,85.0,2025-05-28 20:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,PM2.5,15.0,2025-05-28 20:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,NO2,27.0,2025-05-28 20:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,O3,66.0,2025-05-28 20:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,PM10,16.0,2025-05-28 20:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,NO2,10.0,2025-05-28 20:00:00,V
+Getafe,Comunidad de Madrid,40.314577,-3.716879,O3,80.0,2025-05-28 20:00:00,V
+Getafe,Comunidad de Madrid,40.314577,-3.716879,PM10,19.0,2025-05-28 20:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM10,16.0,2025-05-28 20:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,O3,82.0,2025-05-28 20:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,O3,95.0,2025-05-28 20:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM2.5,12.0,2025-05-28 20:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,O3,70.0,2025-05-28 20:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,PM10,19.0,2025-05-28 20:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,NO2,37.0,2025-05-28 20:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,O3,103.0,2025-05-28 20:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,PM10,16.0,2025-05-28 20:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,NO2,21.0,2025-05-28 20:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,O3,109.0,2025-05-28 20:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM10,2.0,2025-05-28 20:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM2.5,7.0,2025-05-28 20:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,NO2,2.0,2025-05-28 20:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,O3,62.0,2025-05-28 20:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,PM2.5,9.0,2025-05-28 20:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,NO2,41.0,2025-05-28 20:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,O3,73.0,2025-05-28 20:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,PM2.5,12.0,2025-05-28 20:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,NO2,38.0,2025-05-28 20:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,O3,162.0,2025-05-28 20:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,PM10,17.0,2025-05-28 20:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,NO2,3.0,2025-05-28 20:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,NO2,47.0,2025-05-28 20:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,PM10,23.0,2025-05-28 20:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM10,14.0,2025-05-28 20:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,NO2,4.0,2025-05-28 20:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,O3,64.0,2025-05-28 20:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,NO2,3.0,2025-05-28 20:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,O3,74.0,2025-05-28 20:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,PM2.5,8.0,2025-05-28 20:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,NO2,27.0,2025-05-28 20:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,O3,100.0,2025-05-28 20:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM2.5,3.0,2025-05-28 20:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,NO2,1.0,2025-05-28 20:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,O3,114.0,2025-05-28 20:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM10,28.0,2025-05-28 20:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM10,8.0,2025-05-28 20:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,NO2,18.0,2025-05-28 20:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,O3,79.0,2025-05-28 20:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,PM10,13.0,2025-05-28 20:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,PM10,5.0,2025-05-28 20:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,NO2,24.0,2025-05-28 20:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,O3,52.0,2025-05-28 20:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,PM10,21.0,2025-05-28 20:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,NO2,6.0,2025-05-28 20:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,O3,77.0,2025-05-28 20:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM2.5,9.0,2025-05-28 20:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,NO2,31.0,2025-05-28 21:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM2.5,8.0,2025-05-28 21:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM10,26.0,2025-05-28 21:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,O3,74.0,2025-05-28 21:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,NO2,28.0,2025-05-28 21:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,PM10,19.0,2025-05-28 21:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,O3,80.0,2025-05-28 21:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,O3,95.0,2025-05-28 21:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM10,22.0,2025-05-28 21:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,PM2.5,11.0,2025-05-28 21:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,NO2,31.0,2025-05-28 21:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,O3,60.0,2025-05-28 21:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,PM2.5,6.0,2025-05-28 21:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,NO2,29.0,2025-05-28 21:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,O3,93.0,2025-05-28 21:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,PM10,18.0,2025-05-28 21:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,NO2,12.0,2025-05-28 21:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,O3,58.0,2025-05-28 21:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,NO2,22.0,2025-05-28 21:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM2.5,15.0,2025-05-28 21:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,PM10,20.0,2025-05-28 21:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,NO2,56.0,2025-05-28 21:00:00,V
+Getafe,Comunidad de Madrid,40.314577,-3.716879,NO2,52.0,2025-05-28 21:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,NO2,47.0,2025-05-28 21:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,PM10,17.0,2025-05-28 21:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,NO2,46.0,2025-05-28 21:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,O3,97.0,2025-05-28 21:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,PM2.5,11.0,2025-05-28 21:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,NO2,11.0,2025-05-28 21:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,O3,80.0,2025-05-28 21:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,PM10,16.0,2025-05-28 21:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,NO2,19.0,2025-05-28 21:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,O3,82.0,2025-05-28 21:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,O3,50.0,2025-05-28 21:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM2.5,11.0,2025-05-28 21:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,O3,62.0,2025-05-28 21:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,PM2.5,9.0,2025-05-28 21:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,NO2,40.0,2025-05-28 21:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,O3,64.0,2025-05-28 21:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,PM10,19.0,2025-05-28 21:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,NO2,4.0,2025-05-28 21:00:00,V
+Getafe,Comunidad de Madrid,40.314577,-3.716879,O3,48.0,2025-05-28 21:00:00,V
+Getafe,Comunidad de Madrid,40.314577,-3.716879,PM10,20.0,2025-05-28 21:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM10,21.0,2025-05-28 21:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,O3,57.0,2025-05-28 21:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,O3,77.0,2025-05-28 21:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM2.5,10.0,2025-05-28 21:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,O3,50.0,2025-05-28 21:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,PM10,23.0,2025-05-28 21:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,NO2,45.0,2025-05-28 21:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,O3,21.0,2025-05-28 21:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,PM10,20.0,2025-05-28 21:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,NO2,92.0,2025-05-28 21:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,O3,107.0,2025-05-28 21:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM2.5,2.0,2025-05-28 21:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,NO2,2.0,2025-05-28 21:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,O3,41.0,2025-05-28 21:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,PM2.5,13.0,2025-05-28 21:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,NO2,34.0,2025-05-28 21:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,O3,67.0,2025-05-28 21:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,PM2.5,13.0,2025-05-28 21:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,NO2,40.0,2025-05-28 21:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,O3,156.0,2025-05-28 21:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,PM10,15.0,2025-05-28 21:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,NO2,3.0,2025-05-28 21:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM10,12.0,2025-05-28 21:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,NO2,59.0,2025-05-28 21:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,PM10,35.0,2025-05-28 21:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM10,1.0,2025-05-28 21:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,NO2,4.0,2025-05-28 21:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,O3,28.0,2025-05-28 21:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,O3,50.0,2025-05-28 21:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,PM2.5,8.0,2025-05-28 21:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,NO2,33.0,2025-05-28 21:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,O3,93.0,2025-05-28 21:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM10,8.0,2025-05-28 21:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM2.5,1.0,2025-05-28 21:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,NO2,2.0,2025-05-28 21:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,O3,87.0,2025-05-28 21:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM10,33.0,2025-05-28 21:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,NO2,4.0,2025-05-28 21:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,NO2,26.0,2025-05-28 21:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM2.5,9.0,2025-05-28 21:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,O3,76.0,2025-05-28 21:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,NO2,6.0,2025-05-28 21:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,PM10,26.0,2025-05-28 21:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,PM10,5.0,2025-05-28 21:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,NO2,22.0,2025-05-28 21:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,PM10,16.0,2025-05-28 21:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,O3,61.0,2025-05-28 21:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,O3,38.0,2025-05-28 21:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,NO2,44.0,2025-05-28 22:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,O3,73.0,2025-05-28 22:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,PM10,23.0,2025-05-28 22:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,NO2,21.0,2025-05-28 22:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,O3,73.0,2025-05-28 22:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM10,28.0,2025-05-28 22:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,NO2,12.0,2025-05-28 22:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM2.5,11.0,2025-05-28 22:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,O3,21.0,2025-05-28 22:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,PM2.5,8.0,2025-05-28 22:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM2.5,20.0,2025-05-28 22:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,NO2,95.0,2025-05-28 22:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,O3,36.0,2025-05-28 22:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,NO2,46.0,2025-05-28 22:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,O3,94.0,2025-05-28 22:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,PM10,19.0,2025-05-28 22:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,NO2,11.0,2025-05-28 22:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,O3,16.0,2025-05-28 22:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,O3,56.0,2025-05-28 22:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM10,28.0,2025-05-28 22:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,PM10,19.0,2025-05-28 22:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,PM2.5,14.0,2025-05-28 22:00:00,V
+Getafe,Comunidad de Madrid,40.314577,-3.716879,NO2,76.0,2025-05-28 22:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,PM10,21.0,2025-05-28 22:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,NO2,39.0,2025-05-28 22:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,O3,94.0,2025-05-28 22:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,PM2.5,6.0,2025-05-28 22:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,NO2,5.0,2025-05-28 22:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,O3,63.0,2025-05-28 22:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,PM10,21.0,2025-05-28 22:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,NO2,29.0,2025-05-28 22:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,O3,33.0,2025-05-28 22:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,O3,85.0,2025-05-28 22:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM10,25.0,2025-05-28 22:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,NO2,62.0,2025-05-28 22:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,O3,61.0,2025-05-28 22:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,PM2.5,8.0,2025-05-28 22:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,NO2,33.0,2025-05-28 22:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,O3,55.0,2025-05-28 22:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,PM10,21.0,2025-05-28 22:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,NO2,5.0,2025-05-28 22:00:00,V
+Getafe,Comunidad de Madrid,40.314577,-3.716879,O3,11.0,2025-05-28 22:00:00,V
+Getafe,Comunidad de Madrid,40.314577,-3.716879,PM10,25.0,2025-05-28 22:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM2.5,12.0,2025-05-28 22:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,NO2,66.0,2025-05-28 22:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,PM10,7.0,2025-05-28 22:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM10,11.0,2025-05-28 22:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,NO2,18.0,2025-05-28 22:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,O3,52.0,2025-05-28 22:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,PM10,26.0,2025-05-28 22:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,NO2,37.0,2025-05-28 22:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,O3,31.0,2025-05-28 22:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,PM10,22.0,2025-05-28 22:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,NO2,66.0,2025-05-28 22:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,O3,107.0,2025-05-28 22:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM2.5,11.0,2025-05-28 22:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,NO2,2.0,2025-05-28 22:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,O3,34.0,2025-05-28 22:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,PM2.5,17.0,2025-05-28 22:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,NO2,32.0,2025-05-28 22:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,O3,73.0,2025-05-28 22:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,PM2.5,13.0,2025-05-28 22:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,NO2,24.0,2025-05-28 22:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,O3,151.0,2025-05-28 22:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,PM10,15.0,2025-05-28 22:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,NO2,3.0,2025-05-28 22:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,PM10,39.0,2025-05-28 22:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,O3,56.0,2025-05-28 22:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM10,3.0,2025-05-28 22:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,O3,69.0,2025-05-28 22:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,NO2,3.0,2025-05-28 22:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM2.5,7.0,2025-05-28 22:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,NO2,3.0,2025-05-28 22:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,O3,30.0,2025-05-28 22:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,PM2.5,12.0,2025-05-28 22:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,NO2,39.0,2025-05-28 22:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,O3,96.0,2025-05-28 22:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM10,10.0,2025-05-28 22:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM2.5,5.0,2025-05-28 22:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,NO2,2.0,2025-05-28 22:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,O3,66.0,2025-05-28 22:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM10,40.0,2025-05-28 22:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,O3,79.0,2025-05-28 22:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,PM10,26.0,2025-05-28 22:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,O3,45.0,2025-05-28 22:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,NO2,16.0,2025-05-28 22:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,NO2,4.0,2025-05-28 22:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,O3,70.0,2025-05-28 22:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,NO2,24.0,2025-05-28 22:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM2.5,6.0,2025-05-28 22:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,PM10,17.0,2025-05-28 22:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM2.5,14.0,2025-05-28 23:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,NO2,9.0,2025-05-28 23:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,O3,62.0,2025-05-28 23:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,PM10,25.0,2025-05-28 23:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,NO2,26.0,2025-05-28 23:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,O3,64.0,2025-05-28 23:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,PM10,18.0,2025-05-28 23:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM10,31.0,2025-05-28 23:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,NO2,21.0,2025-05-28 23:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,O3,48.0,2025-05-28 23:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM10,35.0,2025-05-28 23:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM2.5,24.0,2025-05-28 23:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,NO2,40.0,2025-05-28 23:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,PM2.5,10.0,2025-05-28 23:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,NO2,28.0,2025-05-28 23:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,O3,92.0,2025-05-28 23:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,PM10,18.0,2025-05-28 23:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,NO2,6.0,2025-05-28 23:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,O3,80.0,2025-05-28 23:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,O3,45.0,2025-05-28 23:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,O3,59.0,2025-05-28 23:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,O3,63.0,2025-05-28 23:00:00,V
+Getafe,Comunidad de Madrid,40.314577,-3.716879,PM10,29.0,2025-05-28 23:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,PM2.5,34.0,2025-05-28 23:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,PM10,21.0,2025-05-28 23:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,NO2,24.0,2025-05-28 23:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,O3,89.0,2025-05-28 23:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,PM2.5,5.0,2025-05-28 23:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,NO2,3.0,2025-05-28 23:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,O3,81.0,2025-05-28 23:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,PM10,19.0,2025-05-28 23:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,NO2,13.0,2025-05-28 23:00:00,V
+Getafe,Comunidad de Madrid,40.314577,-3.716879,PM2.5,8.0,2025-05-28 23:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,O3,16.0,2025-05-28 23:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM2.5,14.0,2025-05-28 23:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,NO2,71.0,2025-05-28 23:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,O3,67.0,2025-05-28 23:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,PM2.5,9.0,2025-05-28 23:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,NO2,21.0,2025-05-28 23:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,O3,50.0,2025-05-28 23:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,PM10,22.0,2025-05-28 23:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,NO2,4.0,2025-05-28 23:00:00,V
+Getafe,Comunidad de Madrid,40.314577,-3.716879,O3,15.0,2025-05-28 23:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM10,30.0,2025-05-28 23:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,NO2,41.0,2025-05-28 23:00:00,V
+Getafe,Comunidad de Madrid,40.314577,-3.716879,NO2,73.0,2025-05-28 23:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM10,13.0,2025-05-28 23:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,NO2,9.0,2025-05-28 23:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,O3,86.0,2025-05-28 23:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,PM10,18.0,2025-05-28 23:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,NO2,9.0,2025-05-28 23:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,O3,57.0,2025-05-28 23:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,PM10,23.0,2025-05-28 23:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,NO2,38.0,2025-05-28 23:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,O3,106.0,2025-05-28 23:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,O3,62.0,2025-05-28 23:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,PM10,30.0,2025-05-28 23:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM2.5,6.0,2025-05-28 23:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,O3,38.0,2025-05-28 23:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,PM2.5,19.0,2025-05-28 23:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,NO2,25.0,2025-05-28 23:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,O3,40.0,2025-05-28 23:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,PM2.5,14.0,2025-05-28 23:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,NO2,43.0,2025-05-28 23:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,O3,136.0,2025-05-28 23:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,PM10,14.0,2025-05-28 23:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,NO2,2.0,2025-05-28 23:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,NO2,2.0,2025-05-28 23:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,O3,59.0,2025-05-28 23:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM10,3.0,2025-05-28 23:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,PM10,9.0,2025-05-28 23:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,NO2,4.0,2025-05-28 23:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM2.5,6.0,2025-05-28 23:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,NO2,4.0,2025-05-28 23:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,O3,48.0,2025-05-28 23:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,PM2.5,14.0,2025-05-28 23:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,NO2,22.0,2025-05-28 23:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM10,10.0,2025-05-28 23:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM2.5,7.0,2025-05-28 23:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,NO2,2.0,2025-05-28 23:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,O3,72.0,2025-05-28 23:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,O3,95.0,2025-05-28 23:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM2.5,11.0,2025-05-28 23:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM10,41.0,2025-05-28 23:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,NO2,4.0,2025-05-28 23:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,PM10,22.0,2025-05-28 23:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,O3,56.0,2025-05-28 23:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,O3,60.0,2025-05-28 23:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,PM10,17.0,2025-05-28 23:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,O3,63.0,2025-05-28 23:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,NO2,19.0,2025-05-28 23:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,NO2,16.0,2025-05-28 23:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,NO2,14.0,2025-05-29 00:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,NO2,6.0,2025-05-29 00:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,O3,55.0,2025-05-29 00:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,PM10,25.0,2025-05-29 00:00:00,V
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,NO2,28.0,2025-05-29 00:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,O3,57.0,2025-05-29 00:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM10,22.0,2025-05-29 00:00:00,V
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM2.5,15.0,2025-05-29 00:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,O3,56.0,2025-05-29 00:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,PM2.5,31.0,2025-05-29 00:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM2.5,15.0,2025-05-29 00:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,NO2,20.0,2025-05-29 00:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,O3,51.0,2025-05-29 00:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,PM2.5,8.0,2025-05-29 00:00:00,V
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,NO2,20.0,2025-05-29 00:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,O3,90.0,2025-05-29 00:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,PM10,17.0,2025-05-29 00:00:00,V
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,NO2,5.0,2025-05-29 00:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,O3,97.0,2025-05-29 00:00:00,V
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM10,38.0,2025-05-29 00:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,PM10,14.0,2025-05-29 00:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,NO2,15.0,2025-05-29 00:00:00,V
+Getafe,Comunidad de Madrid,40.314577,-3.716879,NO2,51.0,2025-05-29 00:00:00,V
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,NO2,16.0,2025-05-29 00:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,O3,89.0,2025-05-29 00:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,PM2.5,3.0,2025-05-29 00:00:00,V
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,NO2,2.0,2025-05-29 00:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,O3,85.0,2025-05-29 00:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,PM10,16.0,2025-05-29 00:00:00,V
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,NO2,6.0,2025-05-29 00:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,O3,38.0,2025-05-29 00:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM10,32.0,2025-05-29 00:00:00,V
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,O3,78.0,2025-05-29 00:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM2.5,16.0,2025-05-29 00:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,O3,72.0,2025-05-29 00:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,PM2.5,12.0,2025-05-29 00:00:00,V
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,NO2,15.0,2025-05-29 00:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,O3,46.0,2025-05-29 00:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,PM10,20.0,2025-05-29 00:00:00,V
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,NO2,3.0,2025-05-29 00:00:00,V
+Getafe,Comunidad de Madrid,40.314577,-3.716879,O3,34.0,2025-05-29 00:00:00,V
+Getafe,Comunidad de Madrid,40.314577,-3.716879,PM10,29.0,2025-05-29 00:00:00,V
+Getafe,Comunidad de Madrid,40.314577,-3.716879,PM2.5,7.0,2025-05-29 00:00:00,V
+Leganés,Comunidad de Madrid,40.339762,-3.754508,NO2,43.0,2025-05-29 00:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,O3,65.0,2025-05-29 00:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,NO2,3.0,2025-05-29 00:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM2.5,8.0,2025-05-29 00:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,PM10,16.0,2025-05-29 00:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,NO2,8.0,2025-05-29 00:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,O3,74.0,2025-05-29 00:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,PM10,21.0,2025-05-29 00:00:00,V
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,NO2,14.0,2025-05-29 00:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,O3,106.0,2025-05-29 00:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM10,4.0,2025-05-29 00:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM2.5,12.0,2025-05-29 00:00:00,V
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,NO2,2.0,2025-05-29 00:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,O3,41.0,2025-05-29 00:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,PM2.5,16.0,2025-05-29 00:00:00,V
+Pozuelo de Alarcón,Comunidad de Madrid,40.446611,-3.808,NO2,18.0,2025-05-29 00:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,O3,13.0,2025-05-29 00:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,PM2.5,15.0,2025-05-29 00:00:00,V
+Parla,Comunidad de Madrid,40.245917,-3.771389,NO2,70.0,2025-05-29 00:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,O3,115.0,2025-05-29 00:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,PM10,14.0,2025-05-29 00:00:00,V
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,NO2,2.0,2025-05-29 00:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,PM10,15.0,2025-05-29 00:00:00,V
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,O3,84.0,2025-05-29 00:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,NO2,5.0,2025-05-29 00:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,PM10,23.0,2025-05-29 00:00:00,V
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,O3,58.0,2025-05-29 00:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,NO2,3.0,2025-05-29 00:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,O3,41.0,2025-05-29 00:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,PM2.5,14.0,2025-05-29 00:00:00,V
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,NO2,25.0,2025-05-29 00:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,O3,92.0,2025-05-29 00:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM10,9.0,2025-05-29 00:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM2.5,4.0,2025-05-29 00:00:00,V
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,NO2,2.0,2025-05-29 00:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,O3,68.0,2025-05-29 00:00:00,V
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM10,14.0,2025-05-29 00:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM10,36.0,2025-05-29 00:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,NO2,8.0,2025-05-29 00:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,O3,71.0,2025-05-29 00:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,PM10,19.0,2025-05-29 00:00:00,V
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,NO2,13.0,2025-05-29 00:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,O3,50.0,2025-05-29 00:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,PM10,17.0,2025-05-29 00:00:00,V
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,NO2,3.0,2025-05-29 00:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,O3,60.0,2025-05-29 00:00:00,V
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,PM10,13.0,2025-05-29 00:00:00,V
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM2.5,11.0,2025-05-29 00:00:00,V
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,O3,78.0,2025-05-29 00:00:00,V

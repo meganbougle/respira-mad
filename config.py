@@ -1,0 +1,285 @@
+"""
+config.py - every threshold, text and setting used by the risk logic.
+
+RULE: nothing in here is invented. Each block says where the numbers come
+from. Where the app simplifies the official method, or makes a choice of its
+own, the comment says so in capitals (SIMPLIFICATION / APP DECISION).
+"""
+
+# ============================================================================
+# 1. AIR: Spain's national air quality index (ICA)
+# ============================================================================
+# Official source:
+#   Resolución de 2 de septiembre de 2020, de la Dirección General de Calidad
+#   y Evaluación Ambiental, por la que se modifica el Anexo de la Orden
+#   TEC/351/2019, de 18 de marzo, por la que se aprueba el Índice Nacional de
+#   Calidad del Aire.  BOE núm. 242, 10/09/2020, ref. BOE-A-2020-10426.
+#   https://www.boe.es/diario_boe/txt.php?id=BOE-A-2020-10426
+# The Ministry's ICA page links to this resolution as the one in force
+# (checked 15 Nov 2026):
+#   https://www.miteco.gob.es/es/calidad-y-evaluacion-ambiental/temas/atmosfera-y-calidad-del-aire/visualizacion-datos-calidad-del-aire/ica.html
+
+# The six official categories, from best (position 0) to worst (position 5).
+ICA_CATEGORIES = [
+    "Buena",
+    "Razonablemente buena",
+    "Regular",
+    "Desfavorable",
+    "Muy desfavorable",
+    "Extremadamente desfavorable",
+]
+
+# Upper limit of each category, in µg/m3 (official table "Bandas de
+# concentraciones y categorías de índice").
+# Example: NO2 0-40 is Buena, 41-90 Razonablemente buena, ... 341-1000
+# Extremadamente desfavorable.
+# Values above the last number are treated as measurement errors and ignored,
+# exactly as the resolution says.
+ICA_BANDS = {
+    "NO2":   [40, 90, 120, 230, 340, 1000],
+    "O3":    [50, 100, 130, 240, 380, 800],
+    "PM10":  [20, 40, 50, 100, 150, 1200],
+    "PM2.5": [10, 20, 25, 50, 75, 800],
+}
+# (The official index also uses SO2: 100, 200, 350, 500, 750, 1250.
+#  APP DECISION: SO2 is left out because only 9 of the 51 stations measure it.)
+
+# Official averaging period: how many hours are averaged before comparing with
+# the bands above.
+#   NO2:          mean of the last hour
+#   O3:           moving average of the last 8 hours
+#   PM10, PM2.5:  moving average of the last 24 hours
+ICA_AVERAGING_HOURS = {"NO2": 1, "O3": 8, "PM10": 24, "PM2.5": 24}
+
+# SIMPLIFICATION 1 (station measurements):
+#   The real-time files only contain the hours of the CURRENT day. So our
+#   "8-hour" and "24-hour" averages only use the hours available since
+#   midnight (for example at 10:00 the PM "24-hour" average uses 10 hours).
+#   The table from data.py says how many hours were used (column ica_hours).
+# SIMPLIFICATION 2 (forecast, used for the "best windows"):
+#   The Open-Meteo hourly forecast values are compared directly with the
+#   bands, without the 8-hour / 24-hour averaging, because averaging would
+#   hide the differences between hours that the windows are meant to show.
+# SIMPLIFICATION 3:
+#   The official index fills gaps with corrected CAMS model data. We do not:
+#   a station with no data for a pollutant is skipped and the next nearest
+#   station is used.
+
+# Official health recommendations ("Recomendaciones para la salud"), copied
+# word for word from the resolution. One text per category, in the same order
+# as ICA_CATEGORIES.
+#   "general"   = column "Población general"
+#   "sensitive" = column "Grupos de riesgo y personas sensibles"
+# The resolution defines the sensitive population as "adultos y niños con
+# problemas respiratorios y adultos con afecciones cardiacas".
+ICA_ADVICE_ES = {
+    "general": [
+        "Disfruta de tus actividades al aire libre de manera normal.",
+        "Disfruta de tus actividades al aire libre de manera normal.",
+        "Disfruta de tus actividades al aire libre de manera normal. Sin embargo, vigila la aparición de síntomas como tos, irritación de garganta, falta de aire, fatiga excesiva o palpitaciones.",
+        "Considera reducir las actividades prolongadas y enérgicas al aire libre, especialmente si experimentas tos, falta de aire o irritación de garganta.",
+        "Considera reducir las actividades al aire libre, y realizarlas en el interior o posponerlas para cuando la calidad del aire sea buena o razonablemente buena.",
+        "Reduce toda actividad al aire libre y considera realizar las actividades en el interior o posponerlas para cuando la calidad del aire sea buena o razonablemente buena. Utiliza la protección adecuada para los trabajos que deban ser realizados al aire libre.",
+    ],
+    "sensitive": [
+        "Disfruta de tus actividades al aire libre de manera normal.",
+        "Disfruta de tus actividades al aire libre de manera normal.",
+        "Considera reducir las actividades prolongadas y enérgicas al aire libre. Las personas con asma o enfermedades respiratorias deben seguir cuidadosamente su plan de medicación. Las personas con problemas del corazón pueden experimentar palpitaciones, dificultad en la respiración o fatiga inusual.",
+        "Considera reducir las actividades al aire libre, y realizarlas en el interior o posponerlas para cuando la calidad del aire sea buena o razonablemente buena. Sigue el plan de tratamiento médico meticulosamente.",
+        "Reduce toda actividad al aire libre, y considera realizar las actividades en el interior o posponerlas para cuando la calidad del aire sea buena o razonablemente buena. Sigue el plan de tratamiento médico meticulosamente.",
+        "Evita la estancia prolongada al aire libre. Sigue el plan de tratamiento médico, en su caso, meticulosamente, y acude a un servicio de urgencias si tu estado de salud empeora.",
+    ],
+}
+
+# ----------------------------------------------------------------------------
+# The app's three levels
+# ----------------------------------------------------------------------------
+LEVELS = ["good", "be careful", "stay in"]      # position 0, 1, 2 (names used in the code)
+# What the app shows for each level (verde / ámbar / rojo). Never colour
+# alone: the label and the icon always go with it.
+LEVEL_LABELS = ["Puedes salir", "Precaución", "Mejor quédate en casa"]
+LEVEL_ICONS = ["✅", "⚠️", "⛔"]
+LEVEL_COLORS = ["#0ca30c", "#fab219", "#d03b3b"]          # fill
+LEVEL_TEXT_COLORS = ["#ffffff", "#0b0b0b", "#ffffff"]     # text on top of the fill
+
+# Official colours of the six ICA categories (same order as ICA_CATEGORIES),
+# taken from the table in the resolution. Used on the map.
+ICA_COLORS = ["#72f3f5", "#5fb35f", "#f0cb30", "#dc3a14", "#800000", "#8000ff"]
+
+# APP DECISION: how the six official categories become the app's three levels.
+# The official index has no three-level summary, so this mapping is ours. It
+# follows the wording of the official advice for each audience:
+#   0 "good"       = the advice says to enjoy outdoor activities as normal
+#   1 "be careful" = the advice says to consider reducing prolonged and
+#                    vigorous outdoor activities
+#   2 "stay in"    = the advice says to do activities indoors, postpone them,
+#                    or avoid being outdoors
+# One number per official category, in the same order as ICA_CATEGORIES.
+ICA_TO_LEVEL = {
+    "general":   [0, 0, 0, 1, 2, 2],
+    "sensitive": [0, 0, 1, 2, 2, 2],
+}
+
+
+# ============================================================================
+# 2. POLLEN: Red Palinocam (Comunidad de Madrid) risk levels
+# ============================================================================
+# Official source of the numbers:
+#   The thresholds "actualmente vigentes en la Red PALINOCAM", calculated from
+#   the network's 2010-2019 pollen data, as published in:
+#   "Informe técnico sobre los resultados de los análisis polínicos en el área
+#   urbana de Madrid durante el periodo 2023-2024" (Ayuntamiento de Madrid /
+#   Grupo de Aerobiología, Universidad Complutense, November 2025), tables 5-14.
+#   https://airedemadrid.madrid.es/UnidadesDescentralizadas/Sostenibilidad/CalidadAire/Portal/02_Actuaciones/02%20Ficheros/Informe_Analisis_Polen_Noviembre_2025.pdf
+#   The Comunidad's own weekly bulletins draw the same "Nivel Medio" and
+#   "Nivel Alto" lines but only as a chart: https://www.comunidad.madrid/salud/polen
+#
+# The network has FOUR levels (not three): bajo, medio, alto, muy alto.
+# The numbers are daily averages in grains of pollen per m3 of air, the same
+# unit as the open-data file. Each entry is: (medio, alto, muy alto).
+# Example: Gramíneas below 26 is "bajo", from 26 "medio", from 53 "alto",
+# from 150 "muy alto".
+# Note: the report says the levels are based on percentiles of the historical
+# series ("criterios aerobiológicos"), not on clinical studies.
+#
+# Only these 10 pollen types have published thresholds. The other 17 types in
+# the data (Artemisia, Abedul, Aliso...) have none, so they are NOT used in
+# the risk level. We did not fall back to the Spanish Aerobiology Network
+# (REA) numbers because we could not check them against an official REA page.
+POLLEN_LEVELS = ["bajo", "medio", "alto", "muy alto"]     # position 0..3
+
+POLLEN_THRESHOLDS = {
+    # name exactly as it appears in the open-data file: (medio, alto, muy alto)
+    "Plátano de paseo":     (81, 248, 953),
+    "Cupresáceas/Taxáceas": (59, 171, 659),
+    "Quercus":              (55, 164, 728),
+    "Olivo":                (34, 74, 194),
+    "Gramíneas":            (26, 53, 150),
+    "Pinos":                (54, 88, 206),
+    "Populus":              (24, 46, 128),
+    "Olmos":                (18, 38, 124),
+    "Plantago":             (21, 32, 60),
+    "Urticaceae (Ortigas)": (10, 13, 22),
+}
+
+# Ignore a pollen station if its latest reading is older than this.
+# (Readings are published several days late; the app always shows their age.)
+POLLEN_MAX_AGE_DAYS = 10
+
+# Open-Meteo forecasts 6 pollen types. Only two of them match a pollen type
+# that has an official threshold above.
+# The forecast is used in two places:
+#   - the "best hours" chart (hour by hour), and
+#   - INSTEAD of a station reading when no pollen station has a reading from
+#     the last POLLEN_MAX_AGE_DAYS days. The app then says "Sin lectura
+#     reciente de polen" and labels the value as a forecast. In that case the
+#     average of today's forecast hours is compared with the thresholds
+#     (they are thresholds for daily averages).
+# SIMPLIFICATION: in the hour-by-hour chart the HOURLY forecast is compared
+# with thresholds that were defined for DAILY averages.
+FORECAST_POLLEN_TO_OFFICIAL = {
+    "grass_pollen": "Gramíneas",
+    "olive_pollen": "Olivo",
+}
+
+# APP DECISION: how the four pollen levels become the app's three levels.
+# One number per pollen level (bajo, medio, alto, muy alto):
+#   bajo = good, medio = be careful, alto and muy alto = stay in.
+# It is only applied to people who tick "Tengo alergia al polen", and only
+# for the pollen types they select.
+POLLEN_TO_LEVEL = [0, 1, 2, 2]
+
+# Friendly Spanish names for the pollen types that have official thresholds
+# (shown in the app's multi-select). The keys must match POLLEN_THRESHOLDS.
+POLLEN_NAMES = {
+    "Gramíneas":            "Gramíneas",
+    "Olivo":                "Olivo",
+    "Plátano de paseo":     "Plátano de paseo",
+    "Cupresáceas/Taxáceas": "Cipreses y arizónicas",
+    "Quercus":              "Encinas y robles",
+    "Pinos":                "Pinos",
+    "Populus":              "Chopos",
+    "Olmos":                "Olmos",
+    "Plantago":             "Llantenes",
+    "Urticaceae (Ortigas)": "Ortigas y parietarias",
+}
+
+# Official advice for days of high pollen, copied word for word from the
+# Comunidad de Madrid leaflet "Lo que debes conocer sobre la alergia al polen"
+# (section "Medidas preventivas para los días de máxima concentración
+# atmosférica de polen"):
+#   https://www.comunidad.madrid/docs/assets/2017/11/23/lo_que_debes_conocer_sobre_la_alergia_al_polen.pdf
+POLLEN_ADVICE_ES = [
+    "Evitar salidas al campo, cruzar parques y zonas verdes.",
+    "Viajar en coche con las ventanillas cerradas (evitando desplazamientos en moto o bicicleta).",
+    "Ventanas cerradas en el domicilio, aireando a primera hora de la mañana (si es posible aire acondicionado con filtros).",
+    "Utilizar gafas de sol en el exterior.",
+    "Realizar el tratamiento prescrito por su médico.",
+]
+
+# ============================================================================
+# 3. PROFILES
+# ============================================================================
+# "air": which column of the official ICA advice the profile gets.
+# "note": shown in the app next to the recommendation (None = no note).
+#
+# APP DECISION: the official ICA text defines sensitive people as "adultos y
+# niños con problemas respiratorios y adultos con afecciones cardiacas". It
+# does not name older people or young children as such. We give both the
+# sensitive-group advice as a precaution, and the app says so (EXTENSION_NOTE).
+#
+# Pollen allergy is NOT a profile: it is a separate checkbox, with a list of
+# the pollen types the person is allergic to. Asthma without the allergy
+# checkbox uses air quality only.
+EXTENSION_NOTE = (
+    "Aplicamos a este perfil las recomendaciones oficiales para grupos de riesgo "
+    "y personas sensibles por precaución. Es una extensión nuestra: el texto "
+    "oficial del ICA define como población sensible a las personas con problemas "
+    "respiratorios y a los adultos con afecciones cardiacas."
+)
+PROFILES = {
+    "general":  {"label": "General",              "air": "general",   "note": None},
+    "asthma":   {"label": "Asma / respiratorio",  "air": "sensitive", "note": None},
+    "older":    {"label": "Persona mayor",        "air": "sensitive", "note": EXTENSION_NOTE},
+    "children": {"label": "Niño/a",               "air": "sensitive", "note": EXTENSION_NOTE},
+}
+
+
+# ============================================================================
+# 4. BEST WINDOWS (APP DECISIONS - there is no official method for this)
+# ============================================================================
+WINDOW_HOURS = 3            # length of each suggested window (2 if few hours are left)
+WINDOW_COUNT = 3            # how many windows to suggest at most
+WINDOW_FIRST_HOUR = 7       # only suggest windows between 07:00 ...
+WINDOW_LAST_HOUR = 22       # ... and 22:00
+# APP DECISION: if the person is allergic and the pollen STATION reading puts
+# them at "be careful" or "stay in", every hour of today is at least that
+# level, even when the model forecasts less pollen. A measurement beats the
+# model, and the chart must never look better than the main result.
+# Windows are ranked by: lowest risk level, then no rain, then lowest
+# forecast pollution. Weather has NO thresholds of its own in this app
+# (no official ones were adopted); rain is only used to break ties.
+
+
+# ============================================================================
+# 5. DEMO MODE, PLACES AND SETTINGS
+# ============================================================================
+# "Modo demostración": the day with the highest grass pollen in the whole
+# history (1993-2026). Its data is stored in backup/replay/2025-05-28/.
+# That day only has the 28 Comunidad air stations (the Ayuntamiento has not
+# published its 2025 hourly history).
+REPLAY_DATE = "2025-05-28"
+REPLAY_DEFAULT_HOUR = 10          # the demo starts at 10:00 on that day
+
+# Optional AI assistant (Step 4, not built yet). Leave it False.
+# When it is built, the API key will be read from st.secrets - never from here.
+AI_ASSISTANT_ENABLED = False
+
+# Extra places for the location dropdown and for test_risk.py. The other
+# municipalities in the dropdown come from the Comunidad air stations.
+PLACES = {
+    "Madrid (Centro)":   (40.4168, -3.7038),    # Puerta del Sol
+    "Getafe":            (40.3083, -3.7327),
+    "Alcalá de Henares": (40.4818, -3.3643),
+    "Collado Villalba":  (40.6350, -4.0049),
+}
