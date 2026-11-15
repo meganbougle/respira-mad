@@ -1,0 +1,15 @@
+# Render "Blueprint": tells render.com how to run the web app (api.py + static/).
+# Free plan. Deploys again automatically after every push to GitHub.
+services:
+  - type: web
+    name: respira-mad
+    runtime: python
+    plan: free
+    region: frankfurt                 # the closest Render region to Madrid
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn api:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    autoDeployTrigger: commit
+    envVars:
+      - key: PYTHON_VERSION           # the version the app was tested with
+        value: 3.13.1

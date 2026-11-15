@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Respira MAD</title>
+  <meta name="description" content="¿Es buen momento para estar al aire libre en la Comunidad de Madrid? Calidad del aire, polen y previsión, en directo.">
+  <meta name="theme-color" content="#0f6b4f">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230f6b4f'/%3E%3Cpath d='M23 8c-9 0-14 4.500-14 11 0 1.500.400 2.800 1 4 1.500-5 5-8.500 10-10-4 2.500-7 6-8 11 7 .500 12-5 11-16z' fill='%23fff'/%3E%3C/svg%3E">
+
+  <!-- Libraries from a CDN: the Leaflet map and the Inter font. No build step. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<!-- ======================= HEADER ======================= -->
+<header class="topbar">
+  <a class="brand" href="/" aria-label="Respira MAD, inicio">
+    <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+      <rect width="32" height="32" rx="9" fill="currentColor"/>
+      <path d="M23 8c-9 0-14 4.500-14 11 0 1.500.400 2.800 1 4 1.500-5 5-8.500 10-10-4 2.500-7 6-8 11 7 .500 12-5 11-16z" fill="#fff"/>
+    </svg>
+    <span class="brand-name">Respira <b>MAD</b></span>
+  </a>
+
+  <div class="status-pill" id="status-pill" role="status" aria-live="polite">
+    <span class="dot" aria-hidden="true"></span>
+    <span id="status-text">Cargando…</span>
+  </div>
+
+  <div class="topbar-controls">
+    <label class="visually-hidden" for="place">Municipio</label>
+    <div class="select-wrap">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-6.200 7-11.500A7 7 0 0 0 5 9.500C5 14.800 12 21 12 21z"/><circle cx="12" cy="9.500" r="2.500"/></svg>
+      <select id="place"></select>
+    </div>
+    <button class="btn" id="locate" type="button" title="Usar mi ubicación">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.500"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
+      <span>Usar mi ubicación</span>
+    </button>
+    <button class="btn btn-demo" id="demo" type="button" aria-pressed="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.600 5.600l2.100 2.100M16.300 16.300l2.100 2.100M5.600 18.400l2.100-2.100M16.300 7.700l2.100-2.100"/></svg>
+      <span id="demo-label">Ver día de mucho polen</span>
+    </button>
+  </div>
+</header>
+
+<div class="demo-banner" id="demo-banner" hidden>
+  <b>Modo demostración.</b> Datos del 28 de mayo de 2025 (el día con más polen de gramíneas desde 1993), no de hoy.
+  Ese día solo hay datos de las estaciones de la Comunidad de Madrid.
+</div>
+
+<!-- ======================= MAP + PANEL ======================= -->
+<main class="layout">
+  <section class="map-area" aria-label="Mapa de estaciones">
+    <div id="map"></div>
+  </section>
+
+  <aside class="panel" id="panel" aria-label="Resultado para tu ubicación">
+    <div class="sheet-handle" aria-hidden="true"></div>
+
+    <!-- who you are -->
+    <section class="block">
+      <h2 class="block-title">Tu perfil</h2>
+      <div class="chips" id="profiles" role="radiogroup" aria-label="Perfil"></div>
+
+      <label class="switch-row" for="allergy">
+        <span>
+          <span class="switch-title">Tengo alergia al polen</span>
+          <span class="switch-help">Solo cuenta para los tipos que elijas</span>
+        </span>
+        <input type="checkbox" id="allergy" role="switch">
+        <span class="switch" aria-hidden="true"></span>
+      </label>
+      <div class="chips chips-small" id="pollen-types" hidden aria-label="Tipos de polen"></div>
+    </section>
+
+    <!-- the result -->
+    <section class="result is-loading" id="result" aria-live="polite">
+      <div class="result-head">
+        <div class="result-icon" id="result-icon" aria-hidden="true"></div>
+        <div>
+          <div class="result-label" id="result-label">Calculando…</div>
+          <div class="result-sub" id="result-sub">&nbsp;</div>
+        </div>
+      </div>
+      <p class="result-reason" id="result-reason"></p>
+    </section>
+
+    <section class="block" id="advice-block" hidden>
+      <h2 class="block-title">Recomendación oficial</h2>
+      <div id="advice"></div>
+      <p class="note" id="profile-note" hidden></p>
+      <div id="warnings"></div>
+    </section>
+
+    <!-- the measurements -->
+    <section class="block">
+      <h2 class="block-title">Mediciones cerca de ti <span class="tag">Estaciones oficiales</span></h2>
+      <div class="tiles" id="tiles"></div>
+      <div class="pollen-tile" id="pollen-tile" hidden></div>
+    </section>
+
+    <!-- the hours -->
+    <section class="block">
+      <h2 class="block-title"><span id="hours-title">Mejores horas hoy</span> <span class="tag tag-forecast">Previsión</span></h2>
+      <p class="hint" id="hours-kind">PREVISIÓN (modelo de Open-Meteo), no mediciones oficiales.</p>
+
+      <div class="demo-slider" id="demo-slider" hidden>
+        <label for="hour">Hora del día de demostración: <b id="hour-value">10:00</b></label>
+        <input type="range" id="hour" min="7" max="21" step="1" value="10">
+      </div>
+
+      <div class="strip-legend" id="strip-legend"></div>
+      <div class="strip" id="strip" role="group" aria-label="Nivel previsto por horas"></div>
+      <div class="hour-detail" id="hour-detail"></div>
+      <div id="windows"></div>
+    </section>
+
+    <!-- freshness -->
+    <details class="block freshness">
+      <summary>Frescura de los datos</summary>
+      <ul id="freshness"></ul>
+      <p class="hint">«Provisional» significa que la red todavía no ha validado el dato. «Copia de seguridad»
+        significa que la fuente no respondió y se muestra la última copia guardada.</p>
+    </details>
+
+    <!-- credits -->
+    <footer class="credits">
+      <p><b>Fuentes de datos.</b>
+        Calidad del aire y polen (Red Palinocam): <a href="https://datos.comunidad.madrid/" target="_blank" rel="noopener">Datos abiertos de la Comunidad de Madrid</a>.
+        Calidad del aire de la ciudad de Madrid: <a href="https://datos.madrid.es/" target="_blank" rel="noopener">Datos abiertos del Ayuntamiento de Madrid</a>.
+        Previsión meteorológica, de calidad del aire y de polen: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo.com</a> (CC BY 4.0), con datos del servicio europeo CAMS.
+        Categorías y recomendaciones de calidad del aire: Índice Nacional de Calidad del Aire, Resolución de 2 de septiembre de 2020
+        (<a href="https://www.boe.es/diario_boe/txt.php?id=BOE-A-2020-10426" target="_blank" rel="noopener">BOE-A-2020-10426</a>).
+        Niveles de polen: umbrales de la Red Palinocam.
+        Mapa: © colaboradores de <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>, con <a href="https://leafletjs.com/" target="_blank" rel="noopener">Leaflet</a>.</p>
+      <p>Respira MAD es un proyecto del hackathon DataMad 2026. Es una herramienta informativa y no sustituye el consejo de un profesional sanitario.</p>
+    </footer>
+  </aside>
+</main>
+
+<!-- AI assistant placeholder (Step 4). Hidden unless AI_ASSISTANT_ENABLED is True in config.py. -->
+<button class="chat-fab" id="chat-fab" type="button" hidden>
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg>
+  <span>Pregúntale a Respira</span>
+</button>
+<div class="chat-pop" id="chat-pop" hidden>Próximamente: un asistente para hacer preguntas sobre las condiciones de hoy.</div>
+
+<div class="toast" id="toast" role="alert" hidden></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,325 @@
+"""
+api.py - a small web server that gives the web app its data as JSON.
+
+Run it with:   .venv/bin/uvicorn api:app --port 8000
+Then open:     http://localhost:8000
+
+It adds NO logic of its own: every answer comes from data.py (loading,
+15-minute caching, backups), risk.py (decisions) and config.py (thresholds
+and official texts). The web page itself is in the static/ folder.
+
+Addresses:
+    /                 the web app (static/index.html)
+    /api/config       profiles, pollen types, level names and colours
+    /api/places       the places for the location dropdown
+    /api/stations     air stations with their ICA category + pollen stations
+    /api/risk         level, reason, official recommendation, measurements used
+    /api/hours        hour-by-hour levels and best windows (forecast)
+    /api/freshness    each source, its timestamp, minutes ago, provisional flag
+    /api/health       "ok" (used by the hosting service to check the app is up)
+"""
+
+import logging
+import math
+import warnings
+from pathlib import Path
+
+import pandas as pd
+import streamlit  # noqa: F401  (data.py uses its cache; imported first so we can quiet it)
+from fastapi import FastAPI, HTTPException, Query
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+
+# Streamlit's cache works fine outside "streamlit run", but it complains
+# about it in the log. Hide those messages.
+for name in ("streamlit.runtime.caching.cache_data_api",
+             "streamlit.runtime.scriptrunner_utils.script_run_context"):
+    logging.getLogger(name).setLevel(logging.ERROR)
+warnings.filterwarnings("ignore", message=".*ScriptRunContext.*")
+
+import config  # noqa: E402
+import data    # noqa: E402
+import risk    # noqa: E402
+
+STATIC_DIR = Path(__file__).parent / "static"
+
+app = FastAPI(title="Respira MAD")
+
+
+# ----------------------------------------------------------------------------
+# Small helpers
+# ----------------------------------------------------------------------------
+
+def clean(value):
+    """Turn pandas/numpy values into plain ones that can be sent as JSON."""
+    if isinstance(value, dict):
+        return {key: clean(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [clean(item) for item in value]
+    if isinstance(value, pd.Timestamp):
+        return value.isoformat(timespec="minutes")
+    if hasattr(value, "item"):                 # numpy number -> Python number
+        value = value.item()
+    if isinstance(value, float) and math.isnan(value):
+        return None
+    return value
+
+
+def the_moment(demo, hour):
+    """The time the app is 'looking at': now, or an hour of the demo day."""
+    if demo:
+        hour = config.REPLAY_DEFAULT_HOUR if hour is None else hour
+        return pd.Timestamp(config.REPLAY_DATE) + pd.Timedelta(hours=hour)
+    return risk.madrid_now()
+
+
+def ago_text(minutes):
+    """'hace 35 min', 'hace 2 h 10 min' or 'hace 6 días'."""
+    if minutes < 60:
+        return f"hace {minutes} min"
+    if minutes < 48 * 60:
+        return f"hace {minutes // 60} h {minutes % 60} min"
+    return f"hace {minutes // (24 * 60)} días"
+
+
+def minutes_between(earlier, later):
+    return max(int((later - earlier).total_seconds() // 60), 0)
+
+
+def assess(lat, lon, profile, allergy_types, demo, hour):
+    """Check the inputs and call risk.assess()."""
+    if profile not in config.PROFILES:
+        raise HTTPException(400, f"Perfil desconocido: {profile}")
+    types = tuple(t for t in allergy_types.split("|") if t) if allergy_types else ()
+    unknown = [t for t in types if t not in config.POLLEN_THRESHOLDS]
+    if unknown:
+        raise HTTPException(400, f"Tipo de polen desconocido: {unknown[0]}")
+    return risk.assess(lat, lon, profile, types, the_moment(demo, hour), demo)
+
+
+def air_table(demo, moment):
+    return data.load_replay_air(moment) if demo else data.load_air()
+
+
+def pollen_table(demo, moment):
+    return data.load_replay_pollen() if demo else data.load_pollen(today=moment.normalize())
+
+
+# Reusable descriptions of the address parameters.
+LAT = Query(..., ge=-90, le=90)
+LON = Query(..., ge=-180, le=180)
+HOUR = Query(None, ge=0, le=23, description="Only used in demo mode")
+TYPES = Query("", description="Pollen types separated by | , e.g. Gramíneas|Olivo")
+
+
+# ----------------------------------------------------------------------------
+# The addresses
+# ----------------------------------------------------------------------------
+
+@app.get("/api/health")
+def health():
+    return {"status": "ok"}
+
+
+@app.get("/api/config")
+def get_config():
+    """Everything the page needs to draw its buttons and colours."""
+    return {
+        "profiles": [{"key": key, "label": p["label"]} for key, p in config.PROFILES.items()],
+        "pollen_types": [{"key": key, "label": label} for key, label in config.POLLEN_NAMES.items()],
+        "levels": [{"label": label, "color": color, "text_color": text}
+                   for label, color, text in zip(config.LEVEL_LABELS, config.LEVEL_COLORS, config.LEVEL_TEXT_COLORS)],
+        "ica_categories": [{"name": name, "color": color}
+                           for name, color in zip(config.ICA_CATEGORIES, config.ICA_COLORS)],
+        "demo": {"date": config.REPLAY_DATE, "default_hour": config.REPLAY_DEFAULT_HOUR,
+                 "first_hour": config.WINDOW_FIRST_HOUR, "last_hour": config.WINDOW_LAST_HOUR - 1},
+        "ai_assistant_enabled": config.AI_ASSISTANT_ENABLED,
+    }
+
+
+@app.get("/api/places")
+def get_places():
+    """The places of the location dropdown."""
+    try:
+        air = data.load_air()
+    except Exception:            # live feed and backup both failed: use the demo day's stations
+        air = data.load_replay_air(the_moment(True, 12))
+    return [{"name": name, "lat": lat, "lon": lon} for name, (lat, lon) in risk.list_places(air).items()]
+
+
+@app.get("/api/stations")
+def get_stations(demo: bool = False, hour: int = HOUR):
+    """All air stations with their ICA category, and the pollen stations."""
+    moment = the_moment(demo, hour)
+    notes = []
+
+    air_stations = []
+    try:
+        for _, s in risk.station_categories(air_table(demo, moment)).iterrows():
+            air_stations.append({
+                "station": s["station"], "source": s["source"], "lat": s["lat"], "lon": s["lon"],
+                "category": s["category"], "category_name": s["category_name"],
+                "color": config.ICA_COLORS[s["category"]],
+                "details": s["details"], "timestamp": s["timestamp"],
+            })
+    except Exception as error:
+        notes.append(f"Sin mediciones de calidad del aire ({error}).")
+
+    pollen_stations = []
+    try:
+        pollen = pollen_table(demo, moment)
+        for station, group in pollen.groupby("station"):
+            info = risk.pollen_near(group["lat"].iloc[0], group["lon"].iloc[0], group)
+            pollen_stations.append({
+                "station": station, "lat": group["lat"].iloc[0], "lon": group["lon"].iloc[0],
+                "reading_date": info["reading_date"], "age_days": info["age_days"],
+                "types": [{"name": t["name"], "value": t["value"], "level_name": t["level_name"]}
+                          for t in info["types"][:4]],
+            })
+    except Exception as error:
+        notes.append(f"Sin mediciones de polen ({error}).")
+
+    return clean({"air": air_stations, "pollen": pollen_stations, "notes": notes, "time": moment})
+
+
+@app.get("/api/risk")
+def get_risk(lat: float = LAT, lon: float = LON, profile: str = "general",
+             allergy_types: str = TYPES, demo: bool = False, hour: int = HOUR):
+    """Level, reason, official recommendation text and the measurements used."""
+    result = assess(lat, lon, profile, allergy_types, demo, hour)
+    index = result["level_index"]
+    pollen = result["pollen"]
+    selected = set(allergy_types.split("|")) if allergy_types else set()
+    return clean({
+        "level_index": index,
+        "level_label": config.LEVEL_LABELS[index] if index is not None else "Sin datos",
+        "profile_label": config.PROFILES[profile]["label"],
+        "reason": result["reason"],
+        "recommendations": [{"source": source, "text": text} for source, text in result["recommendations"]],
+        "profile_note": result["profile_note"],
+        "notes": result["notes"],
+        "air": [{**reading, "color": config.ICA_COLORS[reading["category"]]} for reading in result["air"]],
+        "pollen": None if pollen is None else {
+            "kind": pollen["kind"],                       # "measurement" or "forecast"
+            "station": pollen["station"], "distance_km": pollen["distance_km"],
+            "reading_date": pollen["reading_date"], "age_days": pollen["age_days"],
+            "types": [{"key": t["pollen_type"], "name": t["name"], "value": t["value"],
+                       "level": t["level"], "level_name": t["level_name"],
+                       "counts_for_you": t["pollen_type"] in selected} for t in pollen["types"]],
+        },
+        "demo": demo,
+        "time": result["time"],
+    })
+
+
+@app.get("/api/hours")
+def get_hours(lat: float = LAT, lon: float = LON, profile: str = "general",
+              allergy_types: str = TYPES, demo: bool = False, hour: int = HOUR):
+    """Hour-by-hour levels and the best windows. This is a FORECAST (model)."""
+    result = assess(lat, lon, profile, allergy_types, demo, hour)
+    now = result["time"]
+    # windows worth recommending (a "stay in" window is never a best window)
+    windows = [w for w in result["windows"] if w["level_index"] < 2]
+
+    hours = []
+    if result["hours"] is not None:
+        for _, row in result["hours"].iterrows():
+            moment = row["timestamp"]
+            hours.append({
+                "time": moment, "hour": moment.hour,
+                "level_index": row["level"], "level_label": config.LEVEL_LABELS[row["level"]],
+                "limited_by": row["limited_by"],
+                "past": moment < now.floor("h"),
+                "best": any(w["start"] <= moment < w["end"] for w in windows),
+                "NO2": row["NO2"], "O3": row["O3"], "PM10": row["PM10"], "PM2.5": row["PM2.5"],
+                "grass_pollen": row["grass_pollen"], "olive_pollen": row["olive_pollen"],
+                "temperature_c": row["temperature_c"], "rain_mm": row["rain_mm"],
+            })
+    return clean({
+        "kind": "PREVISIÓN (modelo de Open-Meteo), no mediciones oficiales",
+        "day": "hoy" if result["windows_day"] == now.normalize() else "mañana",
+        "hours": hours,
+        "windows": [{"start": w["start"], "end": w["end"], "level_index": w["level_index"],
+                     "temperature_c": w["temperature_c"], "rain_mm": w["rain_mm"]} for w in windows],
+        "no_good_window": bool(result["windows"]) and not windows,
+        "notes": [n for n in result["notes"] if "previsión" in n.lower()],
+        "time": now,
+    })
+
+
+@app.get("/api/freshness")
+def get_freshness(demo: bool = False, hour: int = HOUR,
+                  lat: float = Query(None, ge=-90, le=90), lon: float = Query(None, ge=-180, le=180)):
+    """Each source, its latest timestamp, how long ago, and whether it is provisional."""
+    moment = the_moment(demo, hour)
+    real_now = risk.madrid_now()
+    sources, updated_minutes = [], None
+
+    def origin(table):
+        if demo:
+            return "Día de demostración"
+        return "En directo" if table.attrs.get("live") else "Copia de seguridad"
+
+    try:
+        air = air_table(demo, moment)
+        updated_minutes = minutes_between(air.attrs["fetched_at"], real_now)
+        for source, group in air.groupby("source"):
+            latest = group["timestamp"].max()
+            provisional = bool((group["flag"] == "T").any())
+            minutes = minutes_between(latest, moment)
+            sources.append({
+                "source": f"Aire · {source}", "timestamp": latest,
+                "minutes_ago": minutes, "ago": ago_text(minutes), "provisional": provisional,
+                "status": ("Provisional (pendiente de validar)" if provisional
+                           else "Validado" if demo else "Tiempo real"),
+                "origin": origin(air), "live": bool(air.attrs.get("live")),
+            })
+    except Exception:
+        pass
+
+    try:
+        pollen = pollen_table(demo, moment)
+        if not pollen.empty:
+            latest = pollen["timestamp"].max()
+            minutes = minutes_between(latest, moment)
+            sources.append({
+                "source": "Polen · Red Palinocam (Comunidad de Madrid)", "timestamp": latest,
+                "minutes_ago": minutes, "ago": "de hoy" if minutes < 24 * 60 else ago_text(minutes),
+                "provisional": False, "status": "Recuento manual, se publica con días de retraso",
+                "origin": origin(pollen), "live": bool(pollen.attrs.get("live")),
+            })
+    except Exception:
+        pass
+
+    if lat is not None and lon is not None:
+        try:
+            forecast = data.load_forecast_air(round(lat, 2), round(lon, 2), config.REPLAY_DATE if demo else None)
+            minutes = minutes_between(forecast.attrs["fetched_at"], real_now)
+            sources.append({
+                "source": "Previsión · Open-Meteo (aire, polen y tiempo)", "timestamp": forecast.attrs["fetched_at"],
+                "minutes_ago": minutes, "ago": ago_text(minutes), "provisional": False,
+                "status": "PREVISIÓN (modelo), no medición",
+                "origin": "En directo" if forecast.attrs.get("live") else "Copia de seguridad",
+                "live": bool(forecast.attrs.get("live")),
+            })
+        except Exception:
+            pass
+
+    return clean({
+        "demo": demo, "time": moment,
+        "updated_minutes": updated_minutes,          # how long ago the app downloaded the air data
+        "all_live": bool(sources) and all(s["live"] for s in sources),
+        "sources": sources,
+    })
+
+
+# ----------------------------------------------------------------------------
+# The web page
+# ----------------------------------------------------------------------------
+
+@app.get("/")
+def index():
+    return FileResponse(STATIC_DIR / "index.html", headers={"Cache-Control": "no-cache"})
+
+
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")

@@ -4,7 +4,15 @@ Streamlit app (Python, interface in Spanish) for the **DataMad 2026 hackathon
 — deadline 20 Nov 2026**. It tells vulnerable people (asthma, pollen allergy,
 older people, young children) whether it is safe to be outdoors **right now**
 in the Comunidad de Madrid, by combining live air quality, pollen levels and
-weather. Deployed on **Streamlit Community Cloud**.
+weather.
+
+There are two front ends over the same logic:
+- **Web app (main):** `api.py` (FastAPI, JSON) + `static/` (plain HTML, CSS,
+  JavaScript, Leaflet from a CDN). Deployed on **Render** (free tier) with
+  `render.yaml`.
+- **Streamlit app (fallback):** `app.py`, for **Streamlit Community Cloud**.
+
+Repo: https://github.com/meganbougle/respira-mad (public, branch `main`).
 
 ## How to work on this project
 
@@ -12,7 +20,8 @@ weather. Deployed on **Streamlit Community Cloud**.
   explain each step briefly, and test as you go.
 - Build one step at a time; don't build ahead of what was asked.
 - Run things with the project's virtual environment:
-  - `.venv/bin/streamlit run app.py` — the app
+  - `.venv/bin/uvicorn api:app --port 8000` — the web app, then open http://localhost:8000
+  - `.venv/bin/streamlit run app.py` — the Streamlit fallback
   - `.venv/bin/python test_data.py` — checks every data source is live
   - `.venv/bin/python test_risk.py` — risk result for 4 places, live and demo day
   - `.venv/bin/python warm_backup.py` — refreshes every backup (run before the demo, then commit `backup/`)
@@ -24,13 +33,19 @@ weather. Deployed on **Streamlit Community Cloud**.
 - **Step 1 (done): data loading** — `data.py`.
 - **Step 2 (done): data checks, forecast data, risk logic** — `config.py`, `risk.py`.
 - **Step 3 (done): the app** — `app.py`, in Spanish, with demo mode.
+- **Step 3b (done): web app UI** — `api.py` + `static/`, replacing only the
+  presentation layer. `data.py`, `risk.py`, `config.py` and `backup/` were not
+  changed for it and must stay shared by both front ends.
 - Step 4 (planned, not built): optional AI assistant — see the last section.
 
 ## Files
 
 | File | What it is |
 |---|---|
-| `app.py` | The Streamlit screen only: sidebar, result card, chart, map, freshness, footer |
+| `api.py` | FastAPI server: `/api/config, places, stations, risk, hours, freshness, health`, and serves `static/` at `/` |
+| `static/index.html`, `app.js`, `style.css` | The web app page (Spanish, mobile first, no build step) |
+| `render.yaml` | Render Blueprint: free web service, `uvicorn api:app`, Python 3.13.1, Frankfurt |
+| `app.py` | Streamlit fallback: sidebar, result card, chart, map, freshness, footer |
 | `data.py` | One loader function per data source, cached 15 min, with backup |
 | `config.py` | Every threshold, official text and setting, each with its source |
 | `risk.py` | `assess(lat, lon, profile, allergy_types, now, demo)` → level, reason, official recommendations, best windows |
@@ -150,12 +165,32 @@ grains/m³. An hour slider (default 10:00) sets the time of day.
 - Colours never carry meaning alone: every level has an icon and a label.
 - The freshness box is plain text lines so it wraps on a phone.
 
+## Web app notes (`api.py`, `static/`)
+
+- `api.py` adds no logic: each endpoint calls `risk.assess()` or the `data`
+  loaders, so caching (15 min) and backups are the same as in Streamlit.
+  `data.py` still uses Streamlit's cache, so `streamlit` must stay installed.
+- `allergy_types` is sent as pollen-type keys separated by `|`; `demo=true`
+  with `hour` selects the demo day.
+- The page keeps one `state` object and redraws from the server's answers;
+  nothing reloads. It refreshes every 5 minutes (the server cache is 15).
+- Map: OpenStreetMap tiles (no key needed), lightened with a CSS filter;
+  attribution on the map and in the footer.
+- The level colour fades via two CSS variables set on the result card.
+- "Usar mi ubicación" needs HTTPS (or localhost) and warns if the position is
+  outside a rough box around the Comunidad de Madrid.
+- The "Pregúntale a Respira" button exists in the page but stays hidden while
+  `config.AI_ASSISTANT_ENABLED` is False.
+- Render free tier sleeps after 15 minutes without visits; the first visit
+  after that takes about a minute. Open the site before a demo.
+
 ## Planned for later: optional AI assistant (Step 4, do not build yet)
 
 - Uses the Anthropic API to answer questions about the current conditions.
-- Switched by `config.AI_ASSISTANT_ENABLED` (False). `app.py` already has the
-  placeholder function `assistant_placeholder()`; the app must work fully
-  without it.
+- Switched by `config.AI_ASSISTANT_ENABLED` (False). Placeholders exist in both
+  front ends: the hidden chat button in `static/index.html` and
+  `assistant_placeholder()` in `app.py`. The app must work fully without it.
+- On Render the key will be an environment variable set in the dashboard.
 - The API key is read from `st.secrets` (locally: `.streamlit/secrets.toml`;
   on Streamlit Cloud: the app's Secrets settings). It must **never** be
   committed to git — `.streamlit/secrets.toml` is in `.gitignore`.
