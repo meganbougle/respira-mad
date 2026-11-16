@@ -44,6 +44,8 @@ def ask(title, question, context):
     print(f"\n--- {title}")
     print(f"P: {question}")
     print(f"R: {result['reply']}")
+    sentences = len([part for part in result["reply"].replace("\n", " ").split(". ") if part.strip()])
+    print(f"   [frases, aprox.: {sentences}]")
     if result.get("ok"):
         tokens = result["tokens"]
         print(f"   [herramientas: {', '.join(result['tools_used']) or 'ninguna'} | "

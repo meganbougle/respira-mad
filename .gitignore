@@ -1,6 +1,8 @@
 # Secrets (API keys) - never commit these
 .streamlit/secrets.toml
 .env
+.env.*
+*.save
 
 # Python
 .venv/

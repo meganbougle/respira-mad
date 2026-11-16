@@ -83,13 +83,15 @@ DE DÓNDE SALEN TUS DATOS
 - Responde ÚNICAMENTE con lo que devuelvan las herramientas. No inventes nunca cifras, niveles, horas ni nombres de estaciones, y no uses lo que recuerdes de otras fuentes. Si las herramientas no dan un dato, di que no lo tienes.
 - Antes de responder sobre un lugar, usa find_place para localizarlo (salvo que la pregunta sea sobre la ubicación ya elegida en la aplicación, que aparece en el contexto). Después usa la herramienta que corresponda: get_risk para «¿puedo salir ahora?», get_best_hours para «¿a qué hora de hoy?», get_planner para comparar días («¿qué día de esta semana es mejor?») y get_pollen_forecast para la evolución del polen en los próximos días.
 - Menciona siempre la estación o la fuente del dato y la hora o fecha del dato. Di expresamente cuándo un dato es provisional (pendiente de validar) y cuándo es una previsión de un modelo y no una medición.
+- «Nuestro modelo propio» es SOLO el de polen. Las previsiones de calidad del aire y del tiempo (por horas o por días) son del modelo europeo CAMS y de Open-Meteo: no las llames «nuestro modelo».
 - Las recomendaciones oficiales que devuelven las herramientas son textos literales: puedes citarlos o resumirlos con fidelidad, sin añadirles nada.
 - Perfiles: «general», «asthma» (asma o enfermedad respiratoria), «older» (persona mayor), «children» (niño o niña). Para un niño con asma usa «asthma». La alergia al polen se indica aparte, con los tipos de polen.
 - PREVISIONES A VARIOS DÍAS: di siempre que las previsiones son menos seguras cuanto más lejos está el día, y menciona el nivel de confianza (alta, media o baja) que devuelve la herramienta para el día del que hables. Indica también de dónde sale la previsión de polen: nuestro modelo propio, la previsión europea (CAMS, Open-Meteo) o una medición; y si para algún tipo de polen no hay previsión fiable, dilo tal cual.
-- Si el contexto dice que el modo demostración está activado, los datos son del 28 de mayo de 2025 (y el planificador y la previsión de polen muestran la vista del 24 de mayo de 2025) y no de hoy: dilo en la respuesta.
+- Si el contexto dice que el modo demostración está activado, los datos no son de hoy: get_risk y get_best_hours devuelven el 28 de mayo de 2025, y get_planner y get_pollen_forecast devuelven la vista del 24 de mayo de 2025 (lo que se sabía ese día). Dilo en una frase, con la fecha que indique la herramienta que hayas usado, sin mezclar las dos.
+- Si la persona no ha indicado alergia al polen, el planificador no tiene en cuenta el polen: dilo así, no digas que no hay previsión de polen.
 
 CÓMO RESPONDER
-- Respuestas breves: como máximo unas 5 frases, en tono cercano y claro, en texto sin formato (sin Markdown, sin listas ni negritas).
+- Respuestas breves: NUNCA más de 5 frases en total, en un solo párrafo, en tono cercano y claro, en texto sin formato (sin Markdown, sin listas ni negritas). Elige lo esencial: la respuesta, el motivo, la fuente con su hora y, si hace falta, un aviso. No ofrezcas más ayuda al final.
 - Responde en el idioma en el que te escriba la persona.
 - Empieza por la respuesta directa (se puede salir, precaución o mejor quedarse en casa) y luego da el motivo.
 
@@ -389,7 +391,7 @@ def get_planner(lat, lon, profile, allergy_types, context):
             "polen": [_pollen_text(p) for p in day["pollen"]],
             "tramos": [{
                 "tramo": f"{block['name']} ({block['hours']})", "nivel": block["level_label"],
-                "calidad_del_aire_prevista": (f"{block['air']['category_name']} por {block['air']['pollutant']}"
+                "calidad_del_aire_prevista": (f"{block['air']['category_name']} (contaminante más alto: {block['air']['pollutant']})"
                                               if block["air"] else "sin previsión de aire para este tramo"),
                 "temperatura_c": block["weather"]["temperature_c"] if block["weather"] else None,
                 "lluvia_mm": block["weather"]["rain_mm"] if block["weather"] else None,
@@ -410,16 +412,29 @@ def get_pollen_forecast(lat, lon, pollen_types, context):
     # the latest official measurement, for comparison
     measurement = None
     try:
-        pollen_table = data.load_replay_pollen() if demo else data.load_pollen(today=now.normalize())
-        near = risk.pollen_near(lat, lon, pollen_table)
-        if near:
+        if demo:
+            # the demo view is "as of 24 May 2025": the latest reading known that day (not a later one)
+            table = risk._add_distance(planner.predict.forecast(True), lat, lon)
+            rows = table[(table["station"] == table.iloc[0]["station"]) & (table["lead"] == 0) & table["pollen_type"].isin(wanted)]
+            reading_day = result["today"] - pd.Timedelta(days=int(rows["last_age"].max()))
             measurement = {
-                "tipo_de_dato": "medición de estación (Red Palinocam, Comunidad de Madrid)",
-                "estacion": near["station"], "distancia_km": near["distance_km"],
-                "fecha_de_la_lectura": near["reading_date"].strftime("%d/%m/%Y"), "antiguedad_dias": near["age_days"],
-                "tipos": [{"tipo": t["name"], "granos_m3": t["value"], "nivel": t["level_name"]}
-                          for t in near["types"] if t["pollen_type"] in wanted],
+                "tipo_de_dato": "medición de estación (Red Palinocam): la última publicada el día de la vista",
+                "estacion": table.iloc[0]["station"], "distancia_km": round(table.iloc[0]["distance_km"], 1),
+                "fecha_de_la_lectura": reading_day.strftime("%d/%m/%Y"), "antiguedad_dias": int(rows["last_age"].max()),
+                "tipos": [{"tipo": config.POLLEN_NAMES[r["pollen_type"]], "granos_m3": r["last_value"],
+                           "nivel": config.POLLEN_LEVELS[risk.pollen_level(r["pollen_type"], r["last_value"])]}
+                          for _, r in rows.iterrows()],
             }
+        else:
+            near = risk.pollen_near(lat, lon, data.load_pollen(today=now.normalize()))
+            if near:
+                measurement = {
+                    "tipo_de_dato": "medición de estación (Red Palinocam, Comunidad de Madrid)",
+                    "estacion": near["station"], "distancia_km": near["distance_km"],
+                    "fecha_de_la_lectura": near["reading_date"].strftime("%d/%m/%Y"), "antiguedad_dias": near["age_days"],
+                    "tipos": [{"tipo": t["name"], "granos_m3": t["value"], "nivel": t["level_name"]}
+                              for t in near["types"] if t["pollen_type"] in wanted],
+                }
     except Exception:
         pass
 

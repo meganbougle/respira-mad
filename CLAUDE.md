@@ -39,8 +39,7 @@ Repo: https://github.com/meganbougle/respira-mad (public, branch `main`).
 - **Step 3b (done): web app UI** — `api.py` + `static/`, replacing only the
   presentation layer. `data.py`, `risk.py`, `config.py` and `backup/` were not
   changed for it and must stay shared by both front ends.
-- **Step 4 (done, untested against the real model until a key is added): AI
-  assistant** — `assistant.py`, `POST /api/chat`, chat panel in `static/`.
+- **Step 4 (done): AI assistant** — `assistant.py`, `POST /api/chat`, chat panel in `static/`.
 
 ## Files
 
@@ -322,8 +321,10 @@ grains/m³. An hour slider (default 10:00) sets the time of day.
   context. Answers are labelled "Generado por IA con datos oficiales".
 - `test_chat.py` asks the 3 suggested questions live and in demo mode, a
   planner question live and in demo mode, plus one off-topic and one medical
-  question (needs a real key). **As of 16 Nov 2026 it has never been run: no
-  key has been available on this machine, so the model's real answers are
-  untested.**
+  question (needs a real key). First run against the real model on 16 Nov
+  2026: all ten answered with the right tools, about 10,000 input tokens and
+  $0.0012 per question (list-price estimate). Known weak spot: the model
+  sometimes adds general advice of its own (shade, water, symptoms to watch)
+  that does not come from the tools.
 - The Streamlit fallback (`app.py`) has no assistant; its placeholder never
   shows a chat.
