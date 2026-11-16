@@ -30,6 +30,7 @@ for name, loader in (("Aire (ambas redes)", data.load_air), ("Polen", data.load_
 try:
     from pollen_model import predict
     live = predict.forecast().attrs.get("live")
+    live = live and predict.recent_readings().attrs.get("live")      # the last two weeks of readings, for the chart
     problems += 0 if live else 1
     print(f"Modelo de polen: {'LIVE, backup saved' if live else 'FAILED - kept the old backup'}")
 except Exception as error:

@@ -142,3 +142,20 @@ def station_rows(station_number, pollen, network, weather, pollen_type, lead, de
     # what we are trying to predict: the reading of day D + lead
     rows["target_value"] = pollen.shift(-lead).to_numpy()
     return rows
+
+
+def predict_quantiles(models, rows, grains=True):
+    """
+    The median forecast and the 80% prediction interval for some feature rows.
+    `models` is {"mean": ..., "q10": ..., "q50": ..., "q90": ...} for one
+    pollen type and lead day (made by compare_models.py): "mean" predicts the
+    average of log(1 + grains) and the other three predict how far from it
+    the 10%, 50% and 90% points are.
+    Returns a table with columns q10, q50, q90: grains/m3, or the log scale if grains=False.
+    """
+    mean = models["mean"].predict(rows)
+    median = mean + models["q50"].predict(rows)
+    low = np.minimum(mean + models["q10"].predict(rows), median)        # never above the median
+    high = np.maximum(mean + models["q90"].predict(rows), median)       # never below it
+    table = pd.DataFrame({"q10": low, "q50": median, "q90": high}).clip(lower=0)
+    return np.expm1(table).round(1) if grains else table

@@ -49,6 +49,7 @@ Repo: https://github.com/meganbougle/respira-mad (public, branch `main`).
 | `planner.py` | The 5-day planner logic |
 | `pollen_model/`, `train_pollen_model.py` | Our pollen forecast model: features, live prediction, saved models, backtest report; and the script that trains and tests it |
 | `static/index.html`, `app.js`, `style.css` | The web app page (Spanish, mobile first, no build step) |
+| `compare_models.py`, `MODEL_REPORT.md` | Compares seasonal naive, exponential smoothing, ARIMAX and gradient boosting on 2025; the report in Spanish |
 | `assistant.py` | The AI assistant: system prompt, four tools, limits, cost log |
 | `test_chat.py`, `test_timestamps.py` | Assistant test questions (needs a key); future-timestamp checks |
 | `gazetteer.csv`, `build_gazetteer.py` | Place names for "Cerca de …" and the one-off script that builds them |
@@ -254,7 +255,38 @@ grains/m³. An hour slider (default 10:00) sets the time of day.
   `requirements.txt` because the saved model only loads with the version that
   made it.
 - To retrain: `.venv/bin/python train_pollen_model.py` (needs `matplotlib`
-  for the chart; not in `requirements.txt`).
+  for the chart; not in `requirements.txt`), then `compare_models.py`.
+
+## Model comparison and the model per pollen type (`compare_models.py`, `MODEL_REPORT.md`)
+
+- **What it compares (16 Nov 2026 run):** on `log(1 + grains/m³)`, same 2025
+  test rows, same 3-day delay, lead days 1–5: seasonal naive, exponential
+  smoothing (simple won by AIC in 99 of 100 series), ARIMAX (Fourier terms for
+  the year + weather of the day + ARMA errors, orders by AIC, d = 0 from the
+  ADF test, fitted per station on 2015–2024) and gradient boosting. In-season
+  accuracy on the official level / log MAE: naive 47% / 1.69, smoothing
+  53% / 1.18, ARIMAX 60% / 0.92, gradient boosting 62% / 0.86.
+- **Model used per type** (`pollen_model/model_choice.json`; rule: best
+  in-season level accuracy, within one point the lower MAE): ARIMAX for
+  Encinas y robles (Quercus), Pinos and Ortigas; gradient boosting for the
+  other seven. `predict.forecast()` has a `model` column ("gb" / "arimax").
+  ARIMAX types have their own RELIABLE flags in `pollen_model/arimax_params.json`
+  (same rule); Quercus is now RELIABLE at every lead except 1. If ARIMAX fails
+  for a station, gradient boosting answers.
+- **Prediction intervals (80%)**, columns `q10, q50, q90` in grains/m³:
+  ARIMAX natively (`pollen_model/arimax.py`, shared by the comparison and the
+  app); gradient boosting by quantile regression
+  (`pollen_model/quantile_models.joblib`, 15.7 MB: a mean model plus three
+  models for the distance to the mean; quantiles learnt directly stay stuck
+  at zero for types that are zero most of the year). Real coverage in season
+  2025: about 72% for gradient boosting, 55% for ARIMAX (56–68% on its three
+  types). The level the app acts on still comes from the classifier for
+  gradient-boosting types, so it can differ by one level from the median.
+- `statsmodels` and `scipy` are pinned in `requirements.txt` (ARIMAX runs in
+  the app). `predict.recent_readings()` gives the last two weeks of readings
+  (backup `backup/pollen_recent.csv`; demo: `backup/replay/pollen_recent_2025-05-24.csv`).
+- Honest limits (also in the report): the model per type was picked on the
+  same 2025 it is scored on; intervals are too narrow; peaks are smoothed.
 
 ## 5-day planner (`planner.py`, `/api/planner`)
 

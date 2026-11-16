@@ -5,7 +5,16 @@ pollen_model/predict.py - makes pollen forecasts in the app with OUR model.
         station, station_code, lat, lon, pollen_type, issue_date, target_date,
         lead (0 = today ... 5), predicted_level (0-3), prob_alto_or_more,
         reliable (did this type + lead day beat the baseline in the 2025 test?),
-        accuracy (share of in-season days it got right in that test)
+        accuracy (share of in-season days it got right in that test),
+        q10, q50, q90 (grains/m3: the median forecast and an 80% prediction
+        interval, from quantile regression; see compare_models.py)
+
+    recent_readings(demo)  ->  the official readings of the last two weeks at
+        every station (for the forecast chart).
+
+    Each pollen type uses the model that won the 2025 comparison (see
+    MODEL_REPORT.md and model_choice.json): gradient boosting for most, ARIMAX
+    for a few. Column `model` says which ("gb" or "arimax").
 
     best_source(...) picks, for one pollen type and day, our model if it is
     RELIABLE, otherwise the European forecast (grass and olive only),
@@ -19,12 +28,14 @@ import json
 from pathlib import Path
 
 import joblib
+import numpy as np
 import pandas as pd
 import requests
 import streamlit as st
 
 import config
 import data
+from pollen_model import arimax as A
 from pollen_model import features as F
 
 FOLDER = Path(__file__).parent
@@ -37,7 +48,11 @@ DAILY = {"temperature_2m_mean": "temp_mean", "temperature_2m_max": "temp_max", "
 OUR_MODEL = "Modelo propio de Respira MAD"
 EUROPEAN = "Previsión europea CAMS (Open-Meteo)"
 
+RECENT_DAYS = 14                    # how many days of readings recent_readings() keeps
+
 _models = None
+_quantile_models = None
+_last_readings = None               # the readings downloaded for the latest forecast (reused by recent_readings)
 
 
 def models():
@@ -46,6 +61,36 @@ def models():
     if _models is None:
         _models = joblib.load(FOLDER / "models.joblib")
     return _models
+
+
+def quantile_models():
+    """
+    The quantile models made by compare_models.py, loaded once:
+    {(pollen type, lead): {"q10": model, "q50": model, "q90": model}} (see
+    features.predict_quantiles). Returns {} if the file is missing (no intervals then).
+    """
+    global _quantile_models
+    if _quantile_models is None:
+        file = FOLDER / "quantile_models.joblib"
+        _quantile_models = joblib.load(file) if file.exists() else {}
+    return _quantile_models
+
+
+@st.cache_data(show_spinner=False)
+def model_choice():
+    """Which model won the 2025 comparison for each pollen type (see MODEL_REPORT.md)."""
+    file = FOLDER / "model_choice.json"
+    return json.loads(file.read_text(encoding="utf-8")) if file.exists() else {"choice": {}}
+
+
+@st.cache_data(show_spinner=False)
+def arimax_models():
+    """
+    The fitted ARIMAX models for the pollen types where ARIMAX won:
+    {"models": {pollen type: {station: {order, fourier_pairs, params}}}, "results": [...]}.
+    """
+    file = FOLDER / "arimax_params.json"
+    return json.loads(file.read_text(encoding="utf-8")) if file.exists() else {"models": {}, "results": []}
 
 
 @st.cache_data(show_spinner=False)
@@ -57,9 +102,42 @@ def meta():
 @st.cache_data(show_spinner=False)
 def test_results():
     """{(pollen type, lead): {"reliable": True/False, "accuracy": share of in-season days right}}"""
-    return {(r["pollen_type"], r["lead"]): {"reliable": bool(r["reliable"]), "accuracy": r["accuracy_season"],
-                                            "baseline": r["baseline_season"]}
-            for r in meta()["results"]}
+    results = {(r["pollen_type"], r["lead"]): {"reliable": bool(r["reliable"]), "accuracy": r["accuracy_season"],
+                                               "baseline": r["baseline_season"]}
+               for r in meta()["results"]}
+    # the pollen types that use ARIMAX have their own test results
+    for r in arimax_models()["results"]:
+        results[(r["pollen_type"], r["lead"])] = {"reliable": bool(r["reliable"]), "accuracy": r["accuracy_season"],
+                                                  "baseline": r["baseline_season"]}
+    return results
+
+
+def _arimax_rows(pollen_type, code, readings, weather, issue_day):
+    """
+    ARIMAX forecast for one station and pollen type, as of `issue_day`:
+    {lead: {"predicted_level", "prob_alto_or_more", "q10", "q50", "q90"}} or {} if this station has no fitted model.
+    It only sees readings up to issue_day - 3 days; the weather of the coming days is the weather forecast.
+    """
+    from scipy.stats import norm
+
+    fitted = arimax_models()["models"].get(pollen_type, {}).get(code)
+    if fitted is None:
+        return {}
+    last = issue_day - pd.Timedelta(days=F.READING_DELAY)
+    window_days = pd.date_range(last - pd.Timedelta(days=A.WINDOW_DAYS - 1), last, freq="D")
+    future_days = pd.date_range(last + pd.Timedelta(days=1), issue_day + pd.Timedelta(days=max(F.LEADS)), freq="D")
+    window = np.log1p(readings.reindex(window_days))
+    mean, error = A.forecast(window, weather[A.WEATHER].reindex(window_days), weather[A.WEATHER].reindex(future_days),
+                             fitted["order"], fitted["fourier_pairs"], fitted["params"])
+    alto = np.log1p(config.POLLEN_THRESHOLDS[pollen_type][1])
+    rows = {}
+    for lead in F.LEADS:
+        i = F.READING_DELAY - 1 + lead                     # position of day D+lead among the forecast days
+        low, middle, high = np.expm1(A.quantiles(mean[i], error[i]))
+        rows[lead] = {"predicted_level": int(F.level_of(pollen_type, [middle])[0]),
+                      "prob_alto_or_more": round(float(1 - norm.cdf((alto - mean[i]) / error[i])), 3),
+                      "q10": round(float(low), 1), "q50": round(float(middle), 1), "q90": round(float(high), 1)}
+    return rows
 
 
 # ----------------------------------------------------------------------------
@@ -84,18 +162,24 @@ def _fetch_recent_pollen():
     readings = readings.dropna(subset=["value"]).rename(columns={"captador": "station_code", "tipo_polinico": "pollen_type"})
     readings = readings.drop_duplicates(subset=["station_code", "timestamp", "pollen_type"])
     readings = readings[readings["timestamp"] >= data._madrid_now().normalize() - pd.Timedelta(days=420)]
-    return readings[["station_code", "pollen_type", "value", "timestamp"]].reset_index(drop=True)
+    global _last_readings
+    _last_readings = readings[["station_code", "pollen_type", "value", "timestamp"]].reset_index(drop=True)
+    return _last_readings
 
 
 def _fetch_station_weather(lat, lon):
-    """Daily weather at one station from 1 January to 6 days ahead (observed, then forecast)."""
+    """
+    Daily weather at one station up to 6 days ahead (observed, then forecast).
+    It starts on 1 January (the "warmth since 1 January" input needs it) or
+    about 4 months ago if that is earlier (the ARIMAX model looks back 120 days).
+    """
     today = data._madrid_now().normalize()
     recent = requests.get(FORECAST_URL, timeout=data.TIMEOUT, params={
         "latitude": lat, "longitude": lon, "daily": ",".join(DAILY), "timezone": "Europe/Madrid",
         "past_days": 14, "forecast_days": 7})
     recent.raise_for_status()
     table = pd.DataFrame(recent.json()["daily"])
-    start_of_year = pd.Timestamp(year=today.year, month=1, day=1)
+    start_of_year = min(pd.Timestamp(year=today.year, month=1, day=1), today - pd.Timedelta(days=A.WINDOW_DAYS + 10))
     older_end = today - pd.Timedelta(days=15)
     if older_end > start_of_year:                   # the months before: historical weather
         older = requests.get(ARCHIVE_URL, timeout=data.TIMEOUT, params={
@@ -113,28 +197,45 @@ def _predict(readings, weather_by_station, stations, issue_day):
     station_number = meta()["station_number"]
     all_days = pd.date_range(issue_day - pd.Timedelta(days=420), issue_day + pd.Timedelta(days=max(F.LEADS)), freq="D")
     results = test_results()
+    gb_results = {(r["pollen_type"], r["lead"]): {"reliable": bool(r["reliable"]), "accuracy": r["accuracy_season"]}
+                  for r in meta()["results"]}
     rows = []
     for pollen_type in F.POLLEN_TYPES:
         one = readings[readings["pollen_type"] == pollen_type]
         wide = one.pivot(index="timestamp", columns="station_code", values="value").reindex(all_days)
         network = wide.mean(axis=1)
+        use_arimax = model_choice()["choice"].get(pollen_type) == "arimax"
         for code in wide.columns:
             if code not in weather_by_station or code not in station_number:
                 continue
+            arimax = {}
+            if use_arimax:
+                try:
+                    arimax = _arimax_rows(pollen_type, code, wide[code], weather_by_station[code], issue_day)
+                except Exception:
+                    arimax = {}                     # if ARIMAX fails for this station, gradient boosting still answers
             for lead in F.LEADS:
                 table = F.station_rows(station_number[code], wide[code], network, weather_by_station[code],
                                        pollen_type, lead, F.READING_DELAY)
                 row = table.loc[[issue_day]]
                 if pd.isna(row["last_value"].iloc[0]):
                     continue                        # no reading in the last ~2 weeks: no forecast for this station
-                model = models()[(pollen_type, lead)]
-                probabilities = model.predict_proba(row[F.FEATURES])[0]
-                result = results.get((pollen_type, lead), {"reliable": False, "accuracy": None})
+                if lead in arimax:
+                    prediction = {**arimax[lead], "model": "arimax"}
+                    result = results.get((pollen_type, lead), {"reliable": False, "accuracy": None})
+                else:
+                    model = models()[(pollen_type, lead)]
+                    probabilities = model.predict_proba(row[F.FEATURES])[0]
+                    prediction = {"predicted_level": int(model.predict(row[F.FEATURES])[0]), "model": "gb",
+                                  "prob_alto_or_more": round(float(sum(p for p, c in zip(probabilities, model.classes_) if c >= 2)), 3)}
+                    # the median and the 80% interval, in grains/m3
+                    if (pollen_type, lead) in quantile_models():
+                        prediction.update(F.predict_quantiles(quantile_models()[(pollen_type, lead)], row[F.FEATURES]).iloc[0].to_dict())
+                    # the test results of gradient boosting (not ARIMAX's, even for a type that normally uses ARIMAX)
+                    result = gb_results.get((pollen_type, lead), {"reliable": False, "accuracy": None})
                 rows.append({
                     "station_code": code, "pollen_type": pollen_type, "issue_date": issue_day,
-                    "target_date": issue_day + pd.Timedelta(days=lead), "lead": lead,
-                    "predicted_level": int(model.predict(row[F.FEATURES])[0]),
-                    "prob_alto_or_more": round(float(sum(p for p, c in zip(probabilities, model.classes_) if c >= 2)), 3),
+                    "target_date": issue_day + pd.Timedelta(days=lead), "lead": lead, **prediction,
                     "reliable": result["reliable"], "accuracy": result["accuracy"],
                     "last_value": float(row["last_value"].iloc[0]), "last_age": int(row["last_age"].iloc[0]),
                 })
@@ -182,6 +283,33 @@ def _demo_forecast():
     table.attrs["live"] = False
     table.attrs["fetched_at"] = pd.Timestamp(config.PLANNER_DEMO_DATE)
     return table
+
+
+def _fetch_recent_readings():
+    """The readings of the last RECENT_DAYS days at every station, with the station names."""
+    readings = _last_readings if _last_readings is not None else _fetch_recent_pollen()
+    readings = readings[readings["timestamp"] >= data._madrid_now().normalize() - pd.Timedelta(days=RECENT_DAYS)]
+    traps = data._read_csv(data._ckan_csv_url("captadores_polen"), encoding="latin-1")
+    names = pd.DataFrame({"station_code": traps["codigo"], "station": traps["nombre"]})
+    return readings.merge(names, on="station_code", how="left").reset_index(drop=True)
+
+
+@st.cache_data(ttl=SIX_HOURS, show_spinner=False)
+def _live_recent_readings(day_text):
+    return data._with_backup("pollen_recent", _fetch_recent_readings)
+
+
+def recent_readings(demo=False):
+    """
+    Official pollen readings of the last two weeks: station, station_code,
+    pollen_type, value (grains/m3), timestamp (the reading day). In demo mode:
+    the readings that had been published by 24 May 2025.
+    """
+    if demo:
+        table = pd.read_csv(data.BACKUP_DIR / "replay" / f"pollen_recent_{config.PLANNER_DEMO_DATE}.csv", parse_dates=["timestamp"])
+        table.attrs["live"] = False
+        return table
+    return _live_recent_readings(data._madrid_now().strftime("%Y-%m-%d"))
 
 
 def forecast(demo=False):
