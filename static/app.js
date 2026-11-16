@@ -345,7 +345,6 @@ function drawRiskError() {
 
 function drawHours(data) {
   lastHours = data;
-  $("hours-title").textContent = `Mejores horas ${data.day}`;
   $("hour-value").textContent = `${state.hour}:00`;
 
   const strip = $("strip");
@@ -355,49 +354,52 @@ function drawHours(data) {
     $("windows").innerHTML = "";
     return;
   }
-  // which hour to show the details of: the tapped one, or the first hour not yet gone
-  const stillThere = data.hours.some((h) => h.hour === state.selectedHour);
-  if (!stillThere) state.selectedHour = (data.hours.find((h) => !h.past) || data.hours[0]).hour;
+  // The strip shows the next 24 hours, starting now. Each hour is identified by its full time
+  // ("2026-11-17T01:00"), because the same hour number can belong to today or to tomorrow.
+  const stillThere = data.hours.some((h) => h.time === state.selectedHour);
+  if (!stillThere) state.selectedHour = data.hours[0].time;
+  const firstTomorrow = data.hours.find((h) => h.day === "mañana");
 
   strip.innerHTML = data.hours.map((h) => `
-    <button class="hour ${h.past ? "is-past" : ""} ${h.best ? "is-best" : ""} ${h.hour === state.selectedHour ? "is-selected" : ""}"
-            type="button" data-hour="${h.hour}" style="--c:${config.levels[h.level_index].color}"
-            aria-label="${h.hour}:00, ${esc(h.level_label)}${h.best ? ", mejor franja" : ""}">
+    <button class="hour ${h.best ? "is-best" : ""} ${h.time === state.selectedHour ? "is-selected" : ""} ${h === firstTomorrow ? "is-newday" : ""}"
+            type="button" data-time="${h.time}" style="--c:${config.levels[h.level_index].color}"
+            aria-label="${h.day} ${h.hour}:00, ${esc(h.level_label)}${h.best ? ", mejor franja" : ""}">
       <span class="hour-bar"></span><span class="hour-num">${String(h.hour).padStart(2, "0")}</span>
     </button>`).join("");
   strip.onclick = (event) => {
     const button = event.target.closest(".hour");
     if (!button) return;
-    state.selectedHour = Number(button.dataset.hour);
+    state.selectedHour = button.dataset.time;
     for (const other of strip.children) other.classList.toggle("is-selected", other === button);
     drawHourDetail();
   };
+  $("strip-scroll").scrollLeft = 0;                 // back to "now" whenever the data changes
   drawHourDetail();
 
   // best windows, as text
   let html = "";
   if (data.no_good_window) {
-    html = `<p class="windows-title">No hay ninguna franja recomendable ${data.day}: todas las horas previstas están en «${esc(config.levels[2].label)}».</p>`;
+    html = `<p class="windows-title">No hay ninguna franja recomendable en las próximas 24 horas: todas las horas previstas están en «${esc(config.levels[2].label)}».</p>`;
   } else if (data.windows.length) {
-    html = `<p class="windows-title">★ Mejores franjas ${data.day} (nivel «${esc(config.levels[data.windows[0].level_index].label)}»)</p><ul class="windows">`
-      + data.windows.map((w) => `<li><b>${hhmm(w.start)}–${hhmm(w.end)}</b><span>${num(w.temperature_c)} °C · ${w.rain_mm === 0 ? "sin lluvia" : `lluvia ${num(w.rain_mm, 1)} mm`}</span></li>`).join("")
+    html = `<p class="windows-title">★ Mejores franjas de las próximas 24 horas (nivel «${esc(config.levels[data.windows[0].level_index].label)}»)</p><ul class="windows">`
+      + data.windows.map((w) => `<li><b>${esc(w.day)} ${hhmm(w.start)}–${hhmm(w.end)}</b><span>${num(w.temperature_c)} °C · ${w.rain_mm === 0 ? "sin lluvia" : `lluvia ${num(w.rain_mm, 1)} mm`}</span></li>`).join("")
       + "</ul>";
   } else {
-    html = '<p class="windows-title">No quedan horas suficientes para recomendar una franja.</p>';
+    html = '<p class="windows-title">No hay horas suficientes en la previsión para recomendar una franja.</p>';
   }
   $("windows").innerHTML = html;
 }
 
 function drawHourDetail() {
-  const h = lastHours && lastHours.hours.find((x) => x.hour === state.selectedHour);
+  const h = lastHours && lastHours.hours.find((x) => x.time === state.selectedHour);
   if (!h) { $("hour-detail").textContent = ""; return; }
   const parts = [
     `NO2 ${num(h.NO2)}`, `O3 ${num(h.O3)}`, `PM10 ${num(h.PM10)}`, `PM2.5 ${num(h["PM2.5"])} µg/m³`,
     `${num(h.temperature_c)} °C`, h.rain_mm > 0 ? `lluvia ${num(h.rain_mm, 1)} mm` : "sin lluvia",
   ];
   if (state.allergic) parts.push(`gramíneas ${num(h.grass_pollen)} · olivo ${num(h.olive_pollen)} granos/m³`);
-  $("hour-detail").innerHTML = `<b>${String(h.hour).padStart(2, "0")}:00 · ${esc(h.level_label)}</b>`
-    + (h.limited_by ? ` (por ${esc(h.limited_by)})` : "") + (h.past ? " · hora ya pasada" : "")
+  $("hour-detail").innerHTML = `<b>${esc(h.day)} ${String(h.hour).padStart(2, "0")}:00 · ${esc(h.level_label)}</b>`
+    + (h.limited_by ? ` (por ${esc(h.limited_by)})` : "")
     + `<br>${esc(parts.join(" · "))}`;
 }
 
@@ -456,13 +458,14 @@ const info = {
     + "<p>El planificador muestra la vista del <b>24 de mayo de 2025</b>, usando solo lo que se sabía ese día, para ver si el pico del 28 se anticipaba.</p>" },
   planner: { title: "Planificador de 5 días", html:
     "<p>Todo lo que aparece aquí es una <b>previsión</b>, no una medición. Cuanto más lejos está el día, menos segura es.</p>"
+    + "<p>Cada día tiene cuatro tramos: mañana (7–13 h), tarde (13–20 h), noche (20–24 h) y madrugada (0–7 h). La madrugada de cada fila es la de la noche que empieza ese día.</p>"
     + "<p>El nivel de cada tramo es lo peor entre:</p><ul><li>el <b>polen</b> previsto para ese día, solo de los tipos que has marcado;</li>"
     + "<li>la <b>calidad del aire</b> prevista para ese tramo (modelo europeo CAMS, vía Open-Meteo), con los mismos umbrales oficiales del ICA y tu perfil.</li></ul>"
     + "<p>El polen sale de nuestro propio modelo allí donde demostró ser fiable al probarlo con 2025. Donde no lo fue, se usa la previsión europea (solo gramíneas y olivo) o se indica «Sin previsión fiable».</p>"
     + "<p>La <b>confianza</b> de cada día (alta, media o baja) resume cuánto acertó la previsión en esa prueba. Toca cualquier casilla para ver el porqué.</p>" },
   hours: { title: "Mejores horas", html:
     "<p><b>Previsión</b> del modelo europeo (Open-Meteo), no mediciones oficiales.</p>"
-    + "<p>Cada barra es una hora, con el color de su nivel. La estrella ★ marca las mejores franjas de tres horas; el tono claro indica horas que ya han pasado.</p>"
+    + "<p>Cada barra es una hora de las próximas 24, empezando por la actual, de día y de noche. La línea vertical marca la medianoche. La estrella ★ marca las mejores franjas de tres horas. En el móvil, desliza hacia la izquierda para ver más horas.</p>"
     + "<p>Si tienes alergia y la última medición de polen es alta, ninguna hora de hoy aparece mejor que esa medición.</p>" },
   measurements: { title: "Mediciones cerca de ti", html:
     "<p>Son <b>mediciones oficiales</b> de la estación más cercana que mide cada contaminante (redes de la Comunidad de Madrid y del Ayuntamiento de Madrid).</p>"
@@ -575,12 +578,13 @@ function plannerDetail(day, block) {
     ? `<p><span class="sheet-level" style="background:${level.color};color:${level.text_color}">${ICONS[block.level_index]}${esc(block.level_label)}</span></p>`
     : '<p><span class="sheet-level" style="background:#edf0ee">Sin previsión</span></p>';
   html += `<p>${esc(block.basis)}</p>`;
+  if (block.next_day) html += `<p>Esta madrugada pertenece a la noche ${day.label === "Hoy" ? "de hoy" : `del ${esc(day.label.toLowerCase())}`}: son las primeras horas del día ${ddmm(block.date)}.</p>`;
 
-  html += "<h4>Polen (previsión para el día)</h4>";
-  if (!day.pollen.length) {
+  html += "<h4>Polen (previsión para ese día)</h4>";
+  if (!block.pollen.length) {
     html += "<p>No has marcado alergia al polen, así que el polen no cuenta para este nivel.</p>";
   } else {
-    html += "<ul>" + day.pollen.map((p) => {
+    html += "<ul>" + block.pollen.map((p) => {
       const chip = p.kind === "model" ? '<span class="source-chip">Nuestro modelo</span>'
         : p.kind === "european" ? '<span class="source-chip is-european">Previsión europea</span>'
         : p.kind === "measurement" ? '<span class="source-chip is-measured">Medición oficial</span>'
@@ -598,7 +602,8 @@ function plannerDetail(day, block) {
   if (block.air) {
     const values = Object.entries(block.air.values).map(([p, v]) => `${esc(p)} ${num(v)}`).join(" · ");
     html += `<p>ICA previsto: <b>${esc(block.air.category_name)}</b> (por ${esc(block.air.pollutant)}, ${num(block.air.value)} µg/m³). `
-      + `<span class="source-chip is-european">Previsión europea</span></p><p>Valores del tramo: ${values} µg/m³ (hora más alta para NO2, media del tramo para el resto). Modelo CAMS, vía Open-Meteo.</p>`;
+      + `<span class="source-chip is-european">Previsión europea</span></p><p>Valores del tramo: ${values} µg/m³ (hora más alta para NO2, media del tramo para el resto). Modelo CAMS, vía Open-Meteo.</p>`
+      + `<p>Recomendación oficial para esa categoría y tu perfil: «${esc(block.air.official_advice)}»</p>`;
   } else {
     html += "<p>La previsión de calidad del aire no llega hasta este tramo.</p>";
   }

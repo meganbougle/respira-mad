@@ -238,14 +238,17 @@ select:focus-visible, .btn:focus-visible, .chip:focus-visible, .hour:focus-visib
 .more-advice .quote p { font-size: 13.500px; }
 .strip-legend span { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
 .strip-legend i { width: 11px; height: 11px; border-radius: 3px; display: inline-block; }
-.strip { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 2px; padding-top: 14px; }
+/* 24 hours: on phones the strip is wider than the screen and scrolls sideways inside its own box */
+.strip-scroll { overflow-x: auto; margin: 0 -14px; padding: 0 14px 4px; scrollbar-width: thin; -webkit-overflow-scrolling: touch; }
+.strip { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 2px; padding-top: 14px; min-width: 700px; }
+.hour.is-newday { margin-left: 9px; }
+.hour.is-newday::after { content: ""; position: absolute; left: -6px; top: 12px; bottom: 16px; width: 2px; border-radius: 1px; background: var(--ink-soft); }
 .hour {
   position: relative; border: 0; padding: 0; background: none; cursor: pointer; min-width: 0;
   display: flex; flex-direction: column; align-items: stretch; gap: 4px;
 }
 .hour-bar { height: 44px; border-radius: 5px; background: var(--c, #dfe5e2); transition: background-color .5s ease, opacity .3s, transform .15s; }
 .hour-num { font-size: 10.500px; color: var(--ink-faint); text-align: center; font-variant-numeric: tabular-nums; }
-.hour.is-past .hour-bar { opacity: .32; }
 .hour.is-best::before { content: "★"; position: absolute; top: -16px; left: 0; right: 0; text-align: center; font-size: 11px; color: var(--ink); }
 .hour.is-best .hour-bar { box-shadow: inset 0 3px 0 var(--ink); }
 .hour.is-selected .hour-bar { transform: scaleY(1.12); outline: 2px solid var(--ink); outline-offset: 1px; }
@@ -285,23 +288,23 @@ select:focus-visible, .btn:focus-visible, .chip:focus-visible, .hour:focus-visib
 .info-link .info::after { inset: 0; }
 
 /* ---------------- 5-day planner ---------------- */
-.planner { display: grid; grid-template-columns: minmax(64px, 0.9fr) repeat(3, minmax(0, 1fr)); gap: 4px; align-items: stretch; }
-.planner-col { text-align: center; font-size: 11.500px; font-weight: 700; color: var(--ink-soft); padding-bottom: 2px; line-height: 1.2; }
+.planner { display: grid; grid-template-columns: 54px repeat(4, minmax(0, 1fr)); gap: 3px; align-items: stretch; }
+.planner-col { text-align: center; font-size: 10.500px; font-weight: 700; color: var(--ink-soft); padding-bottom: 2px; line-height: 1.2; overflow: hidden; }
 .planner-col small { display: block; font-weight: 500; font-size: 10px; color: var(--ink-faint); }
 .planner-day { display: flex; flex-direction: column; justify-content: center; min-width: 0; line-height: 1.2; padding-right: 2px; }
-.planner-day b { font-size: 13.500px; white-space: nowrap; }
+.planner-day b { font-size: 12.500px; white-space: nowrap; }
 .conf { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; color: var(--ink-faint); white-space: nowrap; }
 .conf i { display: inline-flex; gap: 1.500px; }
 .conf i span { width: 5px; height: 5px; border-radius: 50%; background: #cfd6d2; }
 .conf i span.on { background: var(--ink-soft); }
 .pcell {
   display: flex; align-items: center; justify-content: center; gap: 5px;
-  min-height: 46px; padding: 0 4px; border: 0; border-radius: 10px; cursor: pointer;
+  min-height: 46px; padding: 0 2px; border: 0; border-radius: 9px; cursor: pointer; min-width: 0; gap: 3px;
   background: var(--c, #e8ecea); color: var(--ink-c, var(--ink));
-  font-weight: 700; font-size: 13px; font-variant-numeric: tabular-nums;
+  font-weight: 700; font-size: 12.500px; font-variant-numeric: tabular-nums;
   transition: background-color .5s ease, color .5s ease, transform .1s, box-shadow .15s;
 }
-.pcell svg { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor; stroke-width: 2.600; stroke-linecap: round; stroke-linejoin: round; }
+.pcell svg { width: 14px; height: 14px; flex: none; fill: none; stroke: currentColor; stroke-width: 2.600; stroke-linecap: round; stroke-linejoin: round; }
 .pcell:active { transform: scale(.96); }
 .pcell:hover, .pcell:focus-visible, .pcell.is-open { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--ink); outline: none; }
 .pcell-none { background: repeating-linear-gradient(135deg, #eef1ef 0 6px, #e3e8e5 6px 12px); color: var(--ink-faint); font-weight: 600; }
@@ -431,8 +434,11 @@ select:focus-visible, .btn:focus-visible, .chip:focus-visible, .hour:focus-visib
            padding: 8px 16px 16px; box-shadow: 0 10px 40px rgba(20, 32, 27, .28); border: 1px solid var(--line); animation: none; }
   .sheet-grip { display: none; }
   /* a mouse needs less room than a finger: slightly shorter planner rows on laptops */
-  .pcell { min-height: 38px; }
-  .planner { gap: 3px 4px; }
+  .pcell { min-height: 38px; font-size: 13px; }
+  .planner { gap: 3px 4px; grid-template-columns: 62px repeat(4, minmax(0, 1fr)); }
+  .planner-col { font-size: 11.500px; }
+  .strip { min-width: 0; }                       /* 24 hours fit the panel on a laptop: no scrolling */
+  .strip-scroll { overflow-x: visible; }
   body { overflow: hidden; }
   .topbar { grid-template-columns: auto auto 1fr; gap: 16px; padding: 10px 20px; height: var(--topbar-h); }
   .topbar-controls { grid-column: auto; justify-content: flex-end; }

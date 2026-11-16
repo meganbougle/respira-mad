@@ -102,9 +102,11 @@
 
     <!-- the hours -->
     <section class="block">
-      <h2 class="block-title"><span id="hours-title">Mejores horas hoy</span> <span class="tag tag-forecast">Previsión</span>
+      <h2 class="block-title"><span id="hours-title">Próximas 24 horas</span> <span class="tag tag-forecast">Previsión</span>
         <button class="info" type="button" data-info="hours" aria-label="Más información: mejores horas">i</button></h2>
-      <div class="strip" id="strip" role="group" aria-label="Nivel previsto por horas"></div>
+      <div class="strip-scroll" id="strip-scroll">
+        <div class="strip" id="strip" role="group" aria-label="Nivel previsto por horas, próximas 24 horas"></div>
+      </div>
       <div class="hour-detail" id="hour-detail"></div>
       <div class="strip-legend" id="strip-legend"></div>
 

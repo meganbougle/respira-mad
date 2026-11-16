@@ -8,7 +8,7 @@ It needs your Anthropic key. Either:
   - set the ANTHROPIC_API_KEY environment variable.
 
 Run it with:   .venv/bin/python test_chat.py
-It asks 10 questions (each one makes a few real requests to Anthropic; a few cents at most in total).
+It asks 14 questions (each one makes a few real requests to Anthropic; a few cents at most in total).
 """
 
 import logging
@@ -66,6 +66,14 @@ print("\n" + "=" * 78 + "\nPLANIFICADOR (en directo y en modo demostración)\n" 
 ask("Pregunta de planificador, en directo", PLANNER_QUESTION, dict(PANEL, demo=False))
 ask("Pregunta de planificador, demostración, alergia a gramíneas", PLANNER_QUESTION,
     dict(PANEL, demo=True, hour=config.REPLAY_DEFAULT_HOUR, allergy_types=["Gramíneas"]))
+
+print("\n" + "=" * 78 + "\nDE MADRUGADA Y CON EL PERFIL DICHO EN EL CHAT (el panel está en «General»)\n" + "=" * 78)
+ask("Fiesta a la 1 AM, asmática", "Quiero salir de fiesta a la 1 AM, soy asmática", dict(PANEL, demo=False))
+ask("Persona de 80 años, mañana a las 9", "Tengo 80 años, ¿puedo salir a caminar mañana a las 9?", dict(PANEL, demo=False))
+ask("Madrugada con el panel en «Niño/a» y sin decir nada del perfil", "¿Se puede salir a las 3 de la madrugada?",
+    dict(PANEL, demo=False, profile="children"))
+ask("Hijo alérgico al polen (modo demostración)", "Mi hijo es alérgico al polen, ¿puede ir al parque del Retiro a las 6 de la tarde?",
+    dict(PANEL, demo=True, hour=config.REPLAY_DEFAULT_HOUR))
 
 print("\n" + "=" * 78 + "\nLÍMITES\n" + "=" * 78)
 for title, question in OTHERS:

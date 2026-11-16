@@ -139,7 +139,7 @@ def get_config():
         "ica_categories": [{"name": name, "color": color}
                            for name, color in zip(config.ICA_CATEGORIES, config.ICA_COLORS)],
         "demo": {"date": config.REPLAY_DATE, "default_hour": config.REPLAY_DEFAULT_HOUR,
-                 "first_hour": config.WINDOW_FIRST_HOUR, "last_hour": config.WINDOW_LAST_HOUR - 1},
+                 "first_hour": 0, "last_hour": 23},
         "ai_assistant_enabled": config.AI_ASSISTANT_ENABLED,           # show the chat button?
         "ai_assistant_available": assistant.is_available(),            # ...and is there a key?
         # Optional key for the CARTO Positron basemap (free, from carto.com/basemaps/apikey).
@@ -247,7 +247,7 @@ def get_hours(lat: float = LAT, lon: float = LON, profile: str = "general",
                 "time": moment, "hour": moment.hour,
                 "level_index": row["level"], "level_label": config.LEVEL_LABELS[row["level"]],
                 "limited_by": row["limited_by"],
-                "past": moment < now.floor("h"),
+                "day": "hoy" if moment.normalize() == now.normalize() else "mañana",
                 "best": any(w["start"] <= moment < w["end"] for w in windows),
                 "NO2": row["NO2"], "O3": row["O3"], "PM10": row["PM10"], "PM2.5": row["PM2.5"],
                 "grass_pollen": row["grass_pollen"], "olive_pollen": row["olive_pollen"],
@@ -255,9 +255,8 @@ def get_hours(lat: float = LAT, lon: float = LON, profile: str = "general",
             })
     return clean({
         "kind": "PREVISIÓN (modelo de Open-Meteo), no mediciones oficiales",
-        "day": "hoy" if result["windows_day"] == now.normalize() else "mañana",
-        "hours": hours,
-        "windows": [{"start": w["start"], "end": w["end"], "level_index": w["level_index"],
+        "hours": hours,                              # the next 24 hours, starting at the current hour
+        "windows": [{"day": w["day"], "start": w["start"], "end": w["end"], "level_index": w["level_index"],
                      "temperature_c": w["temperature_c"], "rain_mm": w["rain_mm"]} for w in windows],
         "no_good_window": bool(result["windows"]) and not windows,
         "notes": [n for n in result["notes"] if "previsión" in n.lower()],
@@ -279,7 +278,7 @@ def get_planner(lat: float = LAT, lon: float = LON, profile: str = "general",
     if unknown:
         raise HTTPException(400, f"Tipo de polen desconocido: {unknown[0]}")
     result = planner.plan(lat, lon, profile, types, None, demo)
-    result["blocks"] = [{"name": name, "hours": f"{first}–{last} h"} for name, first, last in config.PLANNER_BLOCKS]
+    result["blocks"] = [{"name": name, "hours": f"{first}–{last} h"} for name, first, last, _ in config.PLANNER_BLOCKS]
     result["place_label"] = risk.place_name(lat, lon, dropdown_places())
     result["profile_label"] = config.PROFILES[profile]["label"]
     return clean(result)

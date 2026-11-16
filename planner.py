@@ -1,10 +1,12 @@
 """
-planner.py - the 5-day planner: today + 4 days, each split into three parts
-of the day (mañana, tarde, noche).
+planner.py - the 5-day planner: today + 4 days, each split into four parts:
+mañana (07-13), tarde (13-20), noche (20-24) and madrugada (00-07). The
+madrugada belongs to the night that starts the evening before, so on each row
+it shows the early hours of the NEXT calendar day.
 
     plan(lat, lon, profile, allergy_types, now, demo)  ->  a dictionary with
         days: for each day its date, the pollen forecast for the selected
-              types, a confidence label, and three blocks; each block has a
+              types, a confidence label, and four blocks; each block has a
               level (same three levels as the main card), the air forecast
               and the weather.
 
@@ -61,12 +63,15 @@ def plan(lat, lon, profile="general", allergy_types=(), now=None, demo=False):
         today = now.normalize()
     day_text = config.PLANNER_DEMO_DATE if demo else None
     notes = []
+    # one more calendar day than the planner shows, because the last night's
+    # "madrugada" (00-07) falls on the following calendar day
+    calendar_days = config.PLANNER_DAYS + 1
 
     # ---- forecasts for this exact point (Open-Meteo): air + pollen, and weather
     air, weather = None, None
     try:
-        air = data.load_forecast_air(round(lat, 2), round(lon, 2), day_text, config.PLANNER_DAYS)
-        weather = data.load_forecast_weather(round(lat, 2), round(lon, 2), day_text, config.PLANNER_DAYS)
+        air = data.load_forecast_air(round(lat, 2), round(lon, 2), day_text, calendar_days)
+        weather = data.load_forecast_weather(round(lat, 2), round(lon, 2), day_text, calendar_days)
     except Exception as error:
         notes.append(f"Sin previsión de Open-Meteo para este punto ({error}).")
 
@@ -90,12 +95,10 @@ def plan(lat, lon, profile="general", allergy_types=(), now=None, demo=False):
         except Exception:
             pass
 
-    days = []
-    for lead in range(config.PLANNER_DAYS):
+    # ---------------- pollen for each CALENDAR day (lead 0 = today), one entry per selected type
+    def pollen_of(lead):
         date = today + pd.Timedelta(days=lead)
-
-        # ---------------- pollen for this day, one entry per selected type
-        pollen_entries, pollen_app_level = [], None
+        entries, app_level = [], None
         for pollen_type in allergy_types:
             row = None
             if model_rows is not None:
@@ -121,18 +124,29 @@ def plan(lat, lon, profile="general", allergy_types=(), now=None, demo=False):
                                  source=f"Medición de {measured['station']} del {measured['reading_date']:%d/%m} "
                                         f"(hace {measured['age_days']} días)")
             if entry["level"] is not None:
-                app_level = config.POLLEN_TO_LEVEL[entry["level"]]
-                pollen_app_level = app_level if pollen_app_level is None else max(pollen_app_level, app_level)
-            pollen_entries.append(entry)
+                level = config.POLLEN_TO_LEVEL[entry["level"]]
+                app_level = level if app_level is None else max(app_level, level)
+            entries.append(entry)
+        return entries, app_level
+
+    pollen_by_lead = [pollen_of(lead) for lead in range(calendar_days)]
+
+    days = []
+    for lead in range(config.PLANNER_DAYS):
+        date = today + pd.Timedelta(days=lead)
+        pollen_entries = pollen_by_lead[lead][0]
         worst_pollen = max((p for p in pollen_entries if p["level"] is not None), key=lambda p: p["level"], default=None)
 
-        # ---------------- the three parts of the day
+        # ---------------- the four parts of the day
         blocks = []
-        for name, first_hour, last_hour in config.PLANNER_BLOCKS:
-            block = {"name": name, "hours": f"{first_hour}–{last_hour} h", "air": None, "weather": None}
+        for name, first_hour, last_hour, day_offset in config.PLANNER_BLOCKS:
+            block_date = date + pd.Timedelta(days=day_offset)      # the madrugada falls on the next calendar day
+            block_pollen, pollen_app_level = pollen_by_lead[lead + day_offset]
+            block = {"name": name, "hours": f"{first_hour}–{last_hour} h", "date": block_date,
+                     "next_day": bool(day_offset), "air": None, "weather": None, "pollen": block_pollen}
             air_level = None
             if air is not None:
-                hours = air[(air["timestamp"].dt.normalize() == date)
+                hours = air[(air["timestamp"].dt.normalize() == block_date)
                             & air["timestamp"].dt.hour.between(first_hour, last_hour - 1)]
                 # One value per pollutant for the block (see config.py, PLANNER_BLOCK_VALUE):
                 # the highest hour for NO2, the average of the block for O3 and particles.
@@ -151,9 +165,11 @@ def plan(lat, lon, profile="general", allergy_types=(), now=None, demo=False):
                     air_level = config.ICA_TO_LEVEL[audience][worst[0]]
                     block["air"] = {"category": worst[0], "category_name": config.ICA_CATEGORIES[worst[0]],
                                     "pollutant": worst[2], "value": round(values[worst[2]]),
-                                    "values": {p: round(v) for p, v in values.items()}}
+                                    "values": {p: round(v) for p, v in values.items()},
+                                    # the official advice for that forecast category and this profile
+                                    "official_advice": config.ICA_ADVICE_ES[audience][worst[0]]}
             if weather is not None:
-                hours = weather[(weather["timestamp"].dt.normalize() == date)
+                hours = weather[(weather["timestamp"].dt.normalize() == block_date)
                                 & weather["timestamp"].dt.hour.between(first_hour, last_hour - 1)]
                 if hours["temperature_c"].notna().any():
                     block["weather"] = {"temperature_c": round(float(hours["temperature_c"].mean())),

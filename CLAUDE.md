@@ -159,9 +159,10 @@ al polen", word for word.
   reason and comes first in the recommendations.
 - Location: nearest station with data per pollutant, nearest pollen trap,
   Open-Meteo for the exact point. No maximum distance; the distance is shown.
-- Best windows: forecast only, 3-hour windows between 07:00 and 22:00
-  (tomorrow's if today is nearly over), ranked by level, then no rain, then
-  lowest pollution. A measured pollen level is a floor for every hour of today.
+- Hourly strip and best windows: the next 24 hours starting at the current
+  hour, day and night (`HOURS_AHEAD`); 3-hour windows ranked by level, then no
+  rain, then lowest pollution, each labelled "hoy" or "mañana". On phones the
+  strip scrolls sideways inside its own box. A measured pollen level is a floor for every hour of today.
   Windows at "stay in" are never presented as recommended.
 - Weather has no thresholds of its own; temperature and rain are shown with
   each window.
@@ -257,8 +258,11 @@ grains/m³. An hour slider (default 10:00) sets the time of day.
 
 ## 5-day planner (`planner.py`, `/api/planner`)
 
-- Today + 4 days, each split into Mañana (7–13), Tarde (13–20), Noche (20–23)
-  (`PLANNER_BLOCKS` in `config.py`). Everything in it is a forecast.
+- Today + 4 days, each split into Mañana (7–13), Tarde (13–20), Noche (20–24)
+  and Madrugada (0–7) (`PLANNER_BLOCKS` in `config.py`). The madrugada belongs
+  to the night that starts the evening before, so on each row it uses the
+  early hours (and the pollen forecast) of the next calendar day; the planner
+  therefore loads one calendar day more than it shows. Everything is a forecast.
 - Level of a block = the worse of the day's pollen level (only the selected
   allergy types, via `predict.best_source()`) and the block's air forecast
   (Open-Meteo/CAMS, same ICA bands and profile rules as the main card).
@@ -277,7 +281,8 @@ grains/m³. An hour slider (default 10:00) sets the time of day.
 - Demo mode shows the view as of 24 May 2025 (`PLANNER_DEMO_DATE`): pollen is
   the model's forecast with what was known that day; air and weather are the
   European model's data for those dates, not the forecast issued then.
-- Page: a 4-column grid (day + three blocks) under the main card; tapping a
+- Page: a 5-column grid (day + four blocks) under the main card, which fits
+  390px without sideways scrolling; tapping a
   cell opens the shared explanation panel (bottom sheet on phones, popover on
   laptops). Explanatory notes across the page sit behind small "i" icons that
   open the same panel on tap (`info` object in `static/app.js`).
@@ -310,7 +315,18 @@ grains/m³. An hour slider (default 10:00) sets the time of day.
   off-topic questions. For multi-day forecasts it must say they are less
   certain further ahead and mention the day's confidence level and the source
   of the pollen forecast.
-- Limits: `max_tokens` 400, last 6 messages only, 20 messages per visitor per
+- Any hour: `get_risk` takes `hour` (and optionally `day`: hoy/mañana) and
+  returns the forecast for that hour, day or night, with the official text for
+  that hour's category; without `day` it means the next time it is that hour.
+- Profile from the chat: if the person says something about themselves ("soy
+  asmática", "tengo 80 años", "mi hijo es alérgico al polen") that overrides
+  the panel, and the answer says which profile it used. Pollen allergy without
+  a named type uses the panel's types, or all ten if the panel has none.
+- No advice of its own: the prompt limits an answer to the level, the reason
+  from the data, the official text for the time asked about, and "consulta con
+  tu médico" / 112. The model still occasionally adds a stray remark.
+- Limits: `max_tokens` 600 (400 cut off answers that quote the long official
+  pollen text), last 6 messages only, 20 messages per visitor per
   hour (in memory), at most 5 tool rounds. Thinking is off so the 400 tokens go
   to the answer (`AI_THINKING` in `config.py`).
 - Costs: every chat logs its tokens and a running total (lines starting
@@ -321,10 +337,8 @@ grains/m³. An hour slider (default 10:00) sets the time of day.
   context. Answers are labelled "Generado por IA con datos oficiales".
 - `test_chat.py` asks the 3 suggested questions live and in demo mode, a
   planner question live and in demo mode, plus one off-topic and one medical
-  question (needs a real key). First run against the real model on 16 Nov
-  2026: all ten answered with the right tools, about 10,000 input tokens and
-  $0.0012 per question (list-price estimate). Known weak spot: the model
-  sometimes adds general advice of its own (shade, water, symptoms to watch)
-  that does not come from the tools.
+  question, and night-time / stated-profile questions (needs a real key). Runs
+  on 16 Nov 2026: all 14 answered with the right tools, about 14,000 input
+  tokens and $0.0016 per question (list-price estimate).
 - The Streamlit fallback (`app.py`) has no assistant; its placeholder never
   shows a chat.

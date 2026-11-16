@@ -38,7 +38,8 @@ except Exception as error:
 
 places = risk.list_places(data.load_air())
 # (day, number of days): the main view (today, demo day) and the 5-day planner (today, demo planner day)
-requests_needed = [(None, 2), (config.REPLAY_DATE, 2), (None, config.PLANNER_DAYS), (config.PLANNER_DEMO_DATE, config.PLANNER_DAYS)]
+planner_days = config.PLANNER_DAYS + 1          # one extra day for the last night's madrugada
+requests_needed = [(None, 2), (config.REPLAY_DATE, 2), (None, planner_days), (config.PLANNER_DEMO_DATE, planner_days)]
 for name, (lat, lon) in places.items():
     status = []
     for day, days in requests_needed:

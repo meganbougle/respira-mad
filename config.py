@@ -251,8 +251,7 @@ PROFILES = {
 # ============================================================================
 WINDOW_HOURS = 3            # length of each suggested window (2 if few hours are left)
 WINDOW_COUNT = 3            # how many windows to suggest at most
-WINDOW_FIRST_HOUR = 7       # only suggest windows between 07:00 ...
-WINDOW_LAST_HOUR = 22       # ... and 22:00
+HOURS_AHEAD = 24            # the hourly strip and the windows cover the next 24 hours, day and night
 # APP DECISION: if the person is allergic and the pollen STATION reading puts
 # them at "be careful" or "stay in", every hour of today is at least that
 # level, even when the model forecasts less pollen. A measurement beats the
@@ -278,7 +277,11 @@ REPLAY_DEFAULT_HOUR = 10          # the demo starts at 10:00 on that day
 # The key is NEVER written in the code or committed to git.
 AI_ASSISTANT_ENABLED = True
 AI_MODEL = "claude-haiku-5-5"
-AI_MAX_TOKENS = 400               # longest answer the model may write
+# Longest answer the model may write. It was 400, but the official pollen
+# recommendation alone is about 130 tokens, and answers that quote it were
+# being cut off mid-sentence, so it is 600. Answers are still limited to 5
+# sentences by the instructions in assistant.py.
+AI_MAX_TOKENS = 600
 AI_KEEP_MESSAGES = 6              # only the last 6 chat messages are sent
 AI_MAX_MESSAGES_PER_HOUR = 20     # per visitor
 AI_MAX_TOOL_ROUNDS = 5            # how many times it may fetch data for one answer
@@ -299,8 +302,11 @@ AI_PRICE_OUTPUT_PER_MTOK = 0.50
 # RELIABLE; otherwise the European forecast (grass and olive only), otherwise
 # "Sin previsión fiable".
 PLANNER_DAYS = 5                                   # today + 4 days
-# The parts of the day shown in the planner: (name, first hour, last hour).
-PLANNER_BLOCKS = [("Mañana", 7, 13), ("Tarde", 13, 20), ("Noche", 20, 23)]
+# The parts of the day shown in the planner: (name, first hour, last hour, day offset).
+# The fourth number says which calendar day the block falls on: the
+# "madrugada" (00-07) belongs to the night that starts the evening before, so
+# it uses the hours of the NEXT calendar day.
+PLANNER_BLOCKS = [("Mañana", 7, 13, 0), ("Tarde", 13, 20, 0), ("Noche", 20, 24, 0), ("Madrugada", 0, 7, 1)]
 # SIMPLIFICATION: which forecast value stands for a whole block. The official
 # index uses the last hour for NO2, an 8-hour average for O3 and a 24-hour
 # average for particles. A block lasts 3 to 7 hours, so we take the highest

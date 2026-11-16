@@ -6,8 +6,8 @@ Main function:
         level            "good" / "be careful" / "stay in"  (+ level_index 0-2)
         reason           the main reason, in one Spanish sentence
         recommendations  official texts, word for word, each with its source
-        windows          the best 2-3 hour windows, from the FORECAST
-        hours            hour-by-hour table for the chart (FORECAST)
+        windows          the best 3-hour windows of the next 24 hours, from the FORECAST
+        hours            hour-by-hour table of the next 24 hours (FORECAST)
         air, pollen      the details behind the level (stations, values, dates)
         notes            warnings the app should show
 
@@ -251,9 +251,9 @@ def hourly_levels(forecast_air, forecast_weather, profile, allergy_types=()):
     audience = config.PROFILES[profile]["air"]
     table = forecast_air.merge(
         forecast_weather[["timestamp", "temperature_c", "rain_mm"]], on="timestamp", how="left")
-    levels, scores, reasons = [], [], []
+    levels, scores, reasons, categories = [], [], [], []
     for _, row in table.iterrows():
-        level, score, reason = 0, 0.0, ""
+        level, score, reason, worst_category = 0, 0.0, "", None
 
         # air: the worst ICA category among the four pollutants
         for pollutant, bands in config.ICA_BANDS.items():
@@ -261,6 +261,7 @@ def hourly_levels(forecast_air, forecast_weather, profile, allergy_types=()):
             if category is None:
                 continue
             score += row[pollutant] / bands[0]          # 1.0 = top of "Buena"
+            worst_category = category if worst_category is None else max(worst_category, category)
             air_level = config.ICA_TO_LEVEL[audience][category]
             if air_level > level:
                 level, reason = air_level, pollutant
@@ -280,62 +281,66 @@ def hourly_levels(forecast_air, forecast_weather, profile, allergy_types=()):
         levels.append(level)
         scores.append(score)
         reasons.append(reason)
+        categories.append(worst_category)
     table["level"], table["score"], table["limited_by"] = levels, scores, reasons
+    table["air_category"] = categories             # worst ICA category of the hour (for the official advice text)
     return table
+
+
+def next_hours(all_hours, now):
+    """The next 24 hours of the forecast table, starting at the current hour (day and night)."""
+    start = now.floor("h")
+    end = start + pd.Timedelta(hours=config.HOURS_AHEAD)
+    return all_hours[(all_hours["timestamp"] >= start) & (all_hours["timestamp"] < end)].reset_index(drop=True)
 
 
 def best_windows(hours, now):
     """
-    The best windows for being outdoors, from the hour-by-hour FORECAST table.
+    The best windows for being outdoors in the next 24 hours, from the
+    hour-by-hour FORECAST table (already cut to those hours by next_hours()).
     Ranked by: lowest level, then no rain, then lowest pollution.
     Only windows at the best level found are returned (up to WINDOW_COUNT).
-    If today has too few hours left, the windows are for tomorrow.
-    Returns (windows, day): a list of dictionaries and the day they are for.
+    Each window says whether it is "hoy" or "mañana".
     """
-    hours = hours[hours["timestamp"].dt.hour.between(config.WINDOW_FIRST_HOUR, config.WINDOW_LAST_HOUR - 1)]
+    length = config.WINDOW_HOURS
+    if len(hours) < length:
+        return []
+    today = now.normalize()
 
-    for day_name, day in (("hoy", now.normalize()), ("mañana", now.normalize() + pd.Timedelta(days=1))):
-        day_hours = hours[(hours["timestamp"].dt.normalize() == day) & (hours["timestamp"] >= now.floor("h"))]
-        day_hours = day_hours.reset_index(drop=True)
-        length = config.WINDOW_HOURS if len(day_hours) >= config.WINDOW_HOURS else 2
-        if len(day_hours) < length:
-            continue                                    # too late today: try tomorrow
+    # every possible run of `length` consecutive hours
+    candidates = []
+    for start in range(len(hours) - length + 1):
+        chunk = hours.iloc[start:start + length]
+        rain = chunk["rain_mm"].fillna(0).sum()
+        level = int(chunk["level"].max())
+        candidates.append({
+            "day": "hoy" if chunk["timestamp"].iloc[0].normalize() == today else "mañana",
+            "start": chunk["timestamp"].iloc[0],
+            "end": chunk["timestamp"].iloc[-1] + pd.Timedelta(hours=1),
+            "level_index": level,
+            "level": config.LEVELS[level],
+            "limited_by": chunk.loc[chunk["level"].idxmax(), "limited_by"],
+            "rain_mm": round(float(rain), 1),
+            "temperature_c": round(float(chunk["temperature_c"].mean()), 1),
+            "kind": data.FORECAST_LABEL,
+            "_sort": (level, rain > 0, chunk["score"].mean()),
+        })
+    candidates.sort(key=lambda c: c["_sort"])
 
-        # every possible run of `length` consecutive hours
-        candidates = []
-        for start in range(len(day_hours) - length + 1):
-            chunk = day_hours.iloc[start:start + length]
-            rain = chunk["rain_mm"].fillna(0).sum()
-            level = int(chunk["level"].max())
-            candidates.append({
-                "day": day_name,
-                "start": chunk["timestamp"].iloc[0],
-                "end": chunk["timestamp"].iloc[-1] + pd.Timedelta(hours=1),
-                "level_index": level,
-                "level": config.LEVELS[level],
-                "limited_by": chunk.loc[chunk["level"].idxmax(), "limited_by"],
-                "rain_mm": round(float(rain), 1),
-                "temperature_c": round(float(chunk["temperature_c"].mean()), 1),
-                "kind": data.FORECAST_LABEL,
-                "_sort": (level, rain > 0, chunk["score"].mean()),
-            })
-        candidates.sort(key=lambda c: c["_sort"])
-
-        # take the best ones that do not overlap each other
-        chosen = []
-        for candidate in candidates:
-            overlaps = any(candidate["start"] < c["end"] and c["start"] < candidate["end"] for c in chosen)
-            if not overlaps:
-                chosen.append(candidate)
-            if len(chosen) == config.WINDOW_COUNT:
-                break
-        # only keep windows as good as the best one (never suggest a worse level)
-        best_level = chosen[0]["_sort"][0]
-        chosen = [c for c in chosen if c["_sort"][0] == best_level]
-        for c in chosen:
-            del c["_sort"]
-        return sorted(chosen, key=lambda c: c["start"]), day
-    return [], now.normalize()
+    # take the best ones that do not overlap each other
+    chosen = []
+    for candidate in candidates:
+        overlaps = any(candidate["start"] < c["end"] and c["start"] < candidate["end"] for c in chosen)
+        if not overlaps:
+            chosen.append(candidate)
+        if len(chosen) == config.WINDOW_COUNT:
+            break
+    # only keep windows as good as the best one (never suggest a worse level)
+    best_level = chosen[0]["_sort"][0]
+    chosen = [c for c in chosen if c["_sort"][0] == best_level]
+    for c in chosen:
+        del c["_sort"]
+    return sorted(chosen, key=lambda c: c["start"])
 
 
 # ----------------------------------------------------------------------------
@@ -413,19 +418,18 @@ def assess(lat, lon, profile="general", allergy_types=(), now=None, demo=False):
     # ---- BEST WINDOWS. The pollen station reading counts for the whole day:
     # no hour of today can be better than the measured pollen level, even if
     # the model forecasts less pollen (see config.py, section 4).
-    hours, windows, windows_day = None, [], today
+    hours, windows = None, []
     if all_hours is not None:
         if pollen_app_level and pollen["kind"] == "measurement":
             is_today = all_hours["timestamp"].dt.normalize() == today
             worse = is_today & (all_hours["level"] < pollen_app_level)
             all_hours.loc[worse, "level"] = pollen_app_level
             all_hours.loc[worse, "limited_by"] = f"polen de {pollen_worst['name'].lower()} (medición)"
-        windows, windows_day = best_windows(all_hours, now)
-        hours = all_hours[all_hours["timestamp"].dt.normalize() == windows_day]
-        hours = hours[hours["timestamp"].dt.hour.between(config.WINDOW_FIRST_HOUR, config.WINDOW_LAST_HOUR - 1)]
+        hours = next_hours(all_hours, now)             # the next 24 hours, starting now
+        windows = best_windows(hours, now)
         if hours.empty:
             hours = None
-            notes.append("La previsión guardada no cubre el día de hoy, así que no hay mejores horas.")
+            notes.append("La previsión guardada no cubre las próximas horas, así que no hay mejores horas.")
 
     # ---- the two sentences and the two official texts
     air_text, air_advice, pollen_text, pollen_advice = None, None, None, None
@@ -470,8 +474,8 @@ def assess(lat, lon, profile="general", allergy_types=(), now=None, demo=False):
         "recommendations": recommendations,             # list of (source, official text)
         "profile_note": settings["note"],
         "windows": windows,
-        "windows_day": windows_day,
-        "hours": hours,
+        "hours": hours,                                 # the next 24 hours
+        "all_hours": all_hours,                         # everything the forecast covers (today and tomorrow)
         "air": air_readings,
         "air_table": air_table,
         "pollen": pollen,

@@ -103,7 +103,7 @@ with st.sidebar:
                      help="Reproduce el día con más polen de gramíneas de toda la serie histórica (1993-2026).")
     demo_hour = config.REPLAY_DEFAULT_HOUR
     if demo:
-        demo_hour = st.slider("Hora del día", config.WINDOW_FIRST_HOUR, config.WINDOW_LAST_HOUR - 1,
+        demo_hour = st.slider("Hora del día", 0, 23,
                               config.REPLAY_DEFAULT_HOUR, format="%d:00")
 
 # ----------------------------------------------------------------------------
@@ -190,8 +190,8 @@ with st.expander("Mediciones usadas para este resultado"):
 # Best hours (FORECAST)
 # ----------------------------------------------------------------------------
 
-day_word = "hoy" if result["windows_day"] == now.normalize() else "mañana"
-st.subheader(f"Mejores horas {day_word}")
+day_word = "en las próximas 24 horas"
+st.subheader("Mejores horas · próximas 24 horas")
 st.caption("PREVISIÓN (modelo de Open-Meteo), no mediciones oficiales.")
 
 hours = result["hours"]
@@ -218,7 +218,6 @@ else:
         "Nivel": [config.LEVEL_LABELS[i] for i in hours["level"]],
         "Limitado por": hours["limited_by"].replace("", "—"),
         "Mejor franja": ["Sí" if in_window(t) else "No" for t in hours["timestamp"]],
-        "Pasada": hours["timestamp"] < now.floor("h"),
         "NO2": hours["NO2"].round(0), "O3": hours["O3"].round(0),
         "PM10": hours["PM10"].round(0), "PM2.5": hours["PM2.5"].round(0),
         "Polen gramíneas": hours["grass_pollen"].round(0),
@@ -227,13 +226,13 @@ else:
         "Lluvia (mm)": hours["rain_mm"].round(1),
     })
     base = alt.Chart(chart_data).encode(
-        x=alt.X("Hora:O", title="Hora del día", axis=alt.Axis(labelAngle=0, labelFontSize=11)))
+        x=alt.X("Hora:O", sort=None, title="Hora (las próximas 24, empezando ahora)",   # sort=None keeps the order across midnight
+                axis=alt.Axis(labelAngle=0, labelFontSize=10)))
     # one tile per hour, coloured by level (hours already gone are faded)
     tiles = base.mark_rect(height=46, cornerRadius=4, stroke="white", strokeWidth=2).encode(
         color=alt.Color("Nivel:N",
                         scale=alt.Scale(domain=config.LEVEL_LABELS, range=config.LEVEL_COLORS),
                         legend=None),
-        opacity=alt.condition("datum.Pasada", alt.value(0.3), alt.value(1.0)),
         tooltip=["Franja", "Nivel", "Limitado por", "Mejor franja", "NO2", "O3", "PM10", "PM2.5",
                  "Polen gramíneas", "Polen olivo", "Temperatura (°C)", "Lluvia (mm)"])
     # a dark bar and a star above the hours that belong to a best window
@@ -252,7 +251,7 @@ else:
         st.markdown(f"★ **Mejores franjas {day_word}** (nivel «{config.LEVEL_LABELS[best_level]}»):")
         for w in result["windows"]:
             rain = "sin lluvia" if w["rain_mm"] == 0 else f"lluvia {w['rain_mm']} mm".replace(".", ",")
-            st.markdown(f"- **{w['start']:%H:%M}–{w['end']:%H:%M}** · {w['temperature_c']:.0f} °C · {rain}")
+            st.markdown(f"- **{w['day']} {w['start']:%H:%M}–{w['end']:%H:%M}** · {w['temperature_c']:.0f} °C · {rain}")
 
 # ----------------------------------------------------------------------------
 # Map
