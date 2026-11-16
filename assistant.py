@@ -57,7 +57,7 @@ if not log.handlers:
 def _load_local_env():
     """Read KEY=VALUE lines from a local .env file (never committed to git)."""
     env_file = Path(__file__).parent / ".env"
-    if not env_file.exists():
+    if not env_file.is_file():          # missing, or a folder created by mistake: carry on without it
         return
     for line in env_file.read_text(encoding="utf-8").splitlines():
         if "=" in line and not line.strip().startswith("#"):
