@@ -16,6 +16,7 @@ const ICONS = [icon("check"), icon("triangle-alert"), icon("house")];
 
 const $ = (id) => document.getElementById(id);
 const isNarrow = () => window.innerWidth < 520;     // phones get shorter labels in the header
+const isPhoneLayout = () => window.innerWidth < 900;   // map on top and panel below (same limit as style.css)
 
 // What the user has chosen. Everything on screen is drawn from this + the server's answers.
 const state = {
@@ -30,7 +31,10 @@ const state = {
 
 let config = null;
 let places = [];
-let map, pin, stationLayer;
+let map, pin, stationLayer, usedLayer;
+let stationMarkers = [];     // every station on the map: {kind, name, source, lat, lon, marker}
+let lastRisk = null;         // the latest result, to know which stations it used
+let fitNext = true;          // zoom the map to the chosen point and its stations on the next result
 let lastHours = null;
 let requestNumber = 0;      // to ignore answers that arrive after a newer request
 let updatedMinutes = null;  // for the "actualizado hace X min" pill
@@ -187,6 +191,7 @@ function buildMap() {
     // no key: OpenStreetMap tiles, turned light grey by style.css (.muted-tiles)
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 18, attribution: osm, className: "muted-tiles" }).addTo(map);
   }
+  usedLayer = L.layerGroup().addTo(map);            // thin lines from the stations in use to the chosen point
   stationLayer = L.layerGroup().addTo(map);
 
   const pinIcon = L.divIcon({
@@ -199,14 +204,16 @@ function buildMap() {
   // clicking the map moves the pin and updates everything
   map.on("click", (event) => setPoint(event.latlng.lat, event.latlng.lng, "Punto elegido en el mapa"));
 
-  // legend (opens by default on wide screens)
-  const legend = L.control({ position: "bottomleft" });
+  // Legend: open on laptops. On phones it starts closed, as a small "Leyenda" button at the
+  // top-left of the map (the bottom of the map is covered by the panel).
+  const legend = L.control({ position: isPhoneLayout() ? "topleft" : "bottomleft" });
   legend.onAdd = () => {
     const box = L.DomUtil.create("details", "legend");
-    box.open = window.innerWidth >= 900;
-    box.innerHTML = `<summary>Leyenda${icon("chevron-down")}</summary><ul>`
+    box.open = !isPhoneLayout();
+    box.innerHTML = `<summary>${icon("list")}Leyenda${icon("chevron-down", "legend-arrow")}</summary><ul>`
       + config.ica_categories.map((c, i) => `<li><span class="swatch" style="background:${c.color};border-color:${outline(i)}"></span>${esc(c.name)}</li>`).join("")
       + `<li><span class="pollen-marker is-small">${icon("pollen")}</span>Estación de polen</li>`
+      + '<li><span class="legend-used"></span>Estación usada en tu resultado</li>'
       + "</ul>";
     L.DomEvent.disableClickPropagation(box);
     return box;
@@ -224,7 +231,9 @@ function setPoint(lat, lon, name, options = {}) {
   state.lat = lat; state.lon = lon; state.placeName = name; state.selectedHour = null;
   pin.setLatLng([lat, lon]);
   if (!options.fromSelect) $("place").value = CUSTOM_PLACE;
-  if (options.fromSelect || options.recenter) map.setView([lat, lon], Math.max(map.getZoom(), 10));
+  // a place from the list or "my location": the map zooms to the point and the stations it uses
+  // (see highlightStations). A tap on the map keeps the zoom the person chose.
+  if (options.fromSelect || options.recenter) { fitNext = true; map.setView([lat, lon], map.getZoom()); }
   else map.panInside([lat, lon], { padding: [60, 60] });
   refresh();
 }
@@ -282,6 +291,8 @@ function setLoading(on) {
 /* ------------------------------------------------------------------ drawing */
 
 function drawRisk(risk) {
+  lastRisk = risk;
+  highlightStations();
   const level = risk.level_index == null ? null : config.levels[risk.level_index];
   const card = $("result");
   // changing these two variables is what makes the colour fade smoothly (see style.css)
@@ -404,24 +415,83 @@ function drawHourDetail() {
     + `<br>${esc(parts.join(" · "))}`;
 }
 
+// A pollen station: a small diamond with our pollen icon. Bigger when the result uses it, faded when it does not.
+function pollenIcon(state) {
+  const size = state === "used" ? 26 : 20;
+  return L.divIcon({ className: "", html: `<div class="pollen-marker is-${state}">${icon("pollen")}</div>`, iconSize: [size, size], iconAnchor: [size / 2, size / 2] });
+}
+
+// Tapping a station: a bottom sheet on phones (easier to read and to close than a small popup),
+// the usual popup next to the station on laptops.
+function showStation(entry) {
+  const used = entry.usedFor && entry.usedFor.length
+    ? `<p class="station-used">${icon("check")} Se usa en tu resultado: ${esc(entry.usedFor.join(", "))}.</p>` : "";
+  if (isPhoneLayout()) {
+    openSheet(entry.title, entry.html + used);
+  } else {
+    L.popup({ offset: [0, -4] }).setLatLng([entry.lat, entry.lon]).setContent(`<b>${esc(entry.title)}</b><br>${entry.html}${used}`).openOn(map);
+  }
+}
+
 function drawStations(data) {
   stationLayer.clearLayers();
+  stationMarkers = [];
   for (const s of data.air) {
-    L.circleMarker([s.lat, s.lon], { radius: 8, color: outline(s.category), weight: s.category === 0 ? 2.2 : 1.3, fillColor: s.color, fillOpacity: 0.95, bubblingMouseEvents: false })
-      .bindTooltip(`${esc(s.station)}: ${esc(s.category_name)}`)
-      .bindPopup(`<b>${esc(s.station)}</b><br><span class="popup-meta">${esc(s.source)} · ${ddmm(s.timestamp)} ${hhmm(s.timestamp)}</span><br>`
+    // air stations: circles in the official ICA colour of their category
+    const marker = L.circleMarker([s.lat, s.lon], { radius: 8, color: outline(s.category), weight: s.category === 0 ? 2.2 : 1.3, fillColor: s.color, fillOpacity: 0.95, bubblingMouseEvents: false });
+    const entry = {
+      kind: "air", name: s.station, source: s.source, lat: s.lat, lon: s.lon, marker, category: s.category,
+      title: s.station,
+      html: `<span class="popup-meta">${esc(s.source)} · ${ddmm(s.timestamp)} ${hhmm(s.timestamp)}</span><br>`
         + `<span class="popup-cat"><span class="swatch" style="background:${s.color};border-color:${outline(s.category)}"></span>ICA: ${esc(s.category_name)}</span><br>`
-        + s.details.map(esc).join("<br>"))
-      .addTo(stationLayer);
+        + s.details.map(esc).join("<br>"),
+    };
+    if (!isPhoneLayout()) marker.bindTooltip(`${esc(s.station)}: ${esc(s.category_name)}`);    // hover labels only where there is a mouse
+    marker.on("click", () => showStation(entry)).addTo(stationLayer);
+    stationMarkers.push(entry);
   }
-  const pollenIcon = L.divIcon({ className: "", html: `<div class="pollen-marker">${icon("pollen")}</div>`, iconSize: [22, 22], iconAnchor: [11, 11] });
   for (const p of data.pollen) {
     const age = p.age_days === 0 ? "de hoy" : `de hace ${p.age_days} días`;
-    L.marker([p.lat, p.lon], { icon: pollenIcon, bubblingMouseEvents: false })
-      .bindTooltip(`Polen · ${esc(p.station)}`)
-      .bindPopup(`<b>Polen · ${esc(p.station)}</b><br><span class="popup-meta">Lectura del ${ddmm(p.reading_date)}, ${age}</span><br>`
-        + p.types.map((t) => `${esc(t.name)}: ${num(t.value)} granos/m³ (${esc(t.level_name)})`).join("<br>"))
-      .addTo(stationLayer);
+    const marker = L.marker([p.lat, p.lon], { icon: pollenIcon("normal"), bubblingMouseEvents: false });
+    const entry = {
+      kind: "pollen", name: p.station, lat: p.lat, lon: p.lon, marker,
+      title: `Polen · ${p.station}`,
+      html: `<span class="popup-meta">Lectura del ${ddmm(p.reading_date)}, ${age}</span><br>`
+        + p.types.map((t) => `${esc(t.name)}: ${num(t.value)} granos/m³ (${esc(t.level_name)})`).join("<br>"),
+    };
+    if (!isPhoneLayout()) marker.bindTooltip(`Polen · ${esc(p.station)}`);
+    marker.on("click", () => showStation(entry)).addTo(stationLayer);
+    stationMarkers.push(entry);
+  }
+  highlightStations();
+}
+
+// Make the stations behind the current result stand out: bigger, with a thin line to the
+// chosen point; the other stations are faded. Called whenever the result or the stations change.
+function highlightStations() {
+  usedLayer.clearLayers();
+  if (!lastRisk || !stationMarkers.length) return;
+  // which pollutants each air station supplies, and the pollen station (only if pollen counts for this person)
+  const airUse = {};
+  for (const a of lastRisk.air) (airUse[`${a.station}|${a.source}`] = airUse[`${a.station}|${a.source}`] || []).push(a.pollutant);
+  const pollenUsed = state.allergic && lastRisk.pollen && lastRisk.pollen.kind === "measurement" ? lastRisk.pollen.station : null;
+  for (const entry of stationMarkers) {
+    entry.usedFor = entry.kind === "air" ? airUse[`${entry.name}|${entry.source}`] : (entry.name === pollenUsed ? ["polen"] : null);
+    const used = Boolean(entry.usedFor);
+    if (entry.kind === "air") {
+      entry.marker.setStyle({ radius: used ? 11 : 7, weight: used ? 2.6 : 1, opacity: used ? 1 : 0.45, fillOpacity: used ? 1 : 0.35, color: used ? "#14201b" : outline(entry.category) });
+      if (used) entry.marker.bringToFront();
+    } else {
+      entry.marker.setIcon(pollenIcon(used ? "used" : "faded"));
+      entry.marker.setZIndexOffset(used ? 500 : 0);
+    }
+    if (used) L.polyline([[entry.lat, entry.lon], [state.lat, state.lon]], { color: "#14201b", weight: 1.5, opacity: 0.75, interactive: false }).addTo(usedLayer);
+  }
+  // show the chosen point together with the stations it uses (never closer than street level)
+  const points = stationMarkers.filter((entry) => entry.usedFor).map((entry) => [entry.lat, entry.lon]);
+  if (fitNext && points.length) {
+    fitNext = false;
+    map.fitBounds(L.latLngBounds([...points, [state.lat, state.lon]]).pad(0.6), { maxZoom: 12, animate: true });
   }
 }
 

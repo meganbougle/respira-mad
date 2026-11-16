@@ -203,6 +203,17 @@ grains/m³. An hour slider (default 10:00) sets the time of day.
   (CARTO tiles need a free key since autumn 2026; without one they are
   watermarked). Otherwise OpenStreetMap tiles turned light grey with a CSS
   filter. Attribution on the map and in the footer either way.
+- Map markers: air stations are circles in the official ICA colours; pollen
+  stations are small diamonds with our pollen icon. The stations behind the
+  current result (`highlightStations()` in `app.js`: one per pollutant from
+  `/api/risk`, plus the pollen station when allergy is on) are bigger, with a
+  thin line to the chosen point, and the rest are faded. Choosing a place from
+  the list (or "my location") zooms the map to the point and those stations;
+  a tap on the map keeps the zoom.
+- Tapping a station opens the shared bottom sheet on phones (below 900px)
+  and a normal popup on laptops (`showStation()`); both say which pollutants
+  of the result come from it. The legend is a small "Leyenda" button at the
+  top-left on phones (closed by default) and open at the bottom-left on laptops.
 - A point is named the same everywhere by `risk.place_name()`: a dropdown
   place keeps its name; anything else is "Cerca de <nearest municipality or
   Madrid district>", from `gazetteer.csv` (built by `build_gazetteer.py`: 21
