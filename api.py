@@ -21,6 +21,7 @@ Addresses:
 
 import logging
 import math
+import os
 import warnings
 from pathlib import Path
 
@@ -125,7 +126,7 @@ def health():
 def get_config():
     """Everything the page needs to draw its buttons and colours."""
     return {
-        "profiles": [{"key": key, "label": p["label"]} for key, p in config.PROFILES.items()],
+        "profiles": [{"key": key, "label": p["label"], "short": p["short"]} for key, p in config.PROFILES.items()],
         "pollen_types": [{"key": key, "label": label} for key, label in config.POLLEN_NAMES.items()],
         "levels": [{"label": label, "color": color, "text_color": text}
                    for label, color, text in zip(config.LEVEL_LABELS, config.LEVEL_COLORS, config.LEVEL_TEXT_COLORS)],
@@ -134,17 +135,26 @@ def get_config():
         "demo": {"date": config.REPLAY_DATE, "default_hour": config.REPLAY_DEFAULT_HOUR,
                  "first_hour": config.WINDOW_FIRST_HOUR, "last_hour": config.WINDOW_LAST_HOUR - 1},
         "ai_assistant_enabled": config.AI_ASSISTANT_ENABLED,
+        # Optional key for the CARTO Positron basemap (free, from carto.com/basemaps/apikey).
+        # It is used by the visitor's browser, so it is not a secret. Without it the map
+        # uses OpenStreetMap tiles in muted grey.
+        "carto_basemap_key": os.environ.get("CARTO_BASEMAP_KEY", ""),
     }
+
+
+def dropdown_places():
+    """The places of the location dropdown: {name: (lat, lon)}."""
+    try:
+        air = data.load_air()
+    except Exception:            # live feed and backup both failed: use the demo day's stations
+        air = data.load_replay_air(the_moment(True, 12))
+    return risk.list_places(air)
 
 
 @app.get("/api/places")
 def get_places():
     """The places of the location dropdown."""
-    try:
-        air = data.load_air()
-    except Exception:            # live feed and backup both failed: use the demo day's stations
-        air = data.load_replay_air(the_moment(True, 12))
-    return [{"name": name, "lat": lat, "lon": lon} for name, (lat, lon) in risk.list_places(air).items()]
+    return [{"name": name, "lat": lat, "lon": lon} for name, (lat, lon) in dropdown_places().items()]
 
 
 @app.get("/api/stations")
@@ -194,6 +204,7 @@ def get_risk(lat: float = LAT, lon: float = LON, profile: str = "general",
         "level_index": index,
         "level_label": config.LEVEL_LABELS[index] if index is not None else "Sin datos",
         "profile_label": config.PROFILES[profile]["label"],
+        "place_label": risk.place_name(lat, lon, dropdown_places()),   # the same name everywhere
         "reason": result["reason"],
         "recommendations": [{"source": source, "text": text} for source, text in result["recommendations"]],
         "profile_note": result["profile_note"],

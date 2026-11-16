@@ -238,10 +238,11 @@ EXTENSION_NOTE = (
     "respiratorios y a los adultos con afecciones cardiacas."
 )
 PROFILES = {
-    "general":  {"label": "General",              "air": "general",   "note": None},
-    "asthma":   {"label": "Asma / respiratorio",  "air": "sensitive", "note": None},
-    "older":    {"label": "Persona mayor",        "air": "sensitive", "note": EXTENSION_NOTE},
-    "children": {"label": "Niño/a",               "air": "sensitive", "note": EXTENSION_NOTE},
+    # "short" is the label on the small buttons of the web app
+    "general":  {"label": "General",             "short": "General",       "air": "general",   "note": None},
+    "asthma":   {"label": "Asma / respiratorio", "short": "Asma",          "air": "sensitive", "note": None},
+    "older":    {"label": "Persona mayor",       "short": "Persona mayor", "air": "sensitive", "note": EXTENSION_NOTE},
+    "children": {"label": "Niño/a",              "short": "Niño/a",        "air": "sensitive", "note": EXTENSION_NOTE},
 }
 
 

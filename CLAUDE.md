@@ -24,6 +24,7 @@ Repo: https://github.com/meganbougle/respira-mad (public, branch `main`).
   - `.venv/bin/streamlit run app.py` — the Streamlit fallback
   - `.venv/bin/python test_data.py` — checks every data source is live
   - `.venv/bin/python test_risk.py` — risk result for 4 places, live and demo day
+  - `.venv/bin/python test_timestamps.py` — checks no reading is ever stamped in the future
   - `.venv/bin/python warm_backup.py` — refreshes every backup (run before the demo, then commit `backup/`)
 - Dependencies go in `requirements.txt` with pinned versions (Streamlit Cloud
   installs from it). Local Python is 3.13.
@@ -85,6 +86,12 @@ Things worth knowing about the feeds:
 - The hourly files are "wide": one row per station + magnitude + day, columns
   `h01..h24` (values) and `v01..v24` (flags: `V` valid, `T` provisional,
   `N` not valid). `h01` is the hour ending 01:00. Times are Madrid local time.
+- Hours that have not happened yet are always dropped, whatever their flag
+  (`_hourly_long` and `_drop_future` in `data.py`). `h24` is 00:00 of the next
+  day. A reading stamped 16/11 00:00 was seen in the app at 18:05 on 15/11.
+- All timestamps are Madrid local time with no time zone attached. The web page
+  shows them as text and never converts them, and "hace X min" is computed on
+  the server.
 - Pollutant codes (same in both networks): 8 = NO2, 9 = PM2.5, 10 = PM10, 14 = O3.
 - Not every station measures every pollutant (e.g. PM2.5 at 15 of 28).
 - Very low values (PM10 = 1, NO2 = 1) were checked on 15 Nov 2026 and are real.
@@ -174,8 +181,18 @@ grains/m³. An hour slider (default 10:00) sets the time of day.
   with `hour` selects the demo day.
 - The page keeps one `state` object and redraws from the server's answers;
   nothing reloads. It refreshes every 5 minutes (the server cache is 15).
-- Map: OpenStreetMap tiles (no key needed), lightened with a CSS filter;
-  attribution on the map and in the footer.
+- Map: CARTO Positron if the environment variable `CARTO_BASEMAP_KEY` is set
+  (CARTO tiles need a free key since autumn 2026; without one they are
+  watermarked). Otherwise OpenStreetMap tiles turned light grey with a CSS
+  filter. Attribution on the map and in the footer either way.
+- A point is named the same everywhere by `risk.place_name()`: a dropdown
+  place keeps its name; anything else is "Cerca de <nearest municipality or
+  Madrid district>", from `gazetteer.csv` (built by `build_gazetteer.py`: 21
+  districts from the city's district offices, 160 municipalities geocoded with
+  Open-Meteo; 17 small villages were not found and fall to their neighbour).
+- Panel order: profile, result card (reason + official recommendation + source
+  inside it), hourly strip, measurements. On a 1440×900 screen the card and
+  the strip are visible without scrolling, including demo mode with allergy on.
 - The level colour fades via two CSS variables set on the result card.
 - "Usar mi ubicación" needs HTTPS (or localhost) and warns if the position is
   outside a rough box around the Comunidad de Madrid.

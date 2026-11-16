@@ -90,8 +90,8 @@ with st.sidebar:
     place = st.selectbox("Municipio", list(places), on_change=use_dropdown_place)
     if st.session_state.map_point:
         lat, lon = st.session_state.map_point
-        place_label = MAP_POINT
-        st.caption(f"Usando el punto elegido en el mapa ({lat:.3f}, {lon:.3f}). "
+        place_label = risk.place_name(lat, lon, places)        # e.g. "Cerca de Tetuán"
+        st.caption(f"Usando el punto elegido en el mapa: {place_label}. "
                    "Elige un municipio para volver a la lista.")
     else:
         lat, lon = places[place]

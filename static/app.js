@@ -74,6 +74,9 @@ function commonParams() {
   };
 }
 
+// Outline of a station dot. The light-blue "Buena" gets a dark teal ring so it shows on the light map.
+const outline = (category) => (category === 0 ? "#0a6f78" : "#26332d");
+
 /* ------------------------------------------------------------------ set-up */
 
 async function start() {
@@ -107,7 +110,7 @@ function buildControls() {
 
   // profile chips (pick one)
   $("profiles").innerHTML = config.profiles.map((p) =>
-    `<button class="chip" type="button" role="radio" data-key="${esc(p.key)}" aria-checked="${p.key === state.profile}">${esc(p.label)}</button>`).join("");
+    `<button class="chip" type="button" role="radio" data-key="${esc(p.key)}" title="${esc(p.label)}" aria-checked="${p.key === state.profile}">${esc(p.short)}</button>`).join("");
   $("profiles").addEventListener("click", (event) => {
     const chip = event.target.closest(".chip");
     if (!chip) return;
@@ -162,7 +165,7 @@ function buildControls() {
 
   // legend of the hourly strip: colour + label (never colour alone)
   $("strip-legend").innerHTML = config.levels.map((l) => `<span><i style="background:${l.color}"></i>${esc(l.label)}</span>`).join("")
-    + "<span>★ Mejor franja</span><span>Tono claro = hora ya pasada</span>";
+    + "<span>★ Mejor franja</span>";
 
   // AI assistant placeholder (Step 4)
   if (config.ai_assistant_enabled) {
@@ -174,10 +177,18 @@ function buildControls() {
 function buildMap() {
   map = L.map("map", { zoomControl: false, attributionControl: true }).setView([state.lat, state.lon], 10);
   L.control.zoom({ position: "topright" }).addTo(map);
-  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    maxZoom: 18,
-    attribution: '© colaboradores de <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>',
-  }).addTo(map);
+  // A muted light basemap, so the official ICA colours stand out.
+  const osm = '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors';
+  if (config.carto_basemap_key) {
+    // CARTO Positron (needs a free key, set as CARTO_BASEMAP_KEY on the server)
+    L.tileLayer(`https://basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}{r}.png?key=${encodeURIComponent(config.carto_basemap_key)}`, {
+      maxZoom: 19, attribution: `${osm}, © <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>`,
+    }).addTo(map);
+    $("map-credit").innerHTML = ', © <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>';
+  } else {
+    // no key: OpenStreetMap tiles, turned light grey by style.css (.muted-tiles)
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 18, attribution: osm, className: "muted-tiles" }).addTo(map);
+  }
   stationLayer = L.layerGroup().addTo(map);
 
   const pinIcon = L.divIcon({
@@ -196,7 +207,7 @@ function buildMap() {
     const box = L.DomUtil.create("details", "legend");
     box.open = window.innerWidth >= 900;
     box.innerHTML = "<summary>Leyenda</summary><ul>"
-      + config.ica_categories.map((c) => `<li><span class="swatch" style="background:${c.color}"></span>${esc(c.name)}</li>`).join("")
+      + config.ica_categories.map((c, i) => `<li><span class="swatch" style="background:${c.color};border-color:${outline(i)}"></span>${esc(c.name)}</li>`).join("")
       + '<li><span class="pollen-marker" style="width:16px;height:16px;font-size:10px;border-radius:5px">🌼</span>Estación de polen</li>'
       + "</ul>";
     L.DomEvent.disableClickPropagation(box);
@@ -230,7 +241,7 @@ function useMyLocation() {
       const { latitude: lat, longitude: lon } = position.coords;
       const inside = lat >= MADRID_BOX.south && lat <= MADRID_BOX.north && lon >= MADRID_BOX.west && lon <= MADRID_BOX.east;
       if (!inside) { toast("Parece que estás fuera de la Comunidad de Madrid. Elige un municipio o toca el mapa."); return; }
-      setPoint(lat, lon, "Mi ubicación", { recenter: true });
+      setPoint(lat, lon, "Tu ubicación", { recenter: true });
     },
     () => { button.classList.remove("is-busy"); toast("No se pudo obtener tu ubicación. Revisa los permisos del navegador."); },
     { enableHighAccuracy: false, timeout: 10000, maximumAge: 5 * 60 * 1000 },
@@ -278,24 +289,30 @@ function drawRisk(risk) {
   card.style.setProperty("--level-ink", level ? level.text_color : "#14201b");
   $("result-icon").innerHTML = level ? ICONS[risk.level_index] : "";
   $("result-label").textContent = risk.level_label;
-  $("result-sub").textContent = `${risk.profile_label} · ${state.placeName}`;
+  // the same name for the point everywhere: card, dropdown and (later) the chat
+  state.placeName = risk.place_label;
+  const custom = $("place").querySelector(`option[value="${CUSTOM_PLACE}"]`);
+  if ($("place").value === CUSTOM_PLACE) custom.textContent = risk.place_label;
+  $("result-sub").textContent = `${risk.profile_label} · ${risk.place_label}`;
   $("result-reason").textContent = risk.reason;
 
-  // official recommendation, word for word, with its source
-  $("advice").innerHTML = risk.recommendations.map((r) =>
-    `<blockquote class="quote"><p>${esc(r.text)}</p><cite>Texto oficial, literal. Fuente: ${esc(r.source)}.</cite></blockquote>`).join("");
+  // official recommendation, word for word, inside the card, with its source in small print
+  // The first text (the one behind the level) is always visible; a second one folds away to save space.
+  const quote = (r) => `<blockquote class="quote"><p>${esc(r.text)}</p><cite>Texto oficial, literal. Fuente: ${esc(r.source)}.</cite></blockquote>`;
+  const [first, ...others] = risk.recommendations;
+  $("advice").innerHTML = (first ? quote(first) : "")
+    + (others.length ? `<details class="more-advice"><summary>Ver también la recomendación de calidad del aire</summary>${others.map(quote).join("")}</details>` : "");
   $("profile-note").hidden = !risk.profile_note;
   $("profile-note").textContent = risk.profile_note || "";
   $("warnings").innerHTML = risk.notes.map((n) => `<div class="warning">${esc(n)}</div>`).join("");
-  $("advice-block").hidden = !risk.recommendations.length && !risk.notes.length;
 
   // pollutant tiles (official station measurements)
   $("tiles").innerHTML = risk.air.map((a) => `
     <div class="tile">
       <div class="tile-name"><span>${esc(a.pollutant)}</span>${a.provisional ? '<span class="tag tag-warn">Provisional</span>' : ""}</div>
       <div class="tile-value">${num(a.ica_value)} <small>µg/m³</small></div>
-      <div class="tile-cat"><span class="swatch" style="background:${a.color}"></span>${esc(a.category_name)}</div>
-      <div class="tile-meta" title="${esc(a.station)} (${esc(a.source)})">${esc(a.station)} · ${num(a.distance_km, 1)} km · ${hhmm(a.timestamp)}</div>
+      <div class="tile-cat"><span class="swatch" style="background:${a.color};border-color:${outline(a.category)}"></span>${esc(a.category_name)}</div>
+      <div class="tile-meta">${esc(a.station)} (${esc(a.source)}) · a ${num(a.distance_km, 1)} km · ${ddmm(a.timestamp)} ${hhmm(a.timestamp)}</div>
     </div>`).join("") || '<p class="hint">Sin mediciones de calidad del aire en este momento.</p>';
 
   // pollen
@@ -384,10 +401,10 @@ function drawHourDetail() {
 function drawStations(data) {
   stationLayer.clearLayers();
   for (const s of data.air) {
-    L.circleMarker([s.lat, s.lon], { radius: 8, color: "#26332d", weight: 1.2, fillColor: s.color, fillOpacity: 0.95, bubblingMouseEvents: false })
+    L.circleMarker([s.lat, s.lon], { radius: 8, color: outline(s.category), weight: s.category === 0 ? 2.2 : 1.3, fillColor: s.color, fillOpacity: 0.95, bubblingMouseEvents: false })
       .bindTooltip(`${esc(s.station)}: ${esc(s.category_name)}`)
       .bindPopup(`<b>${esc(s.station)}</b><br><span class="popup-meta">${esc(s.source)} · ${ddmm(s.timestamp)} ${hhmm(s.timestamp)}</span><br>`
-        + `<span class="popup-cat"><span class="swatch" style="background:${s.color}"></span>ICA: ${esc(s.category_name)}</span><br>`
+        + `<span class="popup-cat"><span class="swatch" style="background:${s.color};border-color:${outline(s.category)}"></span>ICA: ${esc(s.category_name)}</span><br>`
         + s.details.map(esc).join("<br>"))
       .addTo(stationLayer);
   }

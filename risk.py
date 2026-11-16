@@ -98,6 +98,26 @@ def list_places(air):
     return places
 
 
+def place_name(lat, lon, places=None):
+    """
+    A name for any point, the same everywhere in the app.
+      - exactly one of the dropdown places  ->  its name ("Getafe")
+      - anything else  ->  "Cerca de <nearest municipality or Madrid district>"
+    `places` is the dropdown dictionary from list_places().
+    """
+    places = places or {}
+    for name, (p_lat, p_lon) in places.items():
+        if distance_km(lat, lon, p_lat, p_lon) < 0.15:
+            return name
+    candidates = [(row["name"], row["lat"], row["lon"]) for _, row in data.load_gazetteer().iterrows()]
+    known = {name for name, _, _ in candidates}
+    # towns that only appear in the dropdown (the city centre is covered by the districts)
+    candidates += [(name, p_lat, p_lon) for name, (p_lat, p_lon) in places.items()
+                   if name not in known and name not in config.PLACES]
+    nearest = min(candidates, key=lambda c: distance_km(lat, lon, c[1], c[2]))
+    return f"Cerca de {nearest[0]}"
+
+
 # ----------------------------------------------------------------------------
 # Air: nearest station with data for each pollutant (MEASUREMENTS)
 # ----------------------------------------------------------------------------

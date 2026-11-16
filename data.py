@@ -113,14 +113,20 @@ def _to_number(text_column):
     return pd.to_numeric(text_column.str.strip().str.replace(",", ".", regex=False), errors="coerce")
 
 
-def _hourly_long(table, codes):
+def _hourly_long(table, codes, now=None):
     """
     The hourly files have one row per station + measurement + day, with 24
     value columns (h01..h24) and 24 flag columns (v01..v24).
     This returns one row per station + measurement + HOUR, keeping only the
     good readings (flag V or T; readings flagged N are dropped).
 
+    Hours that have not happened yet are ALWAYS dropped, whatever their flag
+    says: h24 of today is midnight at the END of today, so it cannot exist
+    until tomorrow starts. (On 15 Nov 2026 the city feed showed a station
+    with a reading stamped 16/11 00:00 at 18:05.)
+
     `codes` is a dictionary {numeric code: friendly name}, e.g. POLLUTANTS.
+    `now` is the current Madrid time (only passed in by the tests).
     """
     table = table.copy()
     table["name"] = pd.to_numeric(table["magnitud"]).map(codes)
@@ -146,6 +152,7 @@ def _hourly_long(table, codes):
     long = pd.concat(hours)
 
     long = long[long["flag"].isin(GOOD_FLAGS)].dropna(subset=["value"])
+    long = long[long["timestamp"] <= (now or _madrid_now())]      # nothing from the future
     return long.sort_values("timestamp").reset_index(drop=True)
 
 
@@ -174,6 +181,13 @@ def _latest_hourly(long, average_hours=None):
             "flag": latest["flag"],
         })
     return pd.DataFrame(rows)
+
+
+def _drop_future(table):
+    """Safety net for measurements: remove any row stamped later than now."""
+    kept = table[table["timestamp"] <= _madrid_now()].reset_index(drop=True)
+    kept.attrs.update(table.attrs)
+    return kept
 
 
 def _with_backup(name, fetch, date_columns=("timestamp",)):
@@ -227,7 +241,7 @@ def _fetch_comunidad_air():
 @st.cache_data(ttl=CACHE_SECONDS, show_spinner=False)
 def load_comunidad_air():
     """Latest NO2, O3, PM10, PM2.5 per station of the Comunidad network."""
-    return _with_backup("comunidad_air", _fetch_comunidad_air)
+    return _drop_future(_with_backup("comunidad_air", _fetch_comunidad_air))
 
 
 # ----------------------------------------------------------------------------
@@ -255,7 +269,7 @@ def _fetch_city_air():
 @st.cache_data(ttl=CACHE_SECONDS, show_spinner=False)
 def load_city_air():
     """Latest NO2, O3, PM10, PM2.5 per station of the Madrid city network."""
-    return _with_backup("city_air", _fetch_city_air)
+    return _drop_future(_with_backup("city_air", _fetch_city_air))
 
 
 # ----------------------------------------------------------------------------
@@ -362,7 +376,7 @@ def _fetch_weather():
 @st.cache_data(ttl=CACHE_SECONDS, show_spinner=False)
 def load_weather():
     """Latest temperature, humidity, wind, pressure, sun and rain per station."""
-    return _with_backup("weather", _fetch_weather)
+    return _drop_future(_with_backup("weather", _fetch_weather))
 
 
 # ----------------------------------------------------------------------------
@@ -443,6 +457,20 @@ def load_forecast_air(lat, lon, day=None):
     return _forecast_with_backup(
         "forecast_air", lat, lon, day,
         lambda la, lo: _fetch_open_meteo(OPEN_METEO_AIR_URL, la, lo, variables, day))
+
+
+# ----------------------------------------------------------------------------
+# Place names (to describe a point on the map: "Cerca de Tetuán")
+# ----------------------------------------------------------------------------
+
+@st.cache_data(show_spinner=False)
+def load_gazetteer():
+    """
+    Madrid's 21 districts and the other municipalities of the region, with
+    coordinates: columns name, kind, lat, lon, source.
+    The file is made by build_gazetteer.py and stored in the project.
+    """
+    return pd.read_csv(Path(__file__).parent / "gazetteer.csv")
 
 
 # ----------------------------------------------------------------------------

@@ -66,7 +66,7 @@
     <!-- who you are -->
     <section class="block">
       <h2 class="block-title">Tu perfil</h2>
-      <div class="chips" id="profiles" role="radiogroup" aria-label="Perfil"></div>
+      <div class="chips chips-profile" id="profiles" role="radiogroup" aria-label="Perfil"></div>
 
       <label class="switch-row" for="allergy">
         <span>
@@ -79,7 +79,7 @@
       <div class="chips chips-small" id="pollen-types" hidden aria-label="Tipos de polen"></div>
     </section>
 
-    <!-- the result -->
+    <!-- the result: level, reason and the official recommendation, all in one card -->
     <section class="result is-loading" id="result" aria-live="polite">
       <div class="result-head">
         <div class="result-icon" id="result-icon" aria-hidden="true"></div>
@@ -89,13 +89,24 @@
         </div>
       </div>
       <p class="result-reason" id="result-reason"></p>
+      <div class="result-advice" id="advice"></div>
+      <p class="result-note" id="profile-note" hidden></p>
     </section>
+    <div id="warnings"></div>
 
-    <section class="block" id="advice-block" hidden>
-      <h2 class="block-title">Recomendación oficial</h2>
-      <div id="advice"></div>
-      <p class="note" id="profile-note" hidden></p>
-      <div id="warnings"></div>
+    <!-- the hours -->
+    <section class="block">
+      <h2 class="block-title"><span id="hours-title">Mejores horas hoy</span> <span class="tag tag-forecast">Previsión</span></h2>
+      <div class="strip" id="strip" role="group" aria-label="Nivel previsto por horas"></div>
+      <div class="hour-detail" id="hour-detail"></div>
+      <div class="strip-legend" id="strip-legend"></div>
+      <p class="hint" id="hours-kind">PREVISIÓN (modelo de Open-Meteo), no mediciones oficiales.</p>
+
+      <div class="demo-slider" id="demo-slider" hidden>
+        <label for="hour">Hora del día de demostración: <b id="hour-value">10:00</b></label>
+        <input type="range" id="hour" min="7" max="21" step="1" value="10">
+      </div>
+      <div id="windows"></div>
     </section>
 
     <!-- the measurements -->
@@ -103,22 +114,6 @@
       <h2 class="block-title">Mediciones cerca de ti <span class="tag">Estaciones oficiales</span></h2>
       <div class="tiles" id="tiles"></div>
       <div class="pollen-tile" id="pollen-tile" hidden></div>
-    </section>
-
-    <!-- the hours -->
-    <section class="block">
-      <h2 class="block-title"><span id="hours-title">Mejores horas hoy</span> <span class="tag tag-forecast">Previsión</span></h2>
-      <p class="hint" id="hours-kind">PREVISIÓN (modelo de Open-Meteo), no mediciones oficiales.</p>
-
-      <div class="demo-slider" id="demo-slider" hidden>
-        <label for="hour">Hora del día de demostración: <b id="hour-value">10:00</b></label>
-        <input type="range" id="hour" min="7" max="21" step="1" value="10">
-      </div>
-
-      <div class="strip-legend" id="strip-legend"></div>
-      <div class="strip" id="strip" role="group" aria-label="Nivel previsto por horas"></div>
-      <div class="hour-detail" id="hour-detail"></div>
-      <div id="windows"></div>
     </section>
 
     <!-- freshness -->
@@ -138,7 +133,7 @@
         Categorías y recomendaciones de calidad del aire: Índice Nacional de Calidad del Aire, Resolución de 2 de septiembre de 2020
         (<a href="https://www.boe.es/diario_boe/txt.php?id=BOE-A-2020-10426" target="_blank" rel="noopener">BOE-A-2020-10426</a>).
         Niveles de polen: umbrales de la Red Palinocam.
-        Mapa: © colaboradores de <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>, con <a href="https://leafletjs.com/" target="_blank" rel="noopener">Leaflet</a>.</p>
+        Mapa: © colaboradores de <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a><span id="map-credit"></span>, con <a href="https://leafletjs.com/" target="_blank" rel="noopener">Leaflet</a>.</p>
       <p>Respira MAD es un proyecto del hackathon DataMad 2026. Es una herramienta informativa y no sustituye el consejo de un profesional sanitario.</p>
     </footer>
   </aside>
