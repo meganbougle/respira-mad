@@ -16,6 +16,7 @@ Addresses:
     /api/risk         level, reason, official recommendation, measurements used
     /api/hours        hour-by-hour levels and best windows (forecast)
     /api/planner      today + 4 days in three parts of the day (forecast, with our pollen model)
+    /api/chart        the forecast line chart: recent readings + pollen forecast with interval, or the air forecast
     /api/freshness    each source, its timestamp, minutes ago, provisional flag
     /api/chat         (POST) the AI assistant "Pregúntale a Respira" (see assistant.py)
     /api/chat/usage   how many tokens the assistant has used since the server started
@@ -43,6 +44,7 @@ for name in ("streamlit.runtime.caching.cache_data_api",
 warnings.filterwarnings("ignore", message=".*ScriptRunContext.*")
 
 import assistant  # noqa: E402
+import chart      # noqa: E402
 import config     # noqa: E402
 import data       # noqa: E402
 import planner    # noqa: E402
@@ -133,7 +135,10 @@ def get_config():
     """Everything the page needs to draw its buttons and colours."""
     return {
         "profiles": [{"key": key, "label": p["label"], "short": p["short"]} for key, p in config.PROFILES.items()],
-        "pollen_types": [{"key": key, "label": label} for key, label in config.POLLEN_NAMES.items()],
+        # each pollen type with the forecast model that won the 2025 comparison (MODEL_REPORT.md)
+        "pollen_types": [{"key": key, "label": label, "model": chart.model_label(key)}
+                         for key, label in config.POLLEN_NAMES.items()],
+        "model_report_url": config.MODEL_REPORT_URL,
         "levels": [{"label": label, "color": color, "text_color": text}
                    for label, color, text in zip(config.LEVEL_LABELS, config.LEVEL_COLORS, config.LEVEL_TEXT_COLORS)],
         "ica_categories": [{"name": name, "color": color}
@@ -282,6 +287,21 @@ def get_planner(lat: float = LAT, lon: float = LON, profile: str = "general",
     result["place_label"] = risk.place_name(lat, lon, dropdown_places())
     result["profile_label"] = config.PROFILES[profile]["label"]
     return clean(result)
+
+
+@app.get("/api/chart")
+def get_chart(lat: float = LAT, lon: float = LON, allergy_types: str = TYPES, demo: bool = False):
+    """
+    The forecast line chart under the planner (see chart.py): for the selected
+    pollen types, the readings of the last 7 days and the forecast for the
+    next 5 with its prediction interval; and the hourly air forecast of the
+    main pollutant. In demo mode it is the view as of 24 May 2025.
+    """
+    types = tuple(t for t in allergy_types.split("|") if t) if allergy_types else ()
+    unknown = [t for t in types if t not in config.POLLEN_THRESHOLDS]
+    if unknown:
+        raise HTTPException(400, f"Tipo de polen desconocido: {unknown[0]}")
+    return clean({"pollen": chart.pollen_chart(lat, lon, types, demo), "air": chart.air_chart(lat, lon, demo)})
 
 
 @app.get("/api/freshness")

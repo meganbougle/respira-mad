@@ -158,7 +158,7 @@ function buildControls() {
   });
 
   drawDemoLabel();
-  window.addEventListener("resize", () => { drawDemoLabel(); drawStatus(); });
+  window.addEventListener("resize", () => { drawDemoLabel(); drawStatus(); drawChart(); });
 
   // my location
   $("locate").addEventListener("click", useMyLocation);
@@ -168,6 +168,8 @@ function buildControls() {
     + "<span>★ Mejor franja</span>";
 
   buildSheet();
+  buildChart();
+  info.chart = chartInfo();
   buildChat();
 }
 
@@ -259,7 +261,7 @@ async function refresh(options = {}) {
     options.stations ? getJSON("/api/stations", stationParams) : Promise.resolve(null),
   ];
   // the planner loads on its own, so a slow forecast never holds the main card back
-  if (!options.keepPlanner) loadPlanner(params, mine);
+  if (!options.keepPlanner) { loadPlanner(params, mine); loadChart(params, mine); }
   const [risk, hours, freshness, stations] = await Promise.allSettled(jobs);
   if (mine !== requestNumber) return;              // a newer request is on its way: ignore this answer
 
@@ -616,6 +618,299 @@ function plannerDetail(day, block) {
   html += `<h4>Confianza del día: ${esc(day.confidence)}</h4><p>${esc(day.confidence_reason)} Las previsiones son menos seguras cuanto más lejos está el día.</p>`;
   if (plannerData.demo) html += "<p>Vista del 24 de mayo de 2025: el polen es lo que nuestro modelo preveía con lo que se sabía ese día.</p>";
   return html;
+}
+
+/* ------------------------------------------------------------------ the forecast line chart */
+
+// Up to three lines at once. Each has its own colour AND its own marker shape,
+// so they can be told apart without relying on colour.
+const CHART_MAX_LINES = 3;
+const SERIES_COLORS = ["#2a78d6", "#b0358f", "#8a6a00"];
+const POLLEN_BAND_COLORS = ["#e3f3e3", "#fff0c2", "#ffdcc4", "#f8c4c4"];   // bajo, medio, alto, muy alto (each band also has its name)
+const WEEKDAYS = ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"];
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+let chartData = null;
+let chartMode = null;           // "pollen" or "air"; null = choose automatically
+let chartSlots = [];            // which pollen type uses each colour: [key or null, key or null, key or null]
+let chartFocus = null;          // the pollen type whose prediction interval is shaded
+let chartPick = null;           // the day (pollen) or hour (air) that was tapped
+
+async function loadChart(params, requestId) {
+  $("chart").classList.add("is-loading");
+  try {
+    const data = await getJSON("/api/chart", { lat: params.lat, lon: params.lon, allergy_types: params.allergy_types, demo: params.demo });
+    if (requestId !== requestNumber) return;      // a newer request is on its way
+    chartData = data;
+    chartPick = null;
+    drawChart();
+  } catch (error) {
+    if (requestId !== requestNumber) return;
+    chartData = null;
+    $("chart").innerHTML = '<p class="chart-empty">No se pudo cargar el gráfico. Se volverá a intentar.</p>';
+    $("chart-detail").hidden = true;
+  }
+  $("chart").classList.remove("is-loading");
+}
+
+function buildChart() {
+  $("chart-mode").addEventListener("click", (event) => {
+    const button = event.target.closest("button");
+    if (!button) return;
+    chartMode = button.dataset.mode; chartPick = null;
+    drawChart();
+  });
+  // pollen-type chips: tap to show a line and shade its interval; tap the shaded one again to hide it
+  $("chart-series").addEventListener("click", (event) => {
+    const chip = event.target.closest(".chip");
+    if (!chip) return;
+    const key = chip.dataset.key;
+    const slot = chartSlots.indexOf(key);
+    if (slot >= 0 && chartFocus === key && chartSlots.filter(Boolean).length > 1) {
+      chartSlots[slot] = null;                                  // hide it
+      chartFocus = chartSlots.find(Boolean);
+    } else {
+      if (slot < 0) {
+        let free = chartSlots.indexOf(null);
+        if (free < 0) free = chartSlots.findIndex((k) => k !== chartFocus);   // full: replace one that is not in focus
+        chartSlots[free] = key;
+      }
+      chartFocus = key;
+    }
+    drawChart();
+  });
+  // tap (or move the mouse over) the chart to read the values of a day or an hour
+  const pick = (event) => {
+    const svg = $("chart").querySelector("svg");
+    if (!svg || !svg.dataset.count) return;
+    const box = svg.getBoundingClientRect();
+    const first = Number(svg.dataset.first), last = Number(svg.dataset.last), count = Number(svg.dataset.count);
+    const position = (event.clientX - box.left - first) / (last - first);
+    const index = Math.max(0, Math.min(count - 1, Math.round(position * (count - 1))));
+    if (index !== chartPick) { chartPick = index; drawChart(); }
+  };
+  $("chart").addEventListener("click", pick);
+  $("chart").addEventListener("pointermove", (event) => { if (event.pointerType === "mouse") pick(event); });
+}
+
+// A small marker: circle, square or triangle (one shape per line).
+function marker(shape, x, y, color, hollow = false, size = 3.6) {
+  const paint = `fill="${hollow ? "#fff" : color}" stroke="${hollow ? color : "#fff"}" stroke-width="1.5"`;
+  if (shape === 1) return `<rect x="${x - size}" y="${y - size}" width="${size * 2}" height="${size * 2}" rx="1" ${paint}/>`;
+  if (shape === 2) return `<path d="M${x} ${y - size - 1}L${x + size + 0.8} ${y + size}H${x - size - 0.8}Z" ${paint}/>`;
+  return `<circle cx="${x}" cy="${y}" r="${size}" ${paint}/>`;
+}
+// A tiny line sample for the chips and the legend.
+const sample = (color, shape, dashed = false) =>
+  `<svg viewBox="0 0 22 12" aria-hidden="true"><path d="M1 6H21" stroke="${color}" stroke-width="2" ${dashed ? 'stroke-dasharray="4 3"' : ""}/>${shape == null ? "" : marker(shape, 11, 6, color, false, 3)}</svg>`;
+
+function drawChart() {
+  if (!chartData) return;
+  const pollen = chartData.pollen, air = chartData.air;
+  const mode = chartMode || (pollen.series.length ? "pollen" : "air");
+  for (const button of $("chart-mode").children) button.setAttribute("aria-pressed", button.dataset.mode === mode);
+  $("chart-detail").hidden = false;
+  if (mode === "pollen") drawPollenChart(pollen); else drawAirChart(air);
+}
+
+function chartEmpty(message) {
+  $("chart").innerHTML = `<p class="chart-empty">${esc(message)}</p>`;
+  $("chart-detail").hidden = true;
+  $("chart-legend").innerHTML = "";
+}
+
+function chartFrame() {
+  const width = Math.max($("chart").clientWidth, 280), height = 220;
+  return { width, height, left: 8, right: width - 8, top: 20, bottom: height - 24 };
+}
+
+function drawPollenChart(data) {
+  // keep the colour of the types that are still selected; fill the free colours with the new ones
+  const keys = data.series.map((s) => s.key);
+  chartSlots = Array.from({ length: CHART_MAX_LINES }, (_, i) => (keys.includes(chartSlots[i]) ? chartSlots[i] : null));
+  for (const key of keys) {
+    if (chartSlots.includes(key)) continue;
+    const free = chartSlots.indexOf(null);
+    if (free < 0) break;
+    chartSlots[free] = key;
+  }
+  if (!chartSlots.includes(chartFocus)) chartFocus = chartSlots.find(Boolean) || null;
+
+  $("chart-series").innerHTML = data.series.map((s) => {
+    const slot = chartSlots.indexOf(s.key);
+    return `<button class="chip ${s.key === chartFocus ? "is-focus" : ""}" type="button" data-key="${esc(s.key)}" aria-pressed="${slot >= 0}">`
+      + `${slot >= 0 ? sample(SERIES_COLORS[slot], slot) : ""}${esc(s.name)}</button>`;
+  }).join("");
+  $("chart-note").textContent = [
+    data.station ? `Estación de polen: ${data.station.station} (a ${num(data.station.distance_km, 1)} km).` : "",
+    data.series.length > CHART_MAX_LINES ? `Se muestran hasta ${CHART_MAX_LINES} tipos a la vez: toca otro para cambiarlo.` : "",
+    data.demo && data.series.length ? "Vista del 24 de mayo de 2025, con lo que se sabía ese día. Las cruces son lo que se midió después (del tipo resaltado)." : "",
+    ...data.notes,
+  ].filter(Boolean).join(" ");
+
+  if (!data.series.length) {
+    chartEmpty("Activa «Tengo alergia al polen» y elige uno o más tipos para ver sus lecturas y su previsión. Mientras tanto puedes ver la previsión del aire.");
+    return;
+  }
+
+  const f = chartFrame();
+  const firstDay = Date.parse(data.first_day.slice(0, 10)), today = Date.parse(data.today.slice(0, 10));
+  const count = Math.round((Date.parse(data.last_day.slice(0, 10)) - firstDay) / DAY_MS) + 1;
+  const todayIndex = Math.round((today - firstDay) / DAY_MS);
+  const dayIndex = (iso) => Math.round((Date.parse(iso.slice(0, 10)) - firstDay) / DAY_MS);
+  const x = (i) => f.left + 14 + i * (f.right - f.left - 28) / (count - 1);
+  if (chartPick == null || chartPick >= count) chartPick = todayIndex;
+
+  // The vertical scale is the official LEVEL: each of the four levels gets the same height, and a
+  // value sits inside its level's band in proportion to that pollen type's own thresholds.
+  // That way several pollen types (with different thresholds) can share one chart.
+  const bandHeight = (f.bottom - f.top) / 4;
+  const scale = (series) => {
+    const values = [...series.observed.map((p) => p.value), ...series.forecast.flatMap((p) => [p.high, p.actual || 0])];
+    const bounds = [0, ...series.thresholds, Math.max(series.thresholds[2] * 2, ...values) * 1.05];
+    return (value) => {
+      let k = 0;
+      while (k < 3 && value >= bounds[k + 1]) k += 1;
+      return f.bottom - bandHeight * (k + Math.min((value - bounds[k]) / (bounds[k + 1] - bounds[k]), 1));
+    };
+  };
+
+  let svg = "";
+  data.levels.forEach((name, k) => {
+    const top = f.bottom - bandHeight * (k + 1);
+    svg += `<rect x="${f.left}" y="${top}" width="${f.right - f.left}" height="${bandHeight - 1}" rx="3" fill="${POLLEN_BAND_COLORS[k]}"/>`
+      + `<text class="band-name" x="${f.left + 5}" y="${top + 12}">${esc(name)}</text>`;
+  });
+  // today: on its left what was measured, on its right the forecast
+  svg += `<path d="M${x(todayIndex)} ${f.top - 4}V${f.bottom}" stroke="#14201b" stroke-width="1" stroke-dasharray="2 3"/>`
+    + `<text x="${x(todayIndex) - 6}" y="${f.top - 8}" text-anchor="end">Medido</text>`
+    + `<text x="${x(todayIndex) + 6}" y="${f.top - 8}">Previsión</text>`;
+  for (let i = 0; i < count; i += 1) {
+    const day = new Date(firstDay + i * DAY_MS);
+    svg += `<text class="${i === todayIndex ? "axis-strong" : ""}" x="${x(i)}" y="${f.height - 8}" text-anchor="middle">${i === todayIndex && !data.demo ? "hoy" : day.getUTCDate()}</text>`;
+  }
+  svg += `<path d="M${x(chartPick)} ${f.top}V${f.bottom}" stroke="#14201b" stroke-width="1.2"/>`;
+
+  // the lines: the one in focus is drawn last (on top) and is the only one with its interval shaded
+  const shown = chartSlots.map((key, slot) => ({ slot, series: data.series.find((s) => s.key === key) })).filter((e) => e.series);
+  shown.sort((a, b) => (a.series.key === chartFocus) - (b.series.key === chartFocus));
+  let anyUnreliable = false, anyActual = false;
+  for (const { slot, series } of shown) {
+    const y = scale(series), color = SERIES_COLORS[slot];
+    const observed = series.observed.map((p) => [x(dayIndex(p.date)), y(p.value)]);
+    const forecast = series.forecast.map((p) => [x(dayIndex(p.date)), y(p.value)]);
+    const line = (points) => points.map((p, i) => `${i ? "L" : "M"}${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join("");
+    if (series.key === chartFocus && series.forecast.length) {
+      const upper = series.forecast.map((p) => [x(dayIndex(p.date)), y(p.high)]);
+      const lower = series.forecast.map((p) => [x(dayIndex(p.date)), y(p.low)]).reverse();
+      svg += `<path d="${line([...upper, ...lower])}Z" fill="${color}" fill-opacity=".2"/>`;
+    }
+    // the days between the last reading and today have no data yet (readings are published about 3 days late)
+    if (observed.length && forecast.length) svg += `<path d="${line([observed[observed.length - 1], forecast[0]])}" stroke="${color}" stroke-width="1.5" stroke-dasharray="1 4" stroke-linecap="round" fill="none" opacity=".7"/>`;
+    if (observed.length) svg += `<path d="${line(observed)}" stroke="${color}" stroke-width="2" fill="none" stroke-linejoin="round"/>`;
+    if (forecast.length) svg += `<path d="${line(forecast)}" stroke="${color}" stroke-width="2" stroke-dasharray="5 4" fill="none" stroke-linejoin="round"/>`;
+    observed.forEach((p) => { svg += marker(slot, p[0], p[1], color); });
+    series.forecast.forEach((p, i) => {
+      svg += marker(slot, forecast[i][0], forecast[i][1], color, !p.reliable);
+      anyUnreliable = anyUnreliable || !p.reliable;
+      if (p.actual != null && series.key === chartFocus) {   // demo mode: what was really measured afterwards (only for the line in focus)
+        const ax = forecast[i][0], ay = y(p.actual);
+        const cross = `d="M${ax - 3.5} ${ay - 3.5}l7 7M${ax + 3.5} ${ay - 3.5}l-7 7" stroke-linecap="round"`;
+        svg += `<path ${cross} stroke="#fff" stroke-width="4"/><path ${cross} stroke="#14201b" stroke-width="1.8"/>`;
+        anyActual = true;
+      }
+    });
+  }
+  const names = shown.map((e) => e.series.name).join(", ");
+  $("chart").innerHTML = `<svg viewBox="0 0 ${f.width} ${f.height}" role="img" data-count="${count}" data-first="${x(0)}" data-last="${x(count - 1)}"`
+    + ` aria-label="Polen medido en los últimos 7 días y previsto para los próximos 5 días: ${esc(names)}. Toca un día para ver sus valores.">${svg}</svg>`;
+
+  // the values of the chosen day, in words
+  const pickedDay = new Date(firstDay + chartPick * DAY_MS);
+  const dayText = `${WEEKDAYS[pickedDay.getUTCDay()]} ${pickedDay.getUTCDate()}/${String(pickedDay.getUTCMonth() + 1).padStart(2, "0")}`;
+  const lines = shown.slice().sort((a, b) => a.slot - b.slot).map(({ series }) => {
+    const seen = series.observed.find((p) => dayIndex(p.date) === chartPick);
+    const expected = series.forecast.find((p) => dayIndex(p.date) === chartPick);
+    let text = "sin lectura todavía (se publican con unos 3 días de retraso)";
+    if (seen) text = `medido ${num(seen.value)} granos/m³ (${esc(seen.level_name)})`;
+    else if (expected) {
+      text = `previsión ${num(expected.value)} granos/m³ (${esc(expected.level_name)}), intervalo del ${num(data.interval * 100)} %: ${num(expected.low)}–${num(expected.high)}`
+        + (expected.reliable ? "" : " · poco fiable para este día")
+        + (expected.actual != null ? ` · medido después: ${num(expected.actual)}` : "");
+    }
+    return `${esc(series.name)}: ${text}`;
+  });
+  $("chart-detail").innerHTML = `<b>${dayText}${chartPick === todayIndex && !data.demo ? " (hoy)" : ""}</b><br>${lines.join("<br>")}`;
+
+  $("chart-legend").innerHTML = `<span>${sample("#4d5c55", null)}Medido</span><span>${sample("#4d5c55", null, true)}Previsión</span>`
+    + `<span><i style="background:#4d5c55;opacity:.3"></i>Intervalo del ${num(data.interval * 100)} %</span>`
+    + (anyUnreliable ? `<span><svg viewBox="0 0 22 12" aria-hidden="true">${marker(0, 11, 6, "#4d5c55", true, 3.4)}</svg>Poco fiable</span>` : "")
+    + (anyActual ? '<span><svg viewBox="0 0 22 12" aria-hidden="true"><path d="M8 3l6 6M14 3l-6 6" stroke="#14201b" stroke-width="1.8" stroke-linecap="round"/></svg>Medido después</span>' : "");
+}
+
+function drawAirChart(data) {
+  $("chart-series").innerHTML = "";
+  $("chart-note").textContent = [data.pollutant ? `Contaminante con la categoría más alta prevista: ${data.pollutant}. ${data.source}, para el punto elegido.` : "", ...data.notes].filter(Boolean).join(" ");
+  if (!data.pollutant || data.hours.length < 2) { chartEmpty("No hay previsión de calidad del aire para este punto en este momento."); return; }
+
+  const f = chartFrame();
+  const hours = data.hours, count = hours.length;
+  if (chartPick == null || chartPick >= count) chartPick = 0;
+  const x = (i) => f.left + 4 + i * (f.right - f.left - 8) / (count - 1);
+  // show the official bands up to the one the highest forecast value reaches (at least the first two)
+  const highest = Math.max(...hours.map((h) => h.value));
+  let lastBand = data.bands.findIndex((limit) => Math.round(highest) <= limit);
+  lastBand = Math.max(lastBand < 0 ? data.bands.length - 1 : lastBand, 1);
+  const top = data.bands[lastBand];
+  const y = (value) => f.bottom - (f.bottom - f.top) * Math.min(value / top, 1);
+
+  let svg = "";
+  for (let k = 0; k <= lastBand; k += 1) {
+    const from = k ? data.bands[k - 1] : 0;
+    svg += `<rect x="${f.left}" y="${y(data.bands[k])}" width="${f.right - f.left}" height="${Math.max(y(from) - y(data.bands[k]) - 1, 1)}" rx="3" fill="${data.categories[k].color}" fill-opacity=".3"/>`
+      + `<text class="band-name" x="${f.left + 5}" y="${y(data.bands[k]) + 12}">${esc(data.categories[k].name)} (hasta ${data.bands[k]})</text>`;
+  }
+  hours.forEach((h, i) => {                      // a tick and the weekday at every midnight
+    if (h.time.slice(11, 13) !== "00" || i === 0) return;
+    const day = new Date(Date.parse(h.time.slice(0, 10)));
+    svg += `<path d="M${x(i)} ${f.top}V${f.bottom + 4}" stroke="#14201b" stroke-opacity=".25" stroke-width="1"/>`
+      + `<text x="${x(i) + 3}" y="${f.height - 8}">${WEEKDAYS[day.getUTCDay()]} ${day.getUTCDate()}</text>`;
+  });
+  svg += `<text x="${f.left}" y="${f.top - 8}">${esc(data.pollutant)}, µg/m³ · previsión por horas</text>`;
+  svg += `<path d="${hours.map((h, i) => `${i ? "L" : "M"}${x(i).toFixed(1)} ${y(h.value).toFixed(1)}`).join("")}" stroke="${SERIES_COLORS[0]}" stroke-width="2" stroke-dasharray="5 3" fill="none" stroke-linejoin="round"/>`;
+  const picked = hours[chartPick];
+  svg += `<path d="M${x(chartPick)} ${f.top}V${f.bottom}" stroke="#14201b" stroke-width="1.2"/>` + marker(0, x(chartPick), y(picked.value), SERIES_COLORS[0], false, 4.5);
+  $("chart").innerHTML = `<svg viewBox="0 0 ${f.width} ${f.height}" role="img" data-count="${count}" data-first="${x(0)}" data-last="${x(count - 1)}"`
+    + ` aria-label="Previsión por horas de ${esc(data.pollutant)} con las bandas del índice de calidad del aire. Toca una hora para ver su valor.">${svg}</svg>`;
+
+  const day = new Date(Date.parse(picked.time.slice(0, 10)));
+  $("chart-detail").innerHTML = `<b>${WEEKDAYS[day.getUTCDay()]} ${ddmm(picked.time)}, ${hhmm(picked.time)}</b><br>`
+    + `${esc(data.pollutant)} previsto: ${num(picked.value)} µg/m³ · ${esc(picked.category_name || "sin categoría")}`;
+  $("chart-legend").innerHTML = `<span>${sample(SERIES_COLORS[0], null, true)}Previsión (modelo europeo CAMS)</span>`;
+}
+
+// The explanation behind the chart's info icon: "¿Cómo predecimos?"
+function chartInfo() {
+  const byModel = {};
+  for (const t of config.pollen_types) (byModel[t.model] = byModel[t.model] || []).push(t.label.toLowerCase());
+  const models = Object.entries(byModel).map(([model, names]) => `<li><b>${esc(model)}</b>: ${esc(names.join(", "))}.</li>`).join("");
+  return { title: "¿Cómo predecimos?", html:
+    "<h4>Polen: nuestros modelos</h4>"
+    + "<p>Probamos cuatro métodos con todo 2025 (un año que no habían visto) y para cada tipo de polen usamos el que más acertó:</p>"
+    + `<ul>${models}</ul>`
+    + "<p><b>Gradient boosting</b> son muchos árboles de decisión pequeños que aprenden de todas las estaciones a la vez. "
+    + "<b>ARIMAX</b> es un modelo estadístico clásico: ciclo anual + meteorología + las últimas lecturas.</p>"
+    + "<h4>Qué datos usan</h4>"
+    + "<ul><li>El historial de polen de la Red Palinocam desde 1993.</li>"
+    + "<li>La meteorología de Open-Meteo: calor acumulado en el año, lluvia de las últimas semanas y la previsión del tiempo.</li>"
+    + "<li>Las lecturas se publican con unos <b>3 días de retraso</b>: la previsión de «mañana» se hace 4 días después de la última lectura conocida. Por eso hay un hueco entre lo medido y hoy.</li></ul>"
+    + "<h4>Cómo leer el gráfico</h4>"
+    + "<p>Línea continua: lo medido. Línea discontinua: la previsión (su valor central). La zona sombreada es el <b>intervalo de predicción del 80 %</b>; "
+    + "en la prueba con 2025 el valor real cayó dentro algo menos de lo previsto (en torno al 70 % con gradient boosting y al 55–70 % con ARIMAX). "
+    + "Las bandas de fondo son los niveles oficiales (bajo, medio, alto, muy alto) de cada tipo.</p>"
+    + "<h4>Aire</h4>"
+    + "<p>La previsión de calidad del aire <b>no es nuestra</b>: viene del modelo europeo CAMS (vía Open-Meteo), con las bandas oficiales del Índice Nacional de Calidad del Aire. No la hemos comprobado con mediciones.</p>"
+    + `<p><a href="${esc(config.model_report_url)}" target="_blank" rel="noopener">Leer el informe completo de los modelos (MODEL_REPORT.md)</a></p>` };
 }
 
 /* ------------------------------------------------------------------ the AI assistant */

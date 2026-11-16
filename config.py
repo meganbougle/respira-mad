@@ -338,3 +338,10 @@ PLACES = {
     "Alcalá de Henares": (40.4818, -3.3643),
     "Collado Villalba":  (40.6350, -4.0049),
 }
+
+
+# ----------------------------------------------------------------------------
+# Forecast chart
+# ----------------------------------------------------------------------------
+# Where the page links to the model report (the info icon "¿Cómo predecimos?").
+MODEL_REPORT_URL = "https://github.com/meganbougle/respira-mad/blob/main/MODEL_REPORT.md"

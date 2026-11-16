@@ -45,8 +45,9 @@ Repo: https://github.com/meganbougle/respira-mad (public, branch `main`).
 
 | File | What it is |
 |---|---|
-| `api.py` | FastAPI server: `/api/config, places, stations, risk, hours, planner, freshness, chat, health`, and serves `static/` at `/` |
+| `api.py` | FastAPI server: `/api/config, places, stations, risk, hours, planner, chart, freshness, chat, health`, and serves `static/` at `/` |
 | `planner.py` | The 5-day planner logic |
+| `chart.py` | The numbers behind the forecast line chart (`/api/chart`) |
 | `pollen_model/`, `train_pollen_model.py` | Our pollen forecast model: features, live prediction, saved models, backtest report; and the script that trains and tests it |
 | `static/index.html`, `app.js`, `style.css` | The web app page (Spanish, mobile first, no build step) |
 | `compare_models.py`, `MODEL_REPORT.md` | Compares seasonal naive, exponential smoothing, ARIMAX and gradient boosting on 2025; the report in Spanish |
@@ -320,6 +321,32 @@ grains/m³. An hour slider (default 10:00) sets the time of day.
   open the same panel on tap (`info` object in `static/app.js`).
 - `warm_backup.py` also saves the planner's 5-day forecasts for the 29
   dropdown places (live and demo) and the model's forecast.
+
+## Forecast line chart (`chart.py`, `/api/chart`, "Evolución y previsión")
+
+- Under the planner. A "Polen / Aire" switch (`chartMode` in `static/app.js`);
+  it starts on Polen when pollen types are selected, otherwise on Aire.
+- **Polen:** nearest pollen station with a forecast (the planner's station).
+  Last 7 days of official readings (solid line) + today and the next 5 days
+  (dashed line = median `q50`, shaded = 80% interval `q10`–`q90`). The days
+  between the last reading and today have no data (publication delay) and are
+  joined by a dotted line. Hollow markers = that type + lead day is not
+  RELIABLE. Demo mode: view as of 24 May 2025, with crosses for what was
+  measured afterwards.
+- **Vertical scale = the official level** (APP DECISION): the four levels get
+  equal height and a value sits inside its band in proportion to that pollen
+  type's own thresholds, so types with different thresholds share one chart.
+  Up to 3 lines at once (`CHART_MAX_LINES`), each with its own colour and
+  marker shape (colours checked for colour-blind separation); tapping a type
+  chip shows it and shades its interval.
+- **Aire:** hourly forecast (CAMS via Open-Meteo, same download as the
+  planner) of the pollutant that reaches the worst ICA category, over the
+  official bands of that pollutant in the official colours.
+- Hand-drawn SVG, no chart library. Tap (or hover) a day or hour to read its
+  values in the box below the chart.
+- The info icon opens "¿Cómo predecimos?" (`chartInfo()`): model per pollen
+  type (from `/api/config`), the data used, the delay, CAMS for air, and a
+  link to `MODEL_REPORT.md` on GitHub (`MODEL_REPORT_URL` in `config.py`).
 
 ## AI assistant "Pregúntale a Respira" (`assistant.py`, web app only)
 

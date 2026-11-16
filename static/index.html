@@ -100,6 +100,21 @@
       <div class="planner" id="planner"></div>
     </section>
 
+    <!-- the forecast line chart: last 7 days measured + next 5 days forecast (pollen), or the hourly air forecast -->
+    <section class="block" id="chart-block">
+      <h2 class="block-title"><span id="chart-title">Evolución y previsión</span> <span class="tag tag-forecast">Previsión</span>
+        <button class="info" type="button" data-info="chart" aria-label="Más información: ¿cómo predecimos?">i</button></h2>
+      <div class="seg" id="chart-mode" role="group" aria-label="Qué mostrar en el gráfico">
+        <button type="button" data-mode="pollen" aria-pressed="false">Polen</button>
+        <button type="button" data-mode="air" aria-pressed="false">Aire</button>
+      </div>
+      <div class="chips chips-small chart-series" id="chart-series" aria-label="Tipos de polen en el gráfico"></div>
+      <div class="chart" id="chart"></div>
+      <div class="hour-detail" id="chart-detail" aria-live="polite"></div>
+      <div class="strip-legend chart-legend" id="chart-legend"></div>
+      <p class="hint chart-note" id="chart-note"></p>
+    </section>
+
     <!-- the hours -->
     <section class="block">
       <h2 class="block-title"><span id="hours-title">Próximas 24 horas</span> <span class="tag tag-forecast">Previsión</span>
