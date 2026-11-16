@@ -19,6 +19,8 @@ Repo: https://github.com/meganbougle/respira-mad (public, branch `main`).
 - The author is not an experienced coder: keep code simple and well commented,
   explain each step briefly, and test as you go.
 - Build one step at a time; don't build ahead of what was asked.
+- **Permanent rule: design and test every change at phone width (390px)
+  FIRST, then check laptop (1440x900).**
 - Run things with the project's virtual environment:
   - `.venv/bin/uvicorn api:app --port 8000` — the web app, then open http://localhost:8000
   - `.venv/bin/streamlit run app.py` — the Streamlit fallback
@@ -202,6 +204,55 @@ grains/m³. An hour slider (default 10:00) sets the time of day.
   outside a rough box around the Comunidad de Madrid.
 - Render free tier sleeps after 15 minutes without visits; the first visit
   after that takes about a minute. Open the site before a demo.
+
+## Our pollen forecast model (`pollen_model/`, `train_pollen_model.py`)
+
+- **What it is:** one small scikit-learn gradient-boosting classifier per
+  pollen type (the 10 with official thresholds) and per lead day (0 = today …
+  5), 60 in all, stored in `pollen_model/models.joblib` (9.5 MB). It predicts
+  the official level (bajo / medio / alto / muy alto) per pollen station.
+- **Golden rule (keep it):** a forecast made on day D uses only what is known
+  on day D. Pollen readings are at least 3 days old (publication delay), so
+  lead day 5 is about 8 days after the last reading. Inputs: day of year,
+  warmth accumulated since 1 January, rain over the previous 7/14/30/90 days,
+  the weather forecast for the target day and the days in between, readings
+  ≥3 days old (last value and its age, 7- and 14-day means, trend, network
+  mean) and the same week one year earlier. `pollen_model/features.py` is
+  shared by training and live prediction so both see identical inputs.
+- **Training and test:** trained on 1993–2024, tested on 2025. Training uses
+  the weather that happened as a stand-in for the forecast (old forecasts are
+  not archived); the 2025 test uses the forecasts as issued at the time
+  (Open-Meteo previous-runs archive). Training rows use readings 3 and 6 days
+  old so the model copes with late readings.
+- **Weather:** Open-Meteo historical weather per station. Stations within
+  ~10 km share one series (`WEATHER_FROM` in `features.py`), which also keeps
+  downloads inside Open-Meteo's free limits. A full retrain needs about 10,000
+  "calls": if the service starts refusing, wait an hour and rerun (downloads
+  are kept in `model_data/`, which is not committed).
+- **RELIABLE rule (ours):** per type and lead day, on in-season days of 2025,
+  the model must get the level the app acts on (bajo / medio / alto-or-more)
+  right at least 5 points more often than the baseline (last reading adjusted
+  for the season), with a smaller mean error and ≥200 in-season station-days.
+  The flags and accuracies are in `pollen_model/meta.json`; the full table and
+  chart are in `pollen_model/backtest_report.md`.
+- **Result (15 Nov 2026 run):** 45 of 50 type + lead-day combinations (leads
+  1–5) are RELIABLE. In-season accuracy on the app's three levels averages 70%
+  for the model against 60% for the baseline. Not reliable: Encinas y robles
+  (Quercus) at most leads, Gramíneas at lead 1, Llantenes at leads 0–1, Chopos
+  and Olmos at lead 0. Exact four-level accuracy is lower (about 62%).
+- **24 May 2025 check:** with data up to 21 May, the model put grass at alto
+  or muy alto at all 10 stations for every day 25–29 May (6 of 10 at muy alto
+  for the 28th; all 10 were really muy alto). It flagged a high-pollen week,
+  not the 28th as a distinct peak.
+- **In the app:** `pollen_model/predict.py` — `forecast(demo)` (cached 6 h,
+  backup `backup/pollen_model_forecast.csv`; demo = the stored forecast as of
+  24 May 2025) and `best_source()`: our model where RELIABLE, otherwise the
+  Open-Meteo European forecast (grass and olive only, about 3 days), otherwise
+  "Sin previsión fiable". `scikit-learn`, `joblib` and `numpy` are pinned in
+  `requirements.txt` because the saved model only loads with the version that
+  made it.
+- To retrain: `.venv/bin/python train_pollen_model.py` (needs `matplotlib`
+  for the chart; not in `requirements.txt`).
 
 ## AI assistant "Pregúntale a Respira" (`assistant.py`, web app only)
 

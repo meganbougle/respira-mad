@@ -292,6 +292,38 @@ AI_THINKING = False
 AI_PRICE_INPUT_PER_MTOK = 0.10
 AI_PRICE_OUTPUT_PER_MTOK = 0.50
 
+# ---- Our pollen forecast model and the 5-day planner -----------------------
+# The model is trained and tested by train_pollen_model.py; its test results
+# (which pollen types and lead days are RELIABLE) are in pollen_model/meta.json
+# and pollen_model/backtest_report.md. The app uses the model only where it is
+# RELIABLE; otherwise the European forecast (grass and olive only), otherwise
+# "Sin previsión fiable".
+PLANNER_DAYS = 5                                   # today + 4 days
+# The parts of the day shown in the planner: (name, first hour, last hour).
+PLANNER_BLOCKS = [("Mañana", 7, 13), ("Tarde", 13, 20), ("Noche", 20, 23)]
+# SIMPLIFICATION: which forecast value stands for a whole block. The official
+# index uses the last hour for NO2, an 8-hour average for O3 and a 24-hour
+# average for particles. A block lasts 3 to 7 hours, so we take the highest
+# hour for NO2 and the AVERAGE of the block for O3, PM10 and PM2.5 (one high
+# hour of particles should not turn a whole morning red).
+PLANNER_BLOCK_VALUE = {"NO2": "max", "O3": "mean", "PM10": "mean", "PM2.5": "mean"}
+# In demo mode the planner shows the view "as of" this day, using only what
+# was known then, so the 28 May 2025 peak appears four days ahead.
+PLANNER_DEMO_DATE = "2025-05-24"
+
+# APP DECISION: the confidence label of each planner day.
+#  - If the person selected pollen types: from the share of in-season days the
+#    pollen forecast got right in the 2025 test, for that lead day (the lowest
+#    of the selected types). "Alta" from 75%, "media" from 60%, else "baja".
+#    The European forecast was not tested by us, so it always counts as "baja".
+#  - If no pollen type is selected the level only depends on the air forecast,
+#    which we have NOT tested against measurements. The label then simply
+#    follows how far ahead the day is (the list below: today, +1, +2, +3, +4).
+CONFIDENCE_LABELS = ["baja", "media", "alta"]
+CONFIDENCE_ALTA_FROM = 0.75
+CONFIDENCE_MEDIA_FROM = 0.60
+CONFIDENCE_BY_DAYS_AHEAD = ["alta", "alta", "media", "media", "baja"]
+
 # Extra places for the location dropdown and for test_risk.py. The other
 # municipalities in the dropdown come from the Comunidad air stations.
 PLACES = {

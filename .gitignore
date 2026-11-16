@@ -9,3 +9,6 @@ __pycache__/
 
 # macOS
 .DS_Store
+
+# Raw downloads used to train the pollen model (large; rebuilt by train_pollen_model.py)
+model_data/
