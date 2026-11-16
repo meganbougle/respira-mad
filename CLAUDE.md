@@ -297,15 +297,20 @@ grains/m³. An hour slider (default 10:00) sets the time of day.
   app keeps working (`answer()` never raises).
 - Tools, all calling our own functions: `find_place` (29 dropdown places, then
   `gazetteer.csv`, then Open-Meteo geocoding limited to the region),
-  `get_risk`, `get_best_hours`, `get_pollen_forecast`. In demo mode every tool
-  uses the 28 May 2025 replay data.
-- The pollen forecast source is one swappable function (`POLLEN_FORECAST` in
-  `assistant.py`), currently Open-Meteo/CAMS grass and olive, today and
-  tomorrow only. Our own pollen model can replace it later.
+  `get_risk`, `get_best_hours`, `get_planner`, `get_pollen_forecast`. In demo
+  mode `get_risk` and `get_best_hours` use the 28 May 2025 replay data;
+  `get_planner` and `get_pollen_forecast` use the planner's view as of 24 May
+  2025.
+- `get_planner` and `get_pollen_forecast` both call `planner.plan()`, so the
+  assistant says exactly what the planner shows: our pollen model where it is
+  RELIABLE, the European forecast otherwise (grass and olive), or "sin
+  previsión fiable", each with the day's confidence label.
 - The system prompt is in Spanish: answer only from tool results, cite station
   or source and data time, flag provisional and forecast data, at most ~5
   sentences, no diagnoses or medication advice, 112 for emergencies, decline
-  off-topic questions.
+  off-topic questions. For multi-day forecasts it must say they are less
+  certain further ahead and mention the day's confidence level and the source
+  of the pollen forecast.
 - Limits: `max_tokens` 400, last 6 messages only, 20 messages per visitor per
   hour (in memory), at most 5 tool rounds. Thinking is off so the 400 tokens go
   to the answer (`AI_THINKING` in `config.py`).
@@ -315,7 +320,10 @@ grains/m³. An hour slider (default 10:00) sets the time of day.
   `config.py`.
 - The page sends the panel's profile, place, allergy types and demo state as
   context. Answers are labelled "Generado por IA con datos oficiales".
-- `test_chat.py` asks the 3 suggested questions live and in demo mode, plus one
-  off-topic and one medical question (needs a real key).
+- `test_chat.py` asks the 3 suggested questions live and in demo mode, a
+  planner question live and in demo mode, plus one off-topic and one medical
+  question (needs a real key). **As of 16 Nov 2026 it has never been run: no
+  key has been available on this machine, so the model's real answers are
+  untested.**
 - The Streamlit fallback (`app.py`) has no assistant; its placeholder never
   shows a chat.

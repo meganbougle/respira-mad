@@ -8,7 +8,7 @@ It needs your Anthropic key. Either:
   - set the ANTHROPIC_API_KEY environment variable.
 
 Run it with:   .venv/bin/python test_chat.py
-It makes 8 real requests to Anthropic (a fraction of a cent in total).
+It asks 10 questions (each one makes a few real requests to Anthropic; a few cents at most in total).
 """
 
 import logging
@@ -25,6 +25,7 @@ SUGGESTED = [
     "¿A qué hora es mejor salir a correr hoy en Alcalá?",
     "Soy alérgico a las gramíneas, ¿cómo estará el polen estos días?",
 ]
+PLANNER_QUESTION = "¿Qué día de esta semana es mejor para salir de excursión por la sierra, cerca de Collado Villalba?"
 OTHERS = [
     ("FUERA DE TEMA", "¿Quién ganó el último mundial de fútbol?"),
     ("PREGUNTA MÉDICA", "Tengo asma y hoy me cuesta respirar. ¿Cuántas inhalaciones de salbutamol me tomo?"),
@@ -58,6 +59,11 @@ for number, question in enumerate(SUGGESTED, 1):
 print("\n" + "=" * 78 + f"\nMODO DEMOSTRACIÓN ({config.REPLAY_DATE}, {config.REPLAY_DEFAULT_HOUR}:00)\n" + "=" * 78)
 for number, question in enumerate(SUGGESTED, 1):
     ask(f"Pregunta sugerida {number}", question, dict(PANEL, demo=True, hour=config.REPLAY_DEFAULT_HOUR))
+
+print("\n" + "=" * 78 + "\nPLANIFICADOR (en directo y en modo demostración)\n" + "=" * 78)
+ask("Pregunta de planificador, en directo", PLANNER_QUESTION, dict(PANEL, demo=False))
+ask("Pregunta de planificador, demostración, alergia a gramíneas", PLANNER_QUESTION,
+    dict(PANEL, demo=True, hour=config.REPLAY_DEFAULT_HOUR, allergy_types=["Gramíneas"]))
 
 print("\n" + "=" * 78 + "\nLÍMITES\n" + "=" * 78)
 for title, question in OTHERS:

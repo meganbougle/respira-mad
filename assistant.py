@@ -30,6 +30,7 @@ import requests
 
 import config
 import data
+import planner
 import risk
 
 GEOCODING_URL = "https://geocoding-api.open-meteo.com/v1/search"
@@ -80,11 +81,12 @@ SYSTEM_PROMPT = """Eres «Respira», el asistente de Respira MAD, una aplicació
 
 DE DÓNDE SALEN TUS DATOS
 - Responde ÚNICAMENTE con lo que devuelvan las herramientas. No inventes nunca cifras, niveles, horas ni nombres de estaciones, y no uses lo que recuerdes de otras fuentes. Si las herramientas no dan un dato, di que no lo tienes.
-- Antes de responder sobre un lugar, usa find_place para localizarlo (salvo que la pregunta sea sobre la ubicación ya elegida en la aplicación, que aparece en el contexto). Después usa la herramienta que corresponda: get_risk para «¿puedo salir?», get_best_hours para «¿a qué hora?», get_pollen_forecast para la evolución del polen.
+- Antes de responder sobre un lugar, usa find_place para localizarlo (salvo que la pregunta sea sobre la ubicación ya elegida en la aplicación, que aparece en el contexto). Después usa la herramienta que corresponda: get_risk para «¿puedo salir ahora?», get_best_hours para «¿a qué hora de hoy?», get_planner para comparar días («¿qué día de esta semana es mejor?») y get_pollen_forecast para la evolución del polen en los próximos días.
 - Menciona siempre la estación o la fuente del dato y la hora o fecha del dato. Di expresamente cuándo un dato es provisional (pendiente de validar) y cuándo es una previsión de un modelo y no una medición.
 - Las recomendaciones oficiales que devuelven las herramientas son textos literales: puedes citarlos o resumirlos con fidelidad, sin añadirles nada.
 - Perfiles: «general», «asthma» (asma o enfermedad respiratoria), «older» (persona mayor), «children» (niño o niña). Para un niño con asma usa «asthma». La alergia al polen se indica aparte, con los tipos de polen.
-- Si el contexto dice que el modo demostración está activado, los datos son del 28 de mayo de 2025 y no de hoy: dilo en la respuesta.
+- PREVISIONES A VARIOS DÍAS: di siempre que las previsiones son menos seguras cuanto más lejos está el día, y menciona el nivel de confianza (alta, media o baja) que devuelve la herramienta para el día del que hables. Indica también de dónde sale la previsión de polen: nuestro modelo propio, la previsión europea (CAMS, Open-Meteo) o una medición; y si para algún tipo de polen no hay previsión fiable, dilo tal cual.
+- Si el contexto dice que el modo demostración está activado, los datos son del 28 de mayo de 2025 (y el planificador y la previsión de polen muestran la vista del 24 de mayo de 2025) y no de hoy: dilo en la respuesta.
 
 CÓMO RESPONDER
 - Respuestas breves: como máximo unas 5 frases, en tono cercano y claro, en texto sin formato (sin Markdown, sin listas ni negritas).
@@ -154,16 +156,34 @@ TOOLS = [
         },
     },
     {
+        "name": "get_planner",
+        "description": ("Planificador de 5 días (hoy y los 4 siguientes) para un punto: nivel previsto por la mañana, "
+                        "por la tarde y por la noche de cada día, con la temperatura, la lluvia y la confianza de cada "
+                        "día. Úsala para comparar días, por ejemplo «¿qué día de esta semana es mejor para una "
+                        "excursión?». Todo es PREVISIÓN."),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "lat": {"type": "number"},
+                "lon": {"type": "number"},
+                "profile": {"type": "string", "enum": PROFILE_KEYS},
+                "allergy_types": {"type": "array", "items": {"type": "string", "enum": POLLEN_KEYS}},
+            },
+            "required": ["lat", "lon", "profile"],
+        },
+    },
+    {
         "name": "get_pollen_forecast",
-        "description": ("Previsión de polen para hoy y mañana en un punto, junto con la última medición oficial de la "
-                        "estación de polen más cercana. La previsión solo existe para gramíneas y olivo."),
+        "description": ("Previsión de polen para hoy y los 4 días siguientes en un punto, tipo por tipo, indicando para "
+                        "cada día el nivel, la fuente (modelo propio de Respira MAD, previsión europea o sin previsión "
+                        "fiable) y la confianza, junto con la última medición oficial de la estación más cercana."),
         "input_schema": {
             "type": "object",
             "properties": {
                 "lat": {"type": "number"},
                 "lon": {"type": "number"},
                 "pollen_types": {"type": "array", "items": {"type": "string", "enum": POLLEN_KEYS},
-                                 "description": "Tipos de polen que interesan. Vacío = gramíneas y olivo."},
+                                 "description": "Tipos de polen que interesan. Vacío = los de la persona, o gramíneas y olivo."},
             },
             "required": ["lat", "lon"],
         },
@@ -335,51 +355,57 @@ def get_best_hours(lat, lon, profile, allergy_types, context):
     }
 
 
-# ---- pollen forecast --------------------------------------------------------
-# For now the forecast comes from Open-Meteo (European CAMS model), which only
-# has grass and olive. To plug in OUR OWN pollen model later, write a function
-# with the same inputs and outputs as _open_meteo_pollen() and change the one
-# line below that says  POLLEN_FORECAST = ...
+# ---- several days ahead: the planner and the pollen forecast -----------------
+# Both use planner.plan(), so the assistant says exactly what the planner shows:
+# our own pollen model where it proved reliable, the European forecast (grass
+# and olive) where it did not, and "sin previsión fiable" otherwise.
 
-def _open_meteo_pollen(lat, lon, demo):
-    """
-    Returns (label, table). The table has a `timestamp` column (hourly) and
-    one column per pollen type, named with our official type names.
-    """
-    forecast = data.load_forecast_air(round(lat, 2), round(lon, 2), config.REPLAY_DATE if demo else None)
-    table = forecast[["timestamp"]].copy()
-    for column, official_type in config.FORECAST_POLLEN_TO_OFFICIAL.items():
-        table[official_type] = forecast[column]
-    return "Previsión del modelo europeo CAMS (servida por Open-Meteo), no medición", table
+def _pollen_text(entry):
+    """One pollen type on one day, in words the model can quote."""
+    if entry["kind"] == "none":
+        return {"tipo": entry["name"], "nivel": None, "fuente": "Sin previsión fiable para este tipo y este día"}
+    source = {"model": "Modelo propio de Respira MAD", "european": "Previsión europea CAMS (Open-Meteo), no comprobada por nosotros",
+              "measurement": entry["source"]}[entry["kind"]]
+    result = {"tipo": entry["name"], "nivel": entry["level_name"], "fuente": source}
+    if entry["kind"] == "model" and entry["accuracy"] is not None:
+        result["acierto_en_la_prueba_de_2025"] = f"{entry['accuracy']:.0%} de los días de temporada"
+    return result
 
 
-POLLEN_FORECAST = _open_meteo_pollen          # <- swap this for our own model later
+def get_planner(lat, lon, profile, allergy_types, context):
+    _check_point(lat, lon)
+    profile = profile if profile in config.PROFILES else "general"
+    demo = bool(context.get("demo"))
+    result = planner.plan(lat, lon, profile, _clean_types(allergy_types), None, demo)
+    return {
+        "tipo_de_dato": "PREVISIÓN a varios días: menos segura cuanto más lejos está el día",
+        "lugar": risk.place_name(lat, lon, _dropdown_places()),
+        "perfil": config.PROFILES[profile]["label"],
+        "vista_del_dia": result["today"].strftime("%d/%m/%Y"),
+        "modo_demostracion": demo,
+        "dias": [{
+            "dia": day["label"], "fecha": day["date"].strftime("%d/%m/%Y"),
+            "confianza": day["confidence"], "motivo_de_la_confianza": day["confidence_reason"],
+            "polen": [_pollen_text(p) for p in day["pollen"]],
+            "tramos": [{
+                "tramo": f"{block['name']} ({block['hours']})", "nivel": block["level_label"],
+                "calidad_del_aire_prevista": (f"{block['air']['category_name']} por {block['air']['pollutant']}"
+                                              if block["air"] else "sin previsión de aire para este tramo"),
+                "temperatura_c": block["weather"]["temperature_c"] if block["weather"] else None,
+                "lluvia_mm": block["weather"]["rain_mm"] if block["weather"] else None,
+            } for block in day["blocks"]],
+        } for day in result["days"]],
+        "fuentes": "Aire y tiempo: modelo europeo CAMS y previsión de Open-Meteo. Polen: ver cada día.",
+        "avisos": result["notes"],
+    }
 
 
 def get_pollen_forecast(lat, lon, pollen_types, context):
     _check_point(lat, lon)
     demo, now = bool(context.get("demo")), _moment(context)
-    wanted = list(_clean_types(pollen_types)) or list(config.FORECAST_POLLEN_TO_OFFICIAL.values())
-    label, table = POLLEN_FORECAST(lat, lon, demo)
-    available = [t for t in wanted if t in table.columns]
-
-    days = []
-    for day_name, day in (("hoy", now.normalize()), ("mañana", now.normalize() + pd.Timedelta(days=1))):
-        hours = table[table["timestamp"].dt.normalize() == day]
-        if hours.empty:
-            continue
-        entry = {"dia": day_name, "fecha": day.strftime("%d/%m/%Y"), "tipos": []}
-        for pollen_type in available:
-            mean = hours[pollen_type].mean()
-            if pd.isna(mean):
-                continue
-            level = risk.pollen_level(pollen_type, mean)
-            entry["tipos"].append({
-                "tipo": config.POLLEN_NAMES[pollen_type], "media_del_dia_granos_m3": round(float(mean), 1),
-                "maximo_horario_granos_m3": round(float(hours[pollen_type].max()), 1),
-                "nivel_segun_umbrales_palinocam": config.POLLEN_LEVELS[level],
-            })
-        days.append(entry)
+    wanted = list(_clean_types(pollen_types)) or list(_clean_types(context.get("allergy_types"))) \
+        or list(config.FORECAST_POLLEN_TO_OFFICIAL.values())
+    result = planner.plan(lat, lon, "general", tuple(wanted), None, demo)
 
     # the latest official measurement, for comparison
     measurement = None
@@ -398,14 +424,16 @@ def get_pollen_forecast(lat, lon, pollen_types, context):
         pass
 
     return {
+        "tipo_de_dato": "PREVISIÓN de polen a varios días: menos segura cuanto más lejos está el día",
         "lugar": risk.place_name(lat, lon, _dropdown_places()),
-        "hora_de_la_consulta": _time(now),
+        "vista_del_dia": result["today"].strftime("%d/%m/%Y"),
         "modo_demostracion": demo,
-        "fuente_de_la_prevision": label,
-        "alcance": "Solo hoy y mañana. La previsión solo existe para gramíneas y olivo.",
-        "tipos_sin_prevision": [config.POLLEN_NAMES[t] for t in wanted if t not in available],
-        "prevision": days,
+        "estacion_de_polen_del_modelo": result["pollen_station"],
+        "prevision": [{"dia": day["label"], "fecha": day["date"].strftime("%d/%m/%Y"), "confianza": day["confidence"],
+                       "motivo_de_la_confianza": day["confidence_reason"],
+                       "tipos": [_pollen_text(p) for p in day["pollen"]]} for day in result["days"]],
         "ultima_medicion_oficial": measurement or "Sin lectura reciente de polen en las estaciones.",
+        "avisos": [n for n in result["notes"] if "polen" in n.lower() or "demostración" in n.lower()],
     }
 
 
@@ -420,6 +448,9 @@ def run_tool(name, tool_input, context):
         elif name == "get_best_hours":
             result = get_best_hours(float(tool_input["lat"]), float(tool_input["lon"]),
                                     tool_input.get("profile", "general"), tool_input.get("allergy_types"), context)
+        elif name == "get_planner":
+            result = get_planner(float(tool_input["lat"]), float(tool_input["lon"]),
+                                 tool_input.get("profile", "general"), tool_input.get("allergy_types"), context)
         elif name == "get_pollen_forecast":
             result = get_pollen_forecast(float(tool_input["lat"]), float(tool_input["lon"]),
                                          tool_input.get("pollen_types"), context)
