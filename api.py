@@ -16,6 +16,8 @@ Addresses:
     /api/risk         level, reason, official recommendation, measurements used
     /api/hours        hour-by-hour levels and best windows (forecast)
     /api/freshness    each source, its timestamp, minutes ago, provisional flag
+    /api/chat         (POST) the AI assistant "Pregúntale a Respira" (see assistant.py)
+    /api/chat/usage   how many tokens the assistant has used since the server started
     /api/health       "ok" (used by the hosting service to check the app is up)
 """
 
@@ -27,9 +29,10 @@ from pathlib import Path
 
 import pandas as pd
 import streamlit  # noqa: F401  (data.py uses its cache; imported first so we can quiet it)
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
 
 # Streamlit's cache works fine outside "streamlit run", but it complains
 # about it in the log. Hide those messages.
@@ -38,9 +41,10 @@ for name in ("streamlit.runtime.caching.cache_data_api",
     logging.getLogger(name).setLevel(logging.ERROR)
 warnings.filterwarnings("ignore", message=".*ScriptRunContext.*")
 
-import config  # noqa: E402
-import data    # noqa: E402
-import risk    # noqa: E402
+import assistant  # noqa: E402
+import config     # noqa: E402
+import data       # noqa: E402
+import risk       # noqa: E402
 
 STATIC_DIR = Path(__file__).parent / "static"
 
@@ -134,7 +138,8 @@ def get_config():
                            for name, color in zip(config.ICA_CATEGORIES, config.ICA_COLORS)],
         "demo": {"date": config.REPLAY_DATE, "default_hour": config.REPLAY_DEFAULT_HOUR,
                  "first_hour": config.WINDOW_FIRST_HOUR, "last_hour": config.WINDOW_LAST_HOUR - 1},
-        "ai_assistant_enabled": config.AI_ASSISTANT_ENABLED,
+        "ai_assistant_enabled": config.AI_ASSISTANT_ENABLED,           # show the chat button?
+        "ai_assistant_available": assistant.is_available(),            # ...and is there a key?
         # Optional key for the CARTO Positron basemap (free, from carto.com/basemaps/apikey).
         # It is used by the visitor's browser, so it is not a secret. Without it the map
         # uses OpenStreetMap tiles in muted grey.
@@ -322,6 +327,50 @@ def get_freshness(demo: bool = False, hour: int = HOUR,
         "all_live": bool(sources) and all(s["live"] for s in sources),
         "sources": sources,
     })
+
+
+# ----------------------------------------------------------------------------
+# The AI assistant
+# ----------------------------------------------------------------------------
+
+class ChatMessage(BaseModel):
+    role: str                       # "user" or "assistant"
+    content: str
+
+
+class ChatContext(BaseModel):
+    """What the panel already knows, so the assistant can use it."""
+    lat: float | None = None
+    lon: float | None = None
+    place: str | None = None
+    profile: str = "general"
+    allergy_types: list[str] = []
+    demo: bool = False
+    hour: int | None = None
+
+
+class ChatRequest(BaseModel):
+    messages: list[ChatMessage]
+    context: ChatContext = ChatContext()
+
+
+@app.post("/api/chat")
+def chat(body: ChatRequest, request: Request):
+    """
+    One reply from the assistant. It always answers with a normal page code
+    and a friendly `reply`, even when the assistant is off, the key is
+    missing or Anthropic's service fails: the rest of the app is unaffected.
+    """
+    # the visitor's address (behind Render's proxy it is in X-Forwarded-For)
+    forwarded = request.headers.get("x-forwarded-for", "")
+    visitor = forwarded.split(",")[0].strip() or (request.client.host if request.client else "anon")
+    return assistant.answer([m.model_dump() for m in body.messages], body.context.model_dump(), visitor)
+
+
+@app.get("/api/chat/usage")
+def chat_usage():
+    """Token use and estimated cost since the server started."""
+    return assistant.usage_totals()
 
 
 # ----------------------------------------------------------------------------

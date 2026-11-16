@@ -167,11 +167,7 @@ function buildControls() {
   $("strip-legend").innerHTML = config.levels.map((l) => `<span><i style="background:${l.color}"></i>${esc(l.label)}</span>`).join("")
     + "<span>★ Mejor franja</span>";
 
-  // AI assistant placeholder (Step 4)
-  if (config.ai_assistant_enabled) {
-    $("chat-fab").hidden = false;
-    $("chat-fab").addEventListener("click", () => { $("chat-pop").hidden = !$("chat-pop").hidden; });
-  }
+  buildChat();
 }
 
 function buildMap() {
@@ -440,6 +436,125 @@ function drawStatus() {
   const minutes = updatedMinutes + Math.floor((Date.now() - updatedAt) / 60000);
   const word = backup ? (isNarrow() ? "Copia" : "Copia de seguridad") : "En directo";
   $("status-text").textContent = `${word} · ${isNarrow() ? "" : "actualizado "}hace ${minutes} min`;
+}
+
+/* ------------------------------------------------------------------ the AI assistant */
+
+const CHAT_KEEP = 6;            // only the last 6 messages are sent (the server enforces it too)
+const chatHistory = [];         // {role, content}: questions and the answers that worked
+let chatBusy = false;
+
+function buildChat() {
+  if (!config.ai_assistant_enabled) return;                 // switched off in config.py: no button at all
+  $("chat-fab").hidden = false;
+  $("chat-fab").addEventListener("click", openChat);
+  $("chat-close").addEventListener("click", closeChat);
+  document.addEventListener("keydown", (event) => { if (event.key === "Escape" && !$("chat").hidden) closeChat(); });
+  $("chat-suggestions").addEventListener("click", (event) => {
+    const chip = event.target.closest(".chip");
+    if (chip) sendChat(chip.textContent);
+  });
+  $("chat-form").addEventListener("submit", (event) => {
+    event.preventDefault();
+    const text = $("chat-input").value.trim();
+    if (text) sendChat(text);
+  });
+  if (!config.ai_assistant_available) chatUnavailable();
+}
+
+function openChat() {
+  $("chat").hidden = false;
+  $("chat-fab").hidden = true;
+  drawChatContext();
+  if (window.innerWidth >= 600) $("chat-input").focus();    // on phones, don't pop the keyboard up straight away
+}
+
+function closeChat() {
+  $("chat").hidden = true;
+  $("chat-fab").hidden = false;
+}
+
+// The line under the title: what the assistant already knows from the panel.
+function drawChatContext() {
+  const profile = config.profiles.find((p) => p.key === state.profile);
+  $("chat-context").textContent = `${profile ? profile.label : ""} · ${state.placeName}${state.demo ? " · Demostración 28/05/2025" : ""}`;
+}
+
+function chatUnavailable() {
+  $("chat-suggestions").hidden = true;
+  $("chat-form").classList.add("is-off");
+  $("chat-input").disabled = true;
+  $("chat-input").placeholder = "Asistente no disponible";
+  addBubble("error", "El asistente no está disponible en este momento. El resto de la aplicación funciona con normalidad.");
+}
+
+function addBubble(kind, text, withLabel = false) {
+  const bubble = document.createElement("div");
+  bubble.className = `msg msg-${kind}`;
+  const p = document.createElement("p");
+  p.textContent = text;                                     // textContent: nothing the model writes can run as code
+  bubble.appendChild(p);
+  if (withLabel) {
+    const label = document.createElement("div");
+    label.className = "msg-label";
+    label.textContent = "Generado por IA con datos oficiales";
+    bubble.appendChild(label);
+  }
+  $("chat-body").appendChild(bubble);
+  $("chat-body").scrollTop = $("chat-body").scrollHeight;
+  return bubble;
+}
+
+async function sendChat(text) {
+  if (chatBusy) return;
+  chatBusy = true;
+  $("chat-form").classList.add("is-busy");
+  $("chat-suggestions").hidden = true;
+  $("chat-input").value = "";
+  drawChatContext();
+  addBubble("user", text);
+  chatHistory.push({ role: "user", content: text });
+
+  // typing indicator while we wait
+  const typing = document.createElement("div");
+  typing.className = "msg msg-ai";
+  typing.innerHTML = '<span class="typing" aria-label="Respira está escribiendo"><i></i><i></i><i></i></span>';
+  $("chat-body").appendChild(typing);
+  $("chat-body").scrollTop = $("chat-body").scrollHeight;
+
+  let answer;
+  try {
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        messages: chatHistory.slice(-CHAT_KEEP),
+        // what the panel already knows, so the assistant can use it
+        context: {
+          lat: state.lat, lon: state.lon, place: state.placeName, profile: state.profile,
+          allergy_types: state.allergic ? [...state.types] : [],
+          demo: state.demo, hour: state.demo ? state.hour : null,
+        },
+      }),
+    });
+    if (!response.ok) throw new Error(`chat: ${response.status}`);
+    answer = await response.json();
+  } catch (error) {
+    // the chat failed, but nothing else in the app depends on it
+    answer = { ok: false, available: true, reply: "No he podido conectar con el asistente. Inténtalo de nuevo en un momento; el mapa y el panel siguen funcionando con normalidad." };
+  }
+
+  typing.remove();
+  if (answer.ok) {
+    addBubble("ai", answer.reply, true);
+    chatHistory.push({ role: "assistant", content: answer.reply });
+  } else {
+    chatHistory.pop();                                      // forget the question that got no answer
+    if (answer.available === false) chatUnavailable();      // shows the "no disponible" message and locks the box
+    else addBubble("error", answer.reply);
+  }
+  chatBusy = false;
+  $("chat-form").classList.remove("is-busy");
 }
 
 start();

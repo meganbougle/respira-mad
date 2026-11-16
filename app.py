@@ -48,7 +48,7 @@ def assistant_placeholder():
     st.secrets["ANTHROPIC_API_KEY"] - never written in the code.
     """
     st.subheader("Asistente")
-    st.info("Próximamente: un asistente para hacer preguntas sobre las condiciones de hoy.")
+    st.info("El asistente «Pregúntale a Respira» está disponible en la versión web de Respira MAD.")
 
 
 # ----------------------------------------------------------------------------
@@ -352,6 +352,8 @@ st.caption("«Provisional» significa que la red todavía no ha validado el dato
 # AI assistant (Step 4) - switched off by config.AI_ASSISTANT_ENABLED
 # ----------------------------------------------------------------------------
 
+# The assistant itself lives in the web app (api.py + static/). This Streamlit
+# fallback only points to it.
 if config.AI_ASSISTANT_ENABLED:
     assistant_placeholder()
 

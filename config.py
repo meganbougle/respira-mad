@@ -272,9 +272,25 @@ WINDOW_LAST_HOUR = 22       # ... and 22:00
 REPLAY_DATE = "2025-05-28"
 REPLAY_DEFAULT_HOUR = 10          # the demo starts at 10:00 on that day
 
-# Optional AI assistant (Step 4, not built yet). Leave it False.
-# When it is built, the API key will be read from st.secrets - never from here.
-AI_ASSISTANT_ENABLED = False
+# ---- AI assistant "Pregúntale a Respira" (web app only) --------------------
+# Set to False to switch the assistant off completely (the chat button hides).
+# It also needs the environment variable ANTHROPIC_API_KEY on the server.
+# The key is NEVER written in the code or committed to git.
+AI_ASSISTANT_ENABLED = True
+AI_MODEL = "claude-haiku-5-5"
+AI_MAX_TOKENS = 400               # longest answer the model may write
+AI_KEEP_MESSAGES = 6              # only the last 6 chat messages are sent
+AI_MAX_MESSAGES_PER_HOUR = 20     # per visitor
+AI_MAX_TOOL_ROUNDS = 5            # how many times it may fetch data for one answer
+# The model's extra "thinking" step is off: thinking uses up the same 400
+# tokens, which could cut answers short. Set to True to turn it back on
+# (then raise AI_MAX_TOKENS to about 1500).
+AI_THINKING = False
+# List prices used ONLY to estimate cost in the log (US dollars per million
+# tokens, for prompts under 100,000 tokens). Check them against Anthropic's
+# pricing page before relying on the estimate.
+AI_PRICE_INPUT_PER_MTOK = 0.10
+AI_PRICE_OUTPUT_PER_MTOK = 0.50
 
 # Extra places for the location dropdown and for test_risk.py. The other
 # municipalities in the dropdown come from the Comunidad air stations.

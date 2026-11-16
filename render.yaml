@@ -17,3 +17,7 @@ services:
       # "sync: false" means the value is typed in Render's dashboard, never stored in git.
       - key: CARTO_BASEMAP_KEY
         sync: false
+      # Secret key for the AI assistant. Typed in Render's dashboard, never stored in git.
+      # Without it the app works normally and the assistant says it is not available.
+      - key: ANTHROPIC_API_KEY
+        sync: false

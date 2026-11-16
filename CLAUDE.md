@@ -37,7 +37,8 @@ Repo: https://github.com/meganbougle/respira-mad (public, branch `main`).
 - **Step 3b (done): web app UI** — `api.py` + `static/`, replacing only the
   presentation layer. `data.py`, `risk.py`, `config.py` and `backup/` were not
   changed for it and must stay shared by both front ends.
-- Step 4 (planned, not built): optional AI assistant — see the last section.
+- **Step 4 (done, untested against the real model until a key is added): AI
+  assistant** — `assistant.py`, `POST /api/chat`, chat panel in `static/`.
 
 ## Files
 
@@ -45,7 +46,10 @@ Repo: https://github.com/meganbougle/respira-mad (public, branch `main`).
 |---|---|
 | `api.py` | FastAPI server: `/api/config, places, stations, risk, hours, freshness, health`, and serves `static/` at `/` |
 | `static/index.html`, `app.js`, `style.css` | The web app page (Spanish, mobile first, no build step) |
-| `render.yaml` | Render Blueprint: free web service, `uvicorn api:app`, Python 3.13.1, Frankfurt |
+| `assistant.py` | The AI assistant: system prompt, four tools, limits, cost log |
+| `test_chat.py`, `test_timestamps.py` | Assistant test questions (needs a key); future-timestamp checks |
+| `gazetteer.csv`, `build_gazetteer.py` | Place names for "Cerca de …" and the one-off script that builds them |
+| `render.yaml` | Render Blueprint: free web service, `uvicorn api:app`, Python 3.13.1, Frankfurt; keys typed in the dashboard |
 | `app.py` | Streamlit fallback: sidebar, result card, chart, map, freshness, footer |
 | `data.py` | One loader function per data source, cached 15 min, with backup |
 | `config.py` | Every threshold, official text and setting, each with its source |
@@ -196,18 +200,40 @@ grains/m³. An hour slider (default 10:00) sets the time of day.
 - The level colour fades via two CSS variables set on the result card.
 - "Usar mi ubicación" needs HTTPS (or localhost) and warns if the position is
   outside a rough box around the Comunidad de Madrid.
-- The "Pregúntale a Respira" button exists in the page but stays hidden while
-  `config.AI_ASSISTANT_ENABLED` is False.
 - Render free tier sleeps after 15 minutes without visits; the first visit
   after that takes about a minute. Open the site before a demo.
 
-## Planned for later: optional AI assistant (Step 4, do not build yet)
+## AI assistant "Pregúntale a Respira" (`assistant.py`, web app only)
 
-- Uses the Anthropic API to answer questions about the current conditions.
-- Switched by `config.AI_ASSISTANT_ENABLED` (False). Placeholders exist in both
-  front ends: the hidden chat button in `static/index.html` and
-  `assistant_placeholder()` in `app.py`. The app must work fully without it.
-- On Render the key will be an environment variable set in the dashboard.
-- The API key is read from `st.secrets` (locally: `.streamlit/secrets.toml`;
-  on Streamlit Cloud: the app's Secrets settings). It must **never** be
-  committed to git — `.streamlit/secrets.toml` is in `.gitignore`.
+- `POST /api/chat` in `api.py` calls `assistant.answer()`. Model
+  `claude-haiku-5-5` through the `anthropic` Python SDK, with a hand-written
+  tool loop. Settings are in `config.py` (section "AI assistant").
+- The key comes from the environment variable `ANTHROPIC_API_KEY` (on Render:
+  set in the dashboard; locally: a `.env` file, which git ignores). **Never
+  commit a key.** If `AI_ASSISTANT_ENABLED` is False the chat button is hidden;
+  if the key is missing or the API fails the chat says so and the rest of the
+  app keeps working (`answer()` never raises).
+- Tools, all calling our own functions: `find_place` (29 dropdown places, then
+  `gazetteer.csv`, then Open-Meteo geocoding limited to the region),
+  `get_risk`, `get_best_hours`, `get_pollen_forecast`. In demo mode every tool
+  uses the 28 May 2025 replay data.
+- The pollen forecast source is one swappable function (`POLLEN_FORECAST` in
+  `assistant.py`), currently Open-Meteo/CAMS grass and olive, today and
+  tomorrow only. Our own pollen model can replace it later.
+- The system prompt is in Spanish: answer only from tool results, cite station
+  or source and data time, flag provisional and forecast data, at most ~5
+  sentences, no diagnoses or medication advice, 112 for emergencies, decline
+  off-topic questions.
+- Limits: `max_tokens` 400, last 6 messages only, 20 messages per visitor per
+  hour (in memory), at most 5 tool rounds. Thinking is off so the 400 tokens go
+  to the answer (`AI_THINKING` in `config.py`).
+- Costs: every chat logs its tokens and a running total (lines starting
+  `CHAT` in the server log), and `/api/chat/usage` shows totals since the
+  server started. The dollar figure is an estimate from list prices in
+  `config.py`.
+- The page sends the panel's profile, place, allergy types and demo state as
+  context. Answers are labelled "Generado por IA con datos oficiales".
+- `test_chat.py` asks the 3 suggested questions live and in demo mode, plus one
+  off-topic and one medical question (needs a real key).
+- The Streamlit fallback (`app.py`) has no assistant; its placeholder never
+  shows a chat.

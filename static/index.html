@@ -139,12 +139,47 @@
   </aside>
 </main>
 
-<!-- AI assistant placeholder (Step 4). Hidden unless AI_ASSISTANT_ENABLED is True in config.py. -->
-<button class="chat-fab" id="chat-fab" type="button" hidden>
+<!-- AI assistant "Pregúntale a Respira". Hidden when AI_ASSISTANT_ENABLED is False in config.py. -->
+<button class="chat-fab" id="chat-fab" type="button" hidden aria-haspopup="dialog">
   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg>
   <span>Pregúntale a Respira</span>
 </button>
-<div class="chat-pop" id="chat-pop" hidden>Próximamente: un asistente para hacer preguntas sobre las condiciones de hoy.</div>
+
+<section class="chat" id="chat" role="dialog" aria-label="Pregúntale a Respira" hidden>
+  <header class="chat-head">
+    <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+      <rect width="32" height="32" rx="9" fill="currentColor"/>
+      <path d="M23 8c-9 0-14 4.500-14 11 0 1.500.400 2.800 1 4 1.500-5 5-8.500 10-10-4 2.500-7 6-8 11 7 .500 12-5 11-16z" fill="#fff"/>
+    </svg>
+    <div class="chat-title">
+      <b>Pregúntale a Respira</b>
+      <span id="chat-context">Asistente con datos oficiales</span>
+    </div>
+    <button class="chat-close" id="chat-close" type="button" aria-label="Cerrar el asistente">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </header>
+
+  <div class="chat-body" id="chat-body" aria-live="polite">
+    <div class="msg msg-ai">
+      <p>Hola, soy Respira. Puedo decirte si es buen momento para salir, a qué hora conviene más y cómo está el polen en la Comunidad de Madrid, siempre con los datos de la aplicación.</p>
+    </div>
+    <div class="chat-suggestions" id="chat-suggestions">
+      <button class="chip" type="button">¿Puede mi hijo asmático jugar en el parque de Getafe esta tarde?</button>
+      <button class="chip" type="button">¿A qué hora es mejor salir a correr hoy en Alcalá?</button>
+      <button class="chip" type="button">Soy alérgico a las gramíneas, ¿cómo estará el polen estos días?</button>
+    </div>
+  </div>
+
+  <form class="chat-form" id="chat-form" autocomplete="off">
+    <label class="visually-hidden" for="chat-input">Tu pregunta</label>
+    <input id="chat-input" type="text" maxlength="500" placeholder="Escribe tu pregunta…" enterkeyhint="send">
+    <button class="chat-send" id="chat-send" type="submit" aria-label="Enviar">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M12 6l6 6-6 6"/></svg>
+    </button>
+  </form>
+  <p class="chat-foot">Respuestas generadas por IA. No sustituyen el consejo médico. Emergencias: 112.</p>
+</section>
 
 <div class="toast" id="toast" role="alert" hidden></div>
 
