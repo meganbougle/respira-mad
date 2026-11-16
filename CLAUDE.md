@@ -180,6 +180,9 @@ grains/m³. An hour slider (default 10:00) sets the time of day.
 - Map: OpenStreetMap background, air stations coloured with the official ICA
   colours, 🌼 pollen stations, blue marker for the chosen point.
 - Colours never carry meaning alone: every level has an icon and a label.
+- No emojis anywhere. The fallback uses the same Lucide icons as the web app,
+  from `ICON_PATHS` in `config.py` (`icon_img()` for text, `icon_svg()` for
+  the map); the star above the best hours is an Altair point shape.
 - The freshness box is plain text lines so it wraps on a phone.
 
 ## Web app notes (`api.py`, `static/`)
@@ -189,6 +192,11 @@ grains/m³. An hour slider (default 10:00) sets the time of day.
   `data.py` still uses Streamlit's cache, so `streamlit` must stay installed.
 - `allergy_types` is sent as pollen-type keys separated by `|`; `demo=true`
   with `hour` selects the demo day.
+- **No emojis, anywhere.** Every icon is a Lucide line icon (lucide.dev, ISC
+  licence; 24×24 grid, 2px stroke) kept as a `<symbol>` in the sprite at the
+  top of `static/index.html` and drawn with `icon("name")` in `app.js`
+  (CSS class `.icon`). `i-pollen` is our own drawing (a pollen grain) for
+  pollen stations. To add an icon, add its `<symbol>` to the sprite.
 - The page keeps one `state` object and redraws from the server's answers;
   nothing reloads. It refreshes every 5 minutes (the server cache is 15).
 - Map: CARTO Positron if the environment variable `CARTO_BASEMAP_KEY` is set
@@ -381,6 +389,8 @@ grains/m³. An hour slider (default 10:00) sets the time of day.
   asmática", "tengo 80 años", "mi hijo es alérgico al polen") that overrides
   the panel, and the answer says which profile it used. Pollen allergy without
   a named type uses the panel's types, or all ten if the panel has none.
+- No emojis: the prompt forbids them and `_no_emojis()` strips any that slip
+  through before the reply is sent.
 - No advice of its own: the prompt limits an answer to the level, the reason
   from the data, the official text for the time asked about, and "consulta con
   tu médico" / 112. The model still occasionally adds a stray remark.

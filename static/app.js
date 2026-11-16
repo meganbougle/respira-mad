@@ -9,11 +9,10 @@ const REFRESH_MS = 5 * 60 * 1000;                 // reload the data every 5 min
 const MADRID_BOX = { south: 39.88, north: 41.17, west: -4.58, east: -3.05 };
 const CUSTOM_PLACE = "__custom__";
 
-const ICONS = [
-  '<svg viewBox="0 0 24 24"><path d="M5 12.500l4.500 4.500L19 7.500"/></svg>',                                   // good
-  '<svg viewBox="0 0 24 24"><path d="M12 4l9 15.500H3z"/><path d="M12 10v4.500M12 17.200v.100"/></svg>',           // be careful
-  '<svg viewBox="0 0 24 24"><path d="M4 11.500L12 4l8 7.500"/><path d="M6.500 10v9.500h11V10"/><path d="M10 19.500v-5h4v5"/></svg>', // stay in
-];
+// One icon from the sprite at the top of index.html (Lucide icons + our own "pollen").
+const icon = (name, extra = "") => `<svg class="icon ${extra}" aria-hidden="true"><use href="#i-${name}"/></svg>`;
+// The icon of each level: good, be careful, stay in.
+const ICONS = [icon("check"), icon("triangle-alert"), icon("house")];
 
 const $ = (id) => document.getElementById(id);
 const isNarrow = () => window.innerWidth < 520;     // phones get shorter labels in the header
@@ -165,7 +164,7 @@ function buildControls() {
 
   // legend of the hourly strip: colour + label (never colour alone)
   $("strip-legend").innerHTML = config.levels.map((l) => `<span><i style="background:${l.color}"></i>${esc(l.label)}</span>`).join("")
-    + "<span>★ Mejor franja</span>";
+    + `<span>${icon("star", "icon-fill")}Mejor franja</span>`;
 
   buildSheet();
   buildChart();
@@ -205,9 +204,9 @@ function buildMap() {
   legend.onAdd = () => {
     const box = L.DomUtil.create("details", "legend");
     box.open = window.innerWidth >= 900;
-    box.innerHTML = "<summary>Leyenda</summary><ul>"
+    box.innerHTML = `<summary>Leyenda${icon("chevron-down")}</summary><ul>`
       + config.ica_categories.map((c, i) => `<li><span class="swatch" style="background:${c.color};border-color:${outline(i)}"></span>${esc(c.name)}</li>`).join("")
-      + '<li><span class="pollen-marker" style="width:16px;height:16px;font-size:10px;border-radius:5px">🌼</span>Estación de polen</li>'
+      + `<li><span class="pollen-marker is-small">${icon("pollen")}</span>Estación de polen</li>`
       + "</ul>";
     L.DomEvent.disableClickPropagation(box);
     return box;
@@ -306,7 +305,7 @@ function drawRisk(risk) {
     info[`official-${i}`] = { title: "Texto oficial", html: `<p>Este texto es una cita literal de la fuente oficial, sin cambios.</p><p><b>Fuente:</b> ${esc(r.source)}.</p>` };
   });
   const quote = (r) => `<blockquote class="quote"><p>${esc(r.text)}</p>`
-    + `<button class="info-link" type="button" data-info="official-${risk.recommendations.indexOf(r)}">Texto oficial <span class="info" aria-hidden="true">i</span></button></blockquote>`;
+    + `<button class="info-link" type="button" data-info="official-${risk.recommendations.indexOf(r)}">Texto oficial <span class="info" aria-hidden="true">${icon("info")}</span></button></blockquote>`;
   const [first, ...others] = risk.recommendations;
   $("advice").innerHTML = (first ? quote(first) : "")
     + (others.length ? `<details class="more-advice"><summary>Ver también la recomendación de calidad del aire</summary>${others.map(quote).join("")}</details>` : "");
@@ -315,7 +314,7 @@ function drawRisk(risk) {
   // pollutant tiles (official station measurements)
   $("tiles").innerHTML = risk.air.map((a) => `
     <div class="tile">
-      <div class="tile-name"><span>${esc(a.pollutant)}</span>${a.provisional ? '<button class="tag tag-warn tag-button" type="button" data-info="provisional">Provisional <span class="info" aria-hidden="true">i</span></button>' : ""}</div>
+      <div class="tile-name"><span>${esc(a.pollutant)}</span>${a.provisional ? `<button class="tag tag-warn tag-button" type="button" data-info="provisional">Provisional <span class="info" aria-hidden="true">${icon("info")}</span></button>` : ""}</div>
       <div class="tile-value">${num(a.ica_value)} <small>µg/m³</small></div>
       <div class="tile-cat"><span class="swatch" style="background:${a.color};border-color:${outline(a.category)}"></span>${esc(a.category_name)}</div>
       <div class="tile-meta">${esc(a.station)} (${esc(a.source)}) · a ${num(a.distance_km, 1)} km · ${ddmm(a.timestamp)} ${hhmm(a.timestamp)}</div>
@@ -366,7 +365,7 @@ function drawHours(data) {
     <button class="hour ${h.best ? "is-best" : ""} ${h.time === state.selectedHour ? "is-selected" : ""} ${h === firstTomorrow ? "is-newday" : ""}"
             type="button" data-time="${h.time}" style="--c:${config.levels[h.level_index].color}"
             aria-label="${h.day} ${h.hour}:00, ${esc(h.level_label)}${h.best ? ", mejor franja" : ""}">
-      <span class="hour-bar"></span><span class="hour-num">${String(h.hour).padStart(2, "0")}</span>
+      ${h.best ? icon("star", "icon-fill hour-star") : ""}<span class="hour-bar"></span><span class="hour-num">${String(h.hour).padStart(2, "0")}</span>
     </button>`).join("");
   strip.onclick = (event) => {
     const button = event.target.closest(".hour");
@@ -383,7 +382,7 @@ function drawHours(data) {
   if (data.no_good_window) {
     html = `<p class="windows-title">No hay ninguna franja recomendable en las próximas 24 horas: todas las horas previstas están en «${esc(config.levels[2].label)}».</p>`;
   } else if (data.windows.length) {
-    html = `<p class="windows-title">★ Mejores franjas de las próximas 24 horas (nivel «${esc(config.levels[data.windows[0].level_index].label)}»)</p><ul class="windows">`
+    html = `<p class="windows-title">${icon("star", "icon-fill")} Mejores franjas de las próximas 24 horas (nivel «${esc(config.levels[data.windows[0].level_index].label)}»)</p><ul class="windows">`
       + data.windows.map((w) => `<li><b>${esc(w.day)} ${hhmm(w.start)}–${hhmm(w.end)}</b><span>${num(w.temperature_c)} °C · ${w.rain_mm === 0 ? "sin lluvia" : `lluvia ${num(w.rain_mm, 1)} mm`}</span></li>`).join("")
       + "</ul>";
   } else {
@@ -415,7 +414,7 @@ function drawStations(data) {
         + s.details.map(esc).join("<br>"))
       .addTo(stationLayer);
   }
-  const pollenIcon = L.divIcon({ className: "", html: '<div class="pollen-marker">🌼</div>', iconSize: [22, 22], iconAnchor: [11, 11] });
+  const pollenIcon = L.divIcon({ className: "", html: `<div class="pollen-marker">${icon("pollen")}</div>`, iconSize: [22, 22], iconAnchor: [11, 11] });
   for (const p of data.pollen) {
     const age = p.age_days === 0 ? "de hoy" : `de hace ${p.age_days} días`;
     L.marker([p.lat, p.lon], { icon: pollenIcon, bubblingMouseEvents: false })
@@ -467,7 +466,7 @@ const info = {
     + "<p>La <b>confianza</b> de cada día (alta, media o baja) resume cuánto acertó la previsión en esa prueba. Toca cualquier casilla para ver el porqué.</p>" },
   hours: { title: "Mejores horas", html:
     "<p><b>Previsión</b> del modelo europeo (Open-Meteo), no mediciones oficiales.</p>"
-    + "<p>Cada barra es una hora de las próximas 24, empezando por la actual, de día y de noche. La línea vertical marca la medianoche. La estrella ★ marca las mejores franjas de tres horas. En el móvil, desliza hacia la izquierda para ver más horas.</p>"
+    + "<p>Cada barra es una hora de las próximas 24, empezando por la actual, de día y de noche. La línea vertical marca la medianoche. La estrella marca las mejores franjas de tres horas. En el móvil, desliza hacia la izquierda para ver más horas.</p>"
     + "<p>Si tienes alergia y la última medición de polen es alta, ninguna hora de hoy aparece mejor que esa medición.</p>" },
   measurements: { title: "Mediciones cerca de ti", html:
     "<p>Son <b>mediciones oficiales</b> de la estación más cercana que mide cada contaminante (redes de la Comunidad de Madrid y del Ayuntamiento de Madrid).</p>"
@@ -481,7 +480,7 @@ const info = {
     + "<p><b>Provisional</b>: la red aún no ha validado el dato. <b>Copia de seguridad</b>: la fuente no respondió y se muestra la última copia guardada.</p>" },
 };
 
-const infoIcon = (key, label) => ` <button class="info" type="button" data-info="${key}" aria-label="Más información: ${esc(label)}">i</button>`;
+const infoIcon = (key, label) => ` <button class="info" type="button" data-info="${key}" aria-label="Más información: ${esc(label)}">${icon("info")}</button>`;
 
 function openSheet(title, html, anchor) {
   $("sheet-title").textContent = title;
@@ -555,7 +554,7 @@ function drawPlanner(data) {
     day.blocks.forEach((block, b) => {
       const level = block.level_index == null ? null : config.levels[block.level_index];
       const temperature = block.weather ? `${num(block.weather.temperature_c)}°` : "";
-      const rain = block.weather && block.weather.rain_mm >= 0.1 ? "<small>💧</small>" : "";
+      const rain = block.weather && block.weather.rain_mm >= 0.1 ? icon("droplet", "pcell-rain") : "";
       const label = `${day.label}, ${block.name.toLowerCase()}: ${block.level_label}${block.weather ? `, ${num(block.weather.temperature_c)} grados` : ""}. Confianza ${day.confidence}.`;
       html += level
         ? `<button class="pcell" type="button" data-day="${d}" data-block="${b}" style="--c:${level.color};--ink-c:${level.text_color}" aria-label="${esc(label)}">${ICONS[block.level_index]}<span>${temperature}</span>${rain}</button>`

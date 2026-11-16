@@ -18,9 +18,9 @@ import config
 import data
 import risk
 
-MAP_POINT = "📍 Punto elegido en el mapa"
+MAP_POINT = "Punto elegido en el mapa"
 
-st.set_page_config(page_title="Respira MAD", page_icon="🌿", layout="centered")
+st.set_page_config(page_title="Respira MAD", layout="centered")
 
 # Reload the page every 15 minutes (the same time the data is cached for).
 st_autorefresh(interval=data.CACHE_SECONDS * 1000, key="auto_refresh")
@@ -118,14 +118,14 @@ else:
 result = risk.assess(lat, lon, profile, tuple(allergy_types), now, demo)
 real_now = risk.madrid_now()
 
-st.title("🌿 Respira MAD")
+st.title("Respira MAD")
 st.caption("¿Es buen momento para estar al aire libre en la Comunidad de Madrid?")
 
 if demo:
     st.warning(f"**Modo demostración.** Datos del 28 de mayo de 2025 a las {demo_hour}:00, no de hoy. "
                "Ese día solo hay datos de las estaciones de la Comunidad de Madrid.")
 elif result["air_table"] is not None:
-    st.caption(f"🔄 Actualizado {ago(result['air_table'].attrs['fetched_at'], real_now)} · "
+    st.caption(f"Actualizado {ago(result['air_table'].attrs['fetched_at'], real_now)} · "
                "se actualiza solo cada 15 minutos")
 
 # ---- the big card
@@ -137,7 +137,7 @@ else:
         f"""
         <div style="background:{config.LEVEL_COLORS[index]}; color:{config.LEVEL_TEXT_COLORS[index]};
                     border-radius:18px; padding:24px 18px; text-align:center; margin-bottom:12px;">
-          <div style="font-size:2.6rem; line-height:1.1;">{config.LEVEL_ICONS[index]}</div>
+          <div style="line-height:1.1;">{config.icon_img(config.LEVEL_ICONS[index], config.LEVEL_TEXT_COLORS[index], 44)}</div>
           <div style="font-size:2rem; font-weight:700; line-height:1.2;">{config.LEVEL_LABELS[index]}</div>
           <div style="font-size:1rem; margin-top:8px;">{config.PROFILES[profile]['label']} · {place_label}</div>
         </div>
@@ -151,10 +151,10 @@ else:
         st.markdown(f"> {text}")
         st.caption(f"Texto oficial, literal. Fuente: {source}.")
     if result["profile_note"]:
-        st.info(result["profile_note"], icon="ℹ️")
+        st.info(result["profile_note"])
 
 for note in result["notes"]:
-    st.warning(note, icon="⚠️")
+    st.warning(note)
 
 # ---- the measurements behind the result
 with st.expander("Mediciones usadas para este resultado"):
@@ -206,10 +206,10 @@ else:
     legend = "".join(
         f'<span style="display:inline-block; margin:0 12px 4px 0; white-space:nowrap;">'
         f'<span style="display:inline-block; width:12px; height:12px; border-radius:3px; '
-        f'background:{color}; vertical-align:middle;"></span> {icon} {label}</span>'
+        f'background:{color}; vertical-align:middle;"></span> {config.icon_img(icon, "#333333", 15)} {label}</span>'
         for label, icon, color in zip(config.LEVEL_LABELS, config.LEVEL_ICONS, config.LEVEL_COLORS))
     st.markdown(f'<div style="font-size:0.85rem;">{legend}'
-                f'<span style="white-space:nowrap;">★ Mejor franja</span> · '
+                f'<span style="white-space:nowrap;">{config.icon_img("star", "#333333", 14)} Mejor franja</span> · '
                 f'<span style="white-space:nowrap;">tono claro = hora ya pasada</span></div>',
                 unsafe_allow_html=True)
     chart_data = pd.DataFrame({
@@ -238,7 +238,9 @@ else:
     # a dark bar and a star above the hours that belong to a best window
     best = base.transform_filter("datum['Mejor franja'] == 'Sí'")
     bar = best.mark_rect(height=5, yOffset=-31, color="#0b0b0b")
-    star = best.mark_text(text="★", yOffset=-43, fontSize=13, color="#0b0b0b")
+    # a five-pointed star drawn as a shape (not a text character or an emoji)
+    star_shape = "M0,-1L0.224,-0.309L0.951,-0.309L0.363,0.118L0.588,0.809L0,0.382L-0.588,0.809L-0.363,0.118L-0.951,-0.309L-0.224,-0.309Z"
+    star = best.mark_point(shape=star_shape, size=90, yOffset=-43, filled=True, opacity=1, color="#0b0b0b")
     st.altair_chart((tiles + bar + star).properties(height=150), width="stretch")
 
     best_level = result["windows"][0]["level_index"] if result["windows"] else None
@@ -248,7 +250,8 @@ else:
         st.write(f"**No hay ninguna franja recomendable {day_word}**: todas las horas previstas están "
                  f"en «{config.LEVEL_LABELS[2]}».")
     else:
-        st.markdown(f"★ **Mejores franjas {day_word}** (nivel «{config.LEVEL_LABELS[best_level]}»):")
+        st.markdown(f"{config.icon_img('star', '#333333', 15)} **Mejores franjas {day_word}** "
+                    f"(nivel «{config.LEVEL_LABELS[best_level]}»):", unsafe_allow_html=True)
         for w in result["windows"]:
             rain = "sin lluvia" if w["rain_mm"] == 0 else f"lluvia {w['rain_mm']} mm".replace(".", ",")
             st.markdown(f"- **{w['day']} {w['start']:%H:%M}–{w['end']:%H:%M}** · {w['temperature_c']:.0f} °C · {rain}")
@@ -266,8 +269,8 @@ chips = "".join(
     f'background:{color}; border:1px solid #555; vertical-align:middle;"></span> {name}</span>'
     for name, color in zip(config.ICA_CATEGORIES, config.ICA_COLORS))
 st.markdown(f'<div style="font-size:0.85rem;">Calidad del aire (ICA): {chips}'
-            f'<span style="white-space:nowrap;">🌼 Estación de polen</span> · '
-            f'<span style="white-space:nowrap;">📍 Tu ubicación</span></div>', unsafe_allow_html=True)
+            f'<span style="white-space:nowrap;">{config.icon_img("pollen", "#6b5200", 16)} Estación de polen</span> · '
+            f'<span style="white-space:nowrap;">{config.icon_img("map-pin", "#1f5fbf", 16)} Tu ubicación</span></div>', unsafe_allow_html=True)
 
 station_map = folium.Map(location=[lat, lon], zoom_start=10)      # OpenStreetMap background
 if air_table is not None:
@@ -287,8 +290,10 @@ if pollen_table is not None and not pollen_table.empty:
         age = "de hoy" if info["age_days"] == 0 else f"de hace {info['age_days']} días"
         folium.Marker(
             [group["lat"].iloc[0], group["lon"].iloc[0]],
-            icon=folium.DivIcon(html='<div style="font-size:20px; line-height:20px;">🌼</div>',
-                                icon_size=(20, 20), icon_anchor=(10, 10)),
+            icon=folium.DivIcon(html='<div style="width:22px; height:22px; background:#fff; border:1.5px solid #8a6d00; '
+                                     'border-radius:7px; display:flex; align-items:center; justify-content:center;">'
+                                     + config.icon_svg("pollen", "#6b5200", 15) + "</div>",
+                                icon_size=(22, 22), icon_anchor=(11, 11)),
             tooltip=f"Polen · {station}",
             popup=folium.Popup(f"<b>Polen · {station}</b><br>Lectura del {info['reading_date']:%d/%m/%Y}, "
                                f"{age}<br>{top}", max_width=260),

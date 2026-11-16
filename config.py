@@ -98,7 +98,35 @@ LEVELS = ["good", "be careful", "stay in"]      # position 0, 1, 2 (names used i
 # What the app shows for each level (verde / ámbar / rojo). Never colour
 # alone: the label and the icon always go with it.
 LEVEL_LABELS = ["Puedes salir", "Precaución", "Mejor quédate en casa"]
-LEVEL_ICONS = ["✅", "⚠️", "⛔"]
+LEVEL_ICONS = ["check", "triangle-alert", "house"]        # names of the icons below (no emojis anywhere in the app)
+
+# The icons of the Streamlit fallback: Lucide line icons (lucide.dev, ISC
+# licence; 24x24 grid, 2px stroke), plus "pollen", our own drawing of a pollen
+# grain for pollen stations. The web app has the same icons in static/index.html.
+ICON_PATHS = {
+    "check": '<path d="M20 6 9 17l-5-5"/>',
+    "triangle-alert": '<path d="m21.730 18-8-14a2 2 0 0 0-3.480 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.730-3"/><path d="M12 9v4"/><path d="M12 17h.010"/>',
+    "house": '<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+    "map-pin": '<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>',
+    "star": '<path d="M11.525 2.295a.530.530 0 0 1 .950 0l2.310 4.679a2.123 2.123 0 0 0 1.595 1.160l5.166.756a.530.530 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.140a.530.530 0 0 1-.771.560l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.010a.530.530 0 0 1-.770-.560l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.160 9.795a.530.530 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.160z"/>',
+    "pollen": '<circle cx="12" cy="12" r="5"/><path d="M12 7V3.900M16.330 9.500l2.680-1.550M16.330 14.500l2.680 1.550M12 17v3.100M7.670 14.500l-2.680 1.550M7.670 9.500 4.990 7.950"/>'
+              '<g fill="{color}" stroke="none"><circle cx="12" cy="2.800" r="1.300"/><circle cx="19.970" cy="7.400" r="1.300"/><circle cx="19.970" cy="16.600" r="1.300"/>'
+              '<circle cx="12" cy="21.200" r="1.300"/><circle cx="4.030" cy="16.600" r="1.300"/><circle cx="4.030" cy="7.400" r="1.300"/></g>',
+}
+
+
+def icon_svg(name, color="#14201b", size=18):
+    """One icon as an SVG drawing (for maps and other places that accept raw HTML)."""
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" viewBox="0 0 24 24" fill="none" '
+            f'stroke="{color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+            + ICON_PATHS[name].replace("{color}", color) + "</svg>")
+
+
+def icon_img(name, color="#14201b", size=18):
+    """The same icon as an <img> tag (Streamlit's text does not draw raw SVG, but it does draw images)."""
+    from urllib.parse import quote
+    return (f'<img src="data:image/svg+xml;utf8,{quote(icon_svg(name, color, size))}" width="{size}" height="{size}" '
+            f'alt="" style="vertical-align:-0.2em;">')
 LEVEL_COLORS = ["#0ca30c", "#fab219", "#d03b3b"]          # fill
 LEVEL_TEXT_COLORS = ["#ffffff", "#0b0b0b", "#ffffff"]     # text on top of the fill
 
