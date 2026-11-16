@@ -15,6 +15,7 @@ Addresses:
     /api/stations     air stations with their ICA category + pollen stations
     /api/risk         level, reason, official recommendation, measurements used
     /api/hours        hour-by-hour levels and best windows (forecast)
+    /api/planner      today + 4 days in three parts of the day (forecast, with our pollen model)
     /api/freshness    each source, its timestamp, minutes ago, provisional flag
     /api/chat         (POST) the AI assistant "Pregúntale a Respira" (see assistant.py)
     /api/chat/usage   how many tokens the assistant has used since the server started
@@ -44,6 +45,7 @@ warnings.filterwarnings("ignore", message=".*ScriptRunContext.*")
 import assistant  # noqa: E402
 import config     # noqa: E402
 import data       # noqa: E402
+import planner    # noqa: E402
 import risk       # noqa: E402
 
 STATIC_DIR = Path(__file__).parent / "static"
@@ -261,6 +263,26 @@ def get_hours(lat: float = LAT, lon: float = LON, profile: str = "general",
         "notes": [n for n in result["notes"] if "previsión" in n.lower()],
         "time": now,
     })
+
+
+@app.get("/api/planner")
+def get_planner(lat: float = LAT, lon: float = LON, profile: str = "general",
+                allergy_types: str = TYPES, demo: bool = False):
+    """
+    The 5-day planner: today + 4 days, each split into mañana, tarde and noche.
+    In demo mode it is the view as of 24 May 2025 (config.PLANNER_DEMO_DATE).
+    """
+    if profile not in config.PROFILES:
+        raise HTTPException(400, f"Perfil desconocido: {profile}")
+    types = tuple(t for t in allergy_types.split("|") if t) if allergy_types else ()
+    unknown = [t for t in types if t not in config.POLLEN_THRESHOLDS]
+    if unknown:
+        raise HTTPException(400, f"Tipo de polen desconocido: {unknown[0]}")
+    result = planner.plan(lat, lon, profile, types, None, demo)
+    result["blocks"] = [{"name": name, "hours": f"{first}–{last} h"} for name, first, last in config.PLANNER_BLOCKS]
+    result["place_label"] = risk.place_name(lat, lon, dropdown_places())
+    result["profile_label"] = config.PROFILES[profile]["label"]
+    return clean(result)
 
 
 @app.get("/api/freshness")

@@ -46,7 +46,9 @@ Repo: https://github.com/meganbougle/respira-mad (public, branch `main`).
 
 | File | What it is |
 |---|---|
-| `api.py` | FastAPI server: `/api/config, places, stations, risk, hours, freshness, health`, and serves `static/` at `/` |
+| `api.py` | FastAPI server: `/api/config, places, stations, risk, hours, planner, freshness, chat, health`, and serves `static/` at `/` |
+| `planner.py` | The 5-day planner logic |
+| `pollen_model/`, `train_pollen_model.py` | Our pollen forecast model: features, live prediction, saved models, backtest report; and the script that trains and tests it |
 | `static/index.html`, `app.js`, `style.css` | The web app page (Spanish, mobile first, no build step) |
 | `assistant.py` | The AI assistant: system prompt, four tools, limits, cost log |
 | `test_chat.py`, `test_timestamps.py` | Assistant test questions (needs a key); future-timestamp checks |
@@ -253,6 +255,35 @@ grains/m³. An hour slider (default 10:00) sets the time of day.
   made it.
 - To retrain: `.venv/bin/python train_pollen_model.py` (needs `matplotlib`
   for the chart; not in `requirements.txt`).
+
+## 5-day planner (`planner.py`, `/api/planner`)
+
+- Today + 4 days, each split into Mañana (7–13), Tarde (13–20), Noche (20–23)
+  (`PLANNER_BLOCKS` in `config.py`). Everything in it is a forecast.
+- Level of a block = the worse of the day's pollen level (only the selected
+  allergy types, via `predict.best_source()`) and the block's air forecast
+  (Open-Meteo/CAMS, same ICA bands and profile rules as the main card).
+  Block value: highest hour for NO2, block average for O3 and particles
+  (`PLANNER_BLOCK_VALUE`, a documented simplification).
+- Real horizons (checked 16 Nov 2026): the air forecast reaches about 4.5 days,
+  so the last day's evening (and sometimes afternoon) has no air level; those
+  cells use pollen and weather only and the planner says so. Open-Meteo's own
+  pollen forecast reaches about 3 days.
+- Today's pollen is never better than the latest official reading (same floor
+  as the main card).
+- Confidence label per day (`config.py`): with pollen types selected, from the
+  2025 test accuracy for that lead day (alta ≥75%, media ≥60%, else baja;
+  the European fallback always counts as baja). With no pollen type selected
+  it only reflects days ahead, because the air forecast was never tested by us.
+- Demo mode shows the view as of 24 May 2025 (`PLANNER_DEMO_DATE`): pollen is
+  the model's forecast with what was known that day; air and weather are the
+  European model's data for those dates, not the forecast issued then.
+- Page: a 4-column grid (day + three blocks) under the main card; tapping a
+  cell opens the shared explanation panel (bottom sheet on phones, popover on
+  laptops). Explanatory notes across the page sit behind small "i" icons that
+  open the same panel on tap (`info` object in `static/app.js`).
+- `warm_backup.py` also saves the planner's 5-day forecasts for the 29
+  dropdown places (live and demo) and the model's forecast.
 
 ## AI assistant "Pregúntale a Respira" (`assistant.py`, web app only)
 

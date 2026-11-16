@@ -26,13 +26,25 @@ for name, loader in (("Aire (ambas redes)", data.load_air), ("Polen", data.load_
     problems += 0 if live else 1
     print(f"{name}: {'LIVE, backup saved' if live else 'FAILED - kept the old backup'}")
 
+# our own pollen model's forecast (needs recent readings and each station's weather)
+try:
+    from pollen_model import predict
+    live = predict.forecast().attrs.get("live")
+    problems += 0 if live else 1
+    print(f"Modelo de polen: {'LIVE, backup saved' if live else 'FAILED - kept the old backup'}")
+except Exception as error:
+    problems += 1
+    print(f"Modelo de polen: FAILED ({error})")
+
 places = risk.list_places(data.load_air())
+# (day, number of days): the main view (today, demo day) and the 5-day planner (today, demo planner day)
+requests_needed = [(None, 2), (config.REPLAY_DATE, 2), (None, config.PLANNER_DAYS), (config.PLANNER_DEMO_DATE, config.PLANNER_DAYS)]
 for name, (lat, lon) in places.items():
     status = []
-    for day in (None, config.REPLAY_DATE):
+    for day, days in requests_needed:
         for loader in (data.load_forecast_air, data.load_forecast_weather):
             try:
-                status.append(loader(round(lat, 2), round(lon, 2), day).attrs.get("live"))
+                status.append(loader(round(lat, 2), round(lon, 2), day, days).attrs.get("live"))
             except Exception:
                 status.append(False)
     problems += 0 if all(status) else 1

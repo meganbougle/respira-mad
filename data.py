@@ -383,11 +383,11 @@ def load_weather():
 # 5. FORECASTS from Open-Meteo (a computer model, NOT official measurements)
 # ----------------------------------------------------------------------------
 
-def _fetch_open_meteo(url, lat, lon, variables, day=None):
+def _fetch_open_meteo(url, lat, lon, variables, day=None, days=2):
     """
     Ask Open-Meteo for hourly values at one point.
-    day=None  -> today and tomorrow (the normal case)
-    day="2025-05-28" -> that day and the next one (demo mode)
+    day=None  -> today and the following days (`days` in total; 2 = today and tomorrow)
+    day="2025-05-28" -> that day and the following ones (demo mode)
     """
     params = {
         "latitude": lat,
@@ -396,10 +396,10 @@ def _fetch_open_meteo(url, lat, lon, variables, day=None):
         "timezone": "Europe/Madrid",        # so times match the station data
     }
     if day is None:
-        params["forecast_days"] = 2
+        params["forecast_days"] = days
     else:
         params["start_date"] = day
-        params["end_date"] = str((pd.Timestamp(day) + pd.Timedelta(days=1)).date())
+        params["end_date"] = str((pd.Timestamp(day) + pd.Timedelta(days=days - 1)).date())
     response = requests.get(url, params=params, timeout=TIMEOUT)
     response.raise_for_status()
     table = pd.DataFrame(response.json()["hourly"])
@@ -412,16 +412,18 @@ def _fetch_open_meteo(url, lat, lon, variables, day=None):
     return table
 
 
-def _forecast_with_backup(name, lat, lon, day, fetch):
+def _forecast_with_backup(name, lat, lon, day, days, fetch):
     """Same backup pattern, with one backup file per (rounded) location."""
     lat, lon = round(lat, 2), round(lon, 2)          # about 1 km; keeps the cache small
     folder = f"replay/{day}/" if day else ""         # demo-day files live with the replay data
+    if days != 2:
+        name = f"{name}_{days}days"                  # the 5-day planner keeps its own backup files
     return _with_backup(f"{folder}{name}_{lat:.2f}_{lon:.2f}", lambda: fetch(lat, lon))
 
 
 @st.cache_data(ttl=CACHE_SECONDS, show_spinner=False)
-def load_forecast_weather(lat, lon, day=None):
-    """Hourly weather FORECAST for today and tomorrow at any lat/lon."""
+def load_forecast_weather(lat, lon, day=None, days=2):
+    """Hourly weather FORECAST for today and tomorrow (or `days` days) at any lat/lon."""
     variables = {
         "temperature_2m": "temperature_c",
         "precipitation": "rain_mm",
@@ -431,16 +433,18 @@ def load_forecast_weather(lat, lon, day=None):
     # past days come from Open-Meteo's archive instead of the forecast
     url = OPEN_METEO_ARCHIVE_URL if day else OPEN_METEO_WEATHER_URL
     return _forecast_with_backup(
-        "forecast_weather", lat, lon, day,
-        lambda la, lo: _fetch_open_meteo(url, la, lo, variables, day))
+        "forecast_weather", lat, lon, day, days,
+        lambda la, lo: _fetch_open_meteo(url, la, lo, variables, day, days))
 
 
 @st.cache_data(ttl=CACHE_SECONDS, show_spinner=False)
-def load_forecast_air(lat, lon, day=None):
+def load_forecast_air(lat, lon, day=None, days=2):
     """
-    Hourly air quality and pollen FORECAST for today and tomorrow at any
-    lat/lon (European CAMS model, served by Open-Meteo).
+    Hourly air quality and pollen FORECAST for today and tomorrow (or `days`
+    days) at any lat/lon (European CAMS model, served by Open-Meteo).
     Pollutants in ug/m3, pollen in grains/m3.
+    The air forecast only reaches about 4.5 days ahead and the pollen
+    forecast about 3: later hours come back empty.
     """
     variables = {
         "nitrogen_dioxide": "NO2",
@@ -455,8 +459,8 @@ def load_forecast_air(lat, lon, day=None):
         "ragweed_pollen": "ragweed_pollen",
     }
     return _forecast_with_backup(
-        "forecast_air", lat, lon, day,
-        lambda la, lo: _fetch_open_meteo(OPEN_METEO_AIR_URL, la, lo, variables, day))
+        "forecast_air", lat, lon, day, days,
+        lambda la, lo: _fetch_open_meteo(OPEN_METEO_AIR_URL, la, lo, variables, day, days))
 
 
 # ----------------------------------------------------------------------------

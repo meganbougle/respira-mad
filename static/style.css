@@ -101,7 +101,7 @@ select:focus-visible, .btn:focus-visible, .chip:focus-visible, .hour:focus-visib
 }
 
 .demo-banner {
-  padding: 9px 14px; background: var(--amber-soft); color: var(--amber-ink);
+  display: flex; align-items: center; gap: 8px; padding: 7px 14px; background: var(--amber-soft); color: var(--amber-ink);
   font-size: 13px; border-bottom: 1px solid #f1dca0;
 }
 
@@ -152,6 +152,10 @@ select:focus-visible, .btn:focus-visible, .chip:focus-visible, .hour:focus-visib
 }
 .tag { font-size: 10.500px; letter-spacing: .03em; padding: 2px 7px; border-radius: 999px; background: var(--brand-soft); color: var(--brand); }
 .tag-forecast { background: #e8eaf6; color: #2f3a8f; }
+.tag-button { border: 0; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; font-weight: 700; text-transform: uppercase; position: relative; }
+.tag-button::after { content: ""; position: absolute; inset: -12px -6px; }       /* bigger touch target */
+.tag-button .info { width: 13px; height: 13px; font-size: 9px; border-width: 1px; }
+.tag-button .info::after { inset: 0; }
 .tag-warn { background: var(--amber-soft); color: var(--amber-ink); }
 .hint { margin: 0 0 6px; font-size: 11.500px; color: var(--ink-faint); }
 .note { margin: 10px 0 0; padding: 9px 11px; border-radius: 10px; background: #eef2f7; color: #33415c; font-size: 12.500px; }
@@ -206,8 +210,7 @@ select:focus-visible, .btn:focus-visible, .chip:focus-visible, .hour:focus-visib
 .quote { margin: 0 0 8px; padding: 0; }
 .quote:last-child { margin-bottom: 0; }
 .quote p { margin: 0; font-size: 13.500px; font-weight: 600; line-height: 1.36; }
-.quote cite { display: block; margin-top: 3px; font-size: 10.500px; line-height: 1.35; font-style: normal; opacity: .85; }
-.result-note { margin: 8px 0 0; font-size: 10.500px; line-height: 1.35; opacity: .85; }
+.result-sub .info { margin-left: 4px; width: 17px; height: 17px; font-size: 10.500px; opacity: .9; }
 .warning { margin-bottom: 10px; padding: 9px 11px; border-radius: 10px; background: var(--amber-soft); color: var(--amber-ink); font-size: 12.500px; }
 
 /* ---------------- pollutant tiles ---------------- */
@@ -257,6 +260,7 @@ select:focus-visible, .btn:focus-visible, .chip:focus-visible, .hour:focus-visib
 .demo-slider input { width: 100%; margin-top: 2px; accent-color: var(--ink); }
 
 /* ---------------- freshness + credits ---------------- */
+.freshness summary .info { margin-left: 6px; }
 .freshness summary { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-soft); cursor: pointer; }
 .freshness ul { list-style: none; margin: 12px 0 10px; padding: 0; }
 .freshness li { padding: 8px 0; border-top: 1px solid var(--line); font-size: 13px; }
@@ -264,6 +268,72 @@ select:focus-visible, .btn:focus-visible, .chip:focus-visible, .hour:focus-visib
 .freshness li span { color: var(--ink-soft); }
 .credits { padding: 4px 4px 0; font-size: 11.500px; color: var(--ink-faint); }
 .credits p { margin: 0 0 8px; }
+
+/* ---------------- info icons: a small "i" that opens an explanation on tap ---------------- */
+.info {
+  position: relative; display: inline-grid; place-items: center; flex: none;
+  width: 20px; height: 20px; padding: 0; border-radius: 50%;
+  border: 1.500px solid currentColor; background: none; color: inherit; opacity: .7;
+  font: italic 700 12px/1 Georgia, "Times New Roman", serif; text-transform: none; letter-spacing: 0; cursor: pointer;
+  vertical-align: middle;
+}
+.info::after { content: ""; position: absolute; inset: -12px; }      /* 44px touch target around the small icon */
+.info:hover, .info:focus-visible { opacity: 1; }
+.info-link { border: 0; background: none; padding: 0; color: inherit; font: inherit; font-size: 11.500px; font-weight: 600; opacity: .9;
+  text-decoration: underline; text-underline-offset: 2px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; min-height: 28px; }
+.info-link .info { width: 16px; height: 16px; font-size: 10px; text-decoration: none; }
+.info-link .info::after { inset: 0; }
+
+/* ---------------- 5-day planner ---------------- */
+.planner { display: grid; grid-template-columns: minmax(64px, 0.9fr) repeat(3, minmax(0, 1fr)); gap: 4px; align-items: stretch; }
+.planner-col { text-align: center; font-size: 11.500px; font-weight: 700; color: var(--ink-soft); padding-bottom: 2px; line-height: 1.2; }
+.planner-col small { display: block; font-weight: 500; font-size: 10px; color: var(--ink-faint); }
+.planner-day { display: flex; flex-direction: column; justify-content: center; min-width: 0; line-height: 1.2; padding-right: 2px; }
+.planner-day b { font-size: 13.500px; white-space: nowrap; }
+.conf { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; color: var(--ink-faint); white-space: nowrap; }
+.conf i { display: inline-flex; gap: 1.500px; }
+.conf i span { width: 5px; height: 5px; border-radius: 50%; background: #cfd6d2; }
+.conf i span.on { background: var(--ink-soft); }
+.pcell {
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+  min-height: 46px; padding: 0 4px; border: 0; border-radius: 10px; cursor: pointer;
+  background: var(--c, #e8ecea); color: var(--ink-c, var(--ink));
+  font-weight: 700; font-size: 13px; font-variant-numeric: tabular-nums;
+  transition: background-color .5s ease, color .5s ease, transform .1s, box-shadow .15s;
+}
+.pcell svg { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor; stroke-width: 2.600; stroke-linecap: round; stroke-linejoin: round; }
+.pcell:active { transform: scale(.96); }
+.pcell:hover, .pcell:focus-visible, .pcell.is-open { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--ink); outline: none; }
+.pcell-none { background: repeating-linear-gradient(135deg, #eef1ef 0 6px, #e3e8e5 6px 12px); color: var(--ink-faint); font-weight: 600; }
+.pcell small { font-size: 10px; font-weight: 600; opacity: .9; }
+.planner-skeleton { grid-column: 1 / -1; height: 250px; }
+
+/* ---------------- the explanation panel: bottom sheet on phones ---------------- */
+.sheet-backdrop { position: fixed; inset: 0; z-index: 2400; background: rgba(20, 32, 27, .38); }
+.sheet {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 2500;
+  max-height: 78vh; overflow-y: auto; padding: 6px 16px calc(18px + env(safe-area-inset-bottom));
+  background: var(--surface); border-radius: 20px 20px 0 0; box-shadow: 0 -10px 40px rgba(20, 32, 27, .25);
+  animation: sheet-up .22s ease-out;
+}
+@keyframes sheet-up { from { transform: translateY(30px); opacity: 0; } to { transform: none; opacity: 1; } }
+.sheet-grip { width: 40px; height: 5px; border-radius: 3px; background: #c9d1cd; margin: 4px auto 6px; }
+.sheet-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.sheet-head h3 { margin: 6px 0 0; font-size: 16px; line-height: 1.3; }
+.sheet-close { width: 44px; height: 44px; margin: -6px -10px 0 0; flex: none; border: 0; border-radius: 12px; background: none; cursor: pointer; display: grid; place-items: center; color: var(--ink-soft); }
+.sheet-close:hover { background: #eef1ef; }
+.sheet-close svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.sheet-body { font-size: 13.500px; line-height: 1.5; }
+.sheet-body p { margin: 8px 0; }
+.sheet-body h4 { margin: 14px 0 2px; font-size: 11.500px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-soft); }
+.sheet-body ul { margin: 4px 0; padding-left: 18px; }
+.sheet-body li { margin: 3px 0; }
+.sheet-level { display: inline-flex; align-items: center; gap: 7px; padding: 5px 12px; border-radius: 999px; font-weight: 700; font-size: 13.500px; }
+.sheet-level svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.600; stroke-linecap: round; stroke-linejoin: round; }
+.source-chip { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; background: var(--brand-soft); color: var(--brand); white-space: nowrap; }
+.source-chip.is-european { background: #e8eaf6; color: #2f3a8f; }
+.source-chip.is-none { background: #edf0ee; color: var(--ink-soft); }
+.source-chip.is-measured { background: #edf0ee; color: var(--ink); }
 
 /* ---------------- loading, toast, chat ---------------- */
 .is-loading { position: relative; }
@@ -284,6 +354,12 @@ select:focus-visible, .btn:focus-visible, .chip:focus-visible, .hour:focus-visib
 }
 .chat-fab:hover { transform: translateY(-1px); box-shadow: 0 8px 22px rgba(15, 107, 79, .5); }
 .chat-fab svg { width: 19px; height: 19px; }
+/* on phones the chat button is a round icon, so it covers less of the screen */
+@media (max-width: 599px) {
+  .chat-fab { width: 54px; height: 54px; padding: 0; justify-content: center; right: 12px; bottom: 14px; }
+  .chat-fab span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .chat-fab svg { width: 23px; height: 23px; }
+}
 
 /* ---------------- the assistant's chat panel (full screen on phones) ---------------- */
 .chat {
@@ -349,6 +425,14 @@ select:focus-visible, .btn:focus-visible, .chip:focus-visible, .hour:focus-visib
 /* ---------------- desktop: map on the left, panel on the right ---------------- */
 @media (min-width: 900px) {
   :root { --topbar-h: 62px; }
+  /* on laptops the explanation is a popover placed next to what was clicked (app.js sets left/top) */
+  .sheet-backdrop { background: transparent; }
+  .sheet { left: auto; right: auto; bottom: auto; width: 350px; max-height: 70vh; border-radius: 16px;
+           padding: 8px 16px 16px; box-shadow: 0 10px 40px rgba(20, 32, 27, .28); border: 1px solid var(--line); animation: none; }
+  .sheet-grip { display: none; }
+  /* a mouse needs less room than a finger: slightly shorter planner rows on laptops */
+  .pcell { min-height: 38px; }
+  .planner { gap: 3px 4px; }
   body { overflow: hidden; }
   .topbar { grid-template-columns: auto auto 1fr; gap: 16px; padding: 10px 20px; height: var(--topbar-h); }
   .topbar-controls { grid-column: auto; justify-content: flex-end; }

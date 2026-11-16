@@ -154,7 +154,7 @@ function buildControls() {
   slider.addEventListener("input", () => { $("hour-value").textContent = `${slider.value}:00`; });
   slider.addEventListener("change", () => {
     state.hour = Number(slider.value); state.selectedHour = null;
-    refresh({ stations: true });
+    refresh({ stations: true, keepPlanner: true });      // the planner does not depend on the demo hour
   });
 
   drawDemoLabel();
@@ -167,6 +167,7 @@ function buildControls() {
   $("strip-legend").innerHTML = config.levels.map((l) => `<span><i style="background:${l.color}"></i>${esc(l.label)}</span>`).join("")
     + "<span>★ Mejor franja</span>";
 
+  buildSheet();
   buildChat();
 }
 
@@ -257,6 +258,8 @@ async function refresh(options = {}) {
     getJSON("/api/freshness", { ...stationParams, lat: params.lat, lon: params.lon }),
     options.stations ? getJSON("/api/stations", stationParams) : Promise.resolve(null),
   ];
+  // the planner loads on its own, so a slow forecast never holds the main card back
+  if (!options.keepPlanner) loadPlanner(params, mine);
   const [risk, hours, freshness, stations] = await Promise.allSettled(jobs);
   if (mine !== requestNumber) return;              // a newer request is on its way: ignore this answer
 
@@ -289,23 +292,28 @@ function drawRisk(risk) {
   state.placeName = risk.place_label;
   const custom = $("place").querySelector(`option[value="${CUSTOM_PLACE}"]`);
   if ($("place").value === CUSTOM_PLACE) custom.textContent = risk.place_label;
-  $("result-sub").textContent = `${risk.profile_label} · ${risk.place_label}`;
+  // the note about the profile (older people, children) sits behind a small info icon
+  info.profile = risk.profile_note ? { title: `Perfil: ${risk.profile_label}`, html: `<p>${esc(risk.profile_note)}</p>` } : null;
+  $("result-sub").innerHTML = `${esc(risk.profile_label)}${risk.profile_note ? infoIcon("profile", "nota sobre el perfil") : ""} · ${esc(risk.place_label)}`;
   $("result-reason").textContent = risk.reason;
 
   // official recommendation, word for word, inside the card, with its source in small print
   // The first text (the one behind the level) is always visible; a second one folds away to save space.
-  const quote = (r) => `<blockquote class="quote"><p>${esc(r.text)}</p><cite>Texto oficial, literal. Fuente: ${esc(r.source)}.</cite></blockquote>`;
+  // The source of each text sits behind "Texto oficial (i)".
+  risk.recommendations.forEach((r, i) => {
+    info[`official-${i}`] = { title: "Texto oficial", html: `<p>Este texto es una cita literal de la fuente oficial, sin cambios.</p><p><b>Fuente:</b> ${esc(r.source)}.</p>` };
+  });
+  const quote = (r) => `<blockquote class="quote"><p>${esc(r.text)}</p>`
+    + `<button class="info-link" type="button" data-info="official-${risk.recommendations.indexOf(r)}">Texto oficial <span class="info" aria-hidden="true">i</span></button></blockquote>`;
   const [first, ...others] = risk.recommendations;
   $("advice").innerHTML = (first ? quote(first) : "")
     + (others.length ? `<details class="more-advice"><summary>Ver también la recomendación de calidad del aire</summary>${others.map(quote).join("")}</details>` : "");
-  $("profile-note").hidden = !risk.profile_note;
-  $("profile-note").textContent = risk.profile_note || "";
   $("warnings").innerHTML = risk.notes.map((n) => `<div class="warning">${esc(n)}</div>`).join("");
 
   // pollutant tiles (official station measurements)
   $("tiles").innerHTML = risk.air.map((a) => `
     <div class="tile">
-      <div class="tile-name"><span>${esc(a.pollutant)}</span>${a.provisional ? '<span class="tag tag-warn">Provisional</span>' : ""}</div>
+      <div class="tile-name"><span>${esc(a.pollutant)}</span>${a.provisional ? '<button class="tag tag-warn tag-button" type="button" data-info="provisional">Provisional <span class="info" aria-hidden="true">i</span></button>' : ""}</div>
       <div class="tile-value">${num(a.ica_value)} <small>µg/m³</small></div>
       <div class="tile-cat"><span class="swatch" style="background:${a.color};border-color:${outline(a.category)}"></span>${esc(a.category_name)}</div>
       <div class="tile-meta">${esc(a.station)} (${esc(a.source)}) · a ${num(a.distance_km, 1)} km · ${ddmm(a.timestamp)} ${hhmm(a.timestamp)}</div>
@@ -338,7 +346,6 @@ function drawRiskError() {
 function drawHours(data) {
   lastHours = data;
   $("hours-title").textContent = `Mejores horas ${data.day}`;
-  $("hours-kind").textContent = `${data.kind}.`;
   $("hour-value").textContent = `${state.hour}:00`;
 
   const strip = $("strip");
@@ -436,6 +443,174 @@ function drawStatus() {
   const minutes = updatedMinutes + Math.floor((Date.now() - updatedAt) / 60000);
   const word = backup ? (isNarrow() ? "Copia" : "Copia de seguridad") : "En directo";
   $("status-text").textContent = `${word} · ${isNarrow() ? "" : "actualizado "}hace ${minutes} min`;
+}
+
+/* ------------------------------------------------------------------ info icons and the explanation panel */
+
+// Explanations that open when an info icon is tapped. Fixed ones are here;
+// the ones that depend on the data (profile note, official sources) are added as they arrive.
+const info = {
+  demo: { title: "Modo demostración", html:
+    "<p>Estás viendo los datos del <b>28 de mayo de 2025</b>, el día con más polen de gramíneas de toda la serie histórica (1993-2026), no los de hoy.</p>"
+    + "<p>Ese día solo hay datos de calidad del aire de las estaciones de la Comunidad de Madrid.</p>"
+    + "<p>El planificador muestra la vista del <b>24 de mayo de 2025</b>, usando solo lo que se sabía ese día, para ver si el pico del 28 se anticipaba.</p>" },
+  planner: { title: "Planificador de 5 días", html:
+    "<p>Todo lo que aparece aquí es una <b>previsión</b>, no una medición. Cuanto más lejos está el día, menos segura es.</p>"
+    + "<p>El nivel de cada tramo es lo peor entre:</p><ul><li>el <b>polen</b> previsto para ese día, solo de los tipos que has marcado;</li>"
+    + "<li>la <b>calidad del aire</b> prevista para ese tramo (modelo europeo CAMS, vía Open-Meteo), con los mismos umbrales oficiales del ICA y tu perfil.</li></ul>"
+    + "<p>El polen sale de nuestro propio modelo allí donde demostró ser fiable al probarlo con 2025. Donde no lo fue, se usa la previsión europea (solo gramíneas y olivo) o se indica «Sin previsión fiable».</p>"
+    + "<p>La <b>confianza</b> de cada día (alta, media o baja) resume cuánto acertó la previsión en esa prueba. Toca cualquier casilla para ver el porqué.</p>" },
+  hours: { title: "Mejores horas", html:
+    "<p><b>Previsión</b> del modelo europeo (Open-Meteo), no mediciones oficiales.</p>"
+    + "<p>Cada barra es una hora, con el color de su nivel. La estrella ★ marca las mejores franjas de tres horas; el tono claro indica horas que ya han pasado.</p>"
+    + "<p>Si tienes alergia y la última medición de polen es alta, ninguna hora de hoy aparece mejor que esa medición.</p>" },
+  measurements: { title: "Mediciones cerca de ti", html:
+    "<p>Son <b>mediciones oficiales</b> de la estación más cercana que mide cada contaminante (redes de la Comunidad de Madrid y del Ayuntamiento de Madrid).</p>"
+    + "<p>El valor es el que usa el Índice Nacional de Calidad del Aire: media de la última hora (NO2), de hasta 8 horas (O3) o de hasta 24 horas (PM10 y PM2.5), calculada con las horas del día en curso.</p>"
+    + "<p>El polen se cuenta a mano y se publica con varios días de retraso: por eso se indica siempre la fecha de la lectura.</p>" },
+  provisional: { title: "Dato provisional", html:
+    "<p>«Provisional» significa que la red de medición todavía no ha validado el dato. Es el dato en tiempo real, y puede corregirse más adelante.</p>"
+    + "<p>El índice oficial de calidad del aire también se calcula con datos provisionales.</p>" },
+  freshness: { title: "Frescura de los datos", html:
+    "<p>Para cada fuente se indica la hora de su último dato y cuánto hace.</p>"
+    + "<p><b>Provisional</b>: la red aún no ha validado el dato. <b>Copia de seguridad</b>: la fuente no respondió y se muestra la última copia guardada.</p>" },
+};
+
+const infoIcon = (key, label) => ` <button class="info" type="button" data-info="${key}" aria-label="Más información: ${esc(label)}">i</button>`;
+
+function openSheet(title, html, anchor) {
+  $("sheet-title").textContent = title;
+  $("sheet-body").innerHTML = html;
+  $("sheet").hidden = false;
+  $("sheet-backdrop").hidden = false;
+  const sheet = $("sheet");
+  sheet.style.left = sheet.style.top = "";
+  if (window.innerWidth >= 900 && anchor) {
+    // laptop: a popover next to what was clicked (to its left if there is room, otherwise below it)
+    const box = anchor.getBoundingClientRect();
+    const width = sheet.offsetWidth, height = sheet.offsetHeight;
+    let left = box.left - width - 14;
+    let top = box.top + box.height / 2 - height / 2;
+    if (left < 12) { left = Math.min(box.left, window.innerWidth - width - 12); top = box.bottom + 10; }
+    sheet.style.left = `${Math.max(12, left)}px`;
+    sheet.style.top = `${Math.max(74, Math.min(top, window.innerHeight - height - 12))}px`;
+  }
+  $("sheet-close").focus({ preventScroll: true });
+}
+
+function closeSheet() {
+  $("sheet").hidden = true;
+  $("sheet-backdrop").hidden = true;
+  document.querySelectorAll(".pcell.is-open").forEach((cell) => cell.classList.remove("is-open"));
+}
+
+function buildSheet() {
+  $("sheet-close").addEventListener("click", closeSheet);
+  $("sheet-backdrop").addEventListener("click", closeSheet);
+  document.addEventListener("keydown", (event) => { if (event.key === "Escape" && !$("sheet").hidden) closeSheet(); });
+  // any element with data-info="key" opens its explanation on tap (phones cannot hover)
+  document.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-info]");
+    if (!button) return;
+    event.preventDefault();                      // e.g. do not also open/close the <details> it sits in
+    const entry = info[button.dataset.info];
+    if (entry) openSheet(entry.title, entry.html, button);
+  });
+}
+
+/* ------------------------------------------------------------------ the 5-day planner */
+
+let plannerData = null;
+
+async function loadPlanner(params, requestId) {
+  const box = $("planner");
+  if (!plannerData) box.innerHTML = '<div class="skeleton planner-skeleton"></div>';
+  box.classList.add("is-loading");
+  try {
+    const data = await getJSON("/api/planner", { lat: params.lat, lon: params.lon, profile: params.profile, allergy_types: params.allergy_types, demo: params.demo });
+    if (requestId !== requestNumber) return;     // a newer request is on its way
+    plannerData = data;
+    drawPlanner(data);
+  } catch (error) {
+    if (requestId !== requestNumber) return;
+    plannerData = null;
+    box.innerHTML = '<p class="hint" style="grid-column:1/-1">No se pudo cargar el planificador. Se volverá a intentar.</p>';
+  }
+  box.classList.remove("is-loading");
+}
+
+const CONFIDENCE_DOTS = { alta: 3, media: 2, baja: 1 };
+
+function drawPlanner(data) {
+  $("planner-title").textContent = data.demo ? "Planificador · vista del 24 mayo 2025" : "Planificador de 5 días";
+  let html = "<span></span>" + data.blocks.map((b) => `<div class="planner-col">${esc(b.name)}<small>${esc(b.hours)}</small></div>`).join("");
+  data.days.forEach((day, d) => {
+    const dots = [1, 2, 3].map((n) => `<span class="${n <= CONFIDENCE_DOTS[day.confidence] ? "on" : ""}"></span>`).join("");
+    html += `<div class="planner-day"><b>${esc(day.label)}</b><span class="conf" title="Confianza ${esc(day.confidence)}"><i aria-hidden="true">${dots}</i>${esc(day.confidence)}</span></div>`;
+    day.blocks.forEach((block, b) => {
+      const level = block.level_index == null ? null : config.levels[block.level_index];
+      const temperature = block.weather ? `${num(block.weather.temperature_c)}°` : "";
+      const rain = block.weather && block.weather.rain_mm >= 0.1 ? "<small>💧</small>" : "";
+      const label = `${day.label}, ${block.name.toLowerCase()}: ${block.level_label}${block.weather ? `, ${num(block.weather.temperature_c)} grados` : ""}. Confianza ${day.confidence}.`;
+      html += level
+        ? `<button class="pcell" type="button" data-day="${d}" data-block="${b}" style="--c:${level.color};--ink-c:${level.text_color}" aria-label="${esc(label)}">${ICONS[block.level_index]}<span>${temperature}</span>${rain}</button>`
+        : `<button class="pcell pcell-none" type="button" data-day="${d}" data-block="${b}" aria-label="${esc(label)}"><span>– ${temperature}</span>${rain}</button>`;
+    });
+  });
+  $("planner").innerHTML = html;
+  $("planner").onclick = (event) => {
+    const cell = event.target.closest(".pcell");
+    if (!cell) return;
+    const day = plannerData.days[Number(cell.dataset.day)];
+    const block = day.blocks[Number(cell.dataset.block)];
+    openSheet(`${day.label} · ${block.name} (${block.hours})`, plannerDetail(day, block), cell);
+    cell.classList.add("is-open");
+  };
+}
+
+// The "why" behind one planner cell.
+function plannerDetail(day, block) {
+  const level = block.level_index == null ? null : config.levels[block.level_index];
+  let html = level
+    ? `<p><span class="sheet-level" style="background:${level.color};color:${level.text_color}">${ICONS[block.level_index]}${esc(block.level_label)}</span></p>`
+    : '<p><span class="sheet-level" style="background:#edf0ee">Sin previsión</span></p>';
+  html += `<p>${esc(block.basis)}</p>`;
+
+  html += "<h4>Polen (previsión para el día)</h4>";
+  if (!day.pollen.length) {
+    html += "<p>No has marcado alergia al polen, así que el polen no cuenta para este nivel.</p>";
+  } else {
+    html += "<ul>" + day.pollen.map((p) => {
+      const chip = p.kind === "model" ? '<span class="source-chip">Nuestro modelo</span>'
+        : p.kind === "european" ? '<span class="source-chip is-european">Previsión europea</span>'
+        : p.kind === "measurement" ? '<span class="source-chip is-measured">Medición oficial</span>'
+        : '<span class="source-chip is-none">Sin previsión fiable</span>';
+      const accuracy = p.kind === "model" && p.accuracy != null ? ` Acertó el ${num(p.accuracy * 100)} % de los días de temporada en la prueba con 2025.` : "";
+      const level = p.level_name ? `nivel <b>${esc(p.level_name)}</b>` : "sin nivel";
+      const why = p.kind === "none" ? " Nuestro modelo no superó la prueba para este tipo y antelación, y la previsión europea no lo cubre."
+        : p.kind === "european" ? " Nuestro modelo no superó la prueba para este tipo y antelación; se usa el modelo europeo CAMS (Open-Meteo)."
+        : p.kind === "measurement" ? ` ${esc(p.source)}.` : "";
+      return `<li><b>${esc(p.name)}</b>: ${level} ${chip}${accuracy}${why}</li>`;
+    }).join("") + "</ul>";
+  }
+
+  html += "<h4>Calidad del aire (previsión para el tramo)</h4>";
+  if (block.air) {
+    const values = Object.entries(block.air.values).map(([p, v]) => `${esc(p)} ${num(v)}`).join(" · ");
+    html += `<p>ICA previsto: <b>${esc(block.air.category_name)}</b> (por ${esc(block.air.pollutant)}, ${num(block.air.value)} µg/m³). `
+      + `<span class="source-chip is-european">Previsión europea</span></p><p>Valores del tramo: ${values} µg/m³ (hora más alta para NO2, media del tramo para el resto). Modelo CAMS, vía Open-Meteo.</p>`;
+  } else {
+    html += "<p>La previsión de calidad del aire no llega hasta este tramo.</p>";
+  }
+
+  html += "<h4>Tiempo</h4>";
+  html += block.weather
+    ? `<p>${num(block.weather.temperature_c)} °C de media, ${block.weather.rain_mm >= 0.1 ? `lluvia prevista: ${num(block.weather.rain_mm, 1)} mm` : "sin lluvia prevista"}. Previsión de Open-Meteo.</p>`
+    : "<p>Sin previsión del tiempo.</p>";
+
+  html += `<h4>Confianza del día: ${esc(day.confidence)}</h4><p>${esc(day.confidence_reason)} Las previsiones son menos seguras cuanto más lejos está el día.</p>`;
+  if (plannerData.demo) html += "<p>Vista del 24 de mayo de 2025: el polen es lo que nuestro modelo preveía con lo que se sabía ese día.</p>";
+  return html;
 }
 
 /* ------------------------------------------------------------------ the AI assistant */
