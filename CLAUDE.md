@@ -32,6 +32,8 @@ assistant, texts).
 - Build one step at a time; don't build ahead of what was asked.
 - **Permanent rule: design and test every change at phone width (390px)
   FIRST, then check laptop (1440x900).**
+- Never add Co-Authored-By lines, Claude-Session lines or any Claude
+  attribution to commit messages or pull requests.
 - Run things with the project's virtual environment:
   - `.venv/bin/uvicorn api:app --port 8000` — the web app, then open http://localhost:8000
   - `.venv/bin/streamlit run app.py` — the Streamlit fallback
