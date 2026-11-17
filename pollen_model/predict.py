@@ -3,11 +3,13 @@ pollen_model/predict.py - makes pollen forecasts in the app with OUR model.
 
     forecast(now, demo)  ->  table with one row per station, pollen type and day:
         station, station_code, lat, lon, pollen_type, issue_date, target_date,
-        lead (0 = today ... 5), predicted_level (0-3), prob_alto_or_more,
-        reliable (did this type + lead day beat the baseline in the 2025 test?),
-        accuracy (share of in-season days it got right in that test),
-        q10, q50, q90 (grains/m3: the median forecast and an 80% prediction
-        interval, from quantile regression; see compare_models.py)
+        lead (0 = today ... 5),
+        q50 (grains/m3: the median forecast) and q10, q90 (an 80% prediction
+        interval, calibrated so that it really covers about 80%),
+        predicted_level (0-3): ALWAYS the median read against the official
+        thresholds, so the planner, the chart and the assistant agree,
+        reliable (did this type + lead day clearly beat the baseline in 2024?),
+        accuracy (share of in-season days of 2025, the test year, it got right)
 
     recent_readings(demo)  ->  the official readings of the last two weeks at
         every station (for the forecast chart).
@@ -19,8 +21,11 @@ pollen_model/predict.py - makes pollen forecasts in the app with OUR model.
     best_source(...) gives, for one pollen type and day, our model's level if
     it is RELIABLE, otherwise nothing ("Sin previsión fiable").
 
-The model itself is trained by train_pollen_model.py and stored in
-pollen_model/models.joblib. This file only uses it.
+The models are made by compare_models.py (choice per type, calibrated
+interval margins, RELIABLE flags: model_choice.json; gradient boosting:
+quantile_models.joblib; ARIMAX: arimax_params.json). This file only uses them.
+(pollen_model/models.joblib, the old classifier from train_pollen_model.py, is
+no longer used by the app: it is kept only for the comparison in the report.)
 """
 
 import json
@@ -48,17 +53,8 @@ OUR_MODEL = "Modelo propio de Respira MAD"
 
 RECENT_DAYS = 14                    # how many days of readings recent_readings() keeps
 
-_models = None
 _quantile_models = None
 _last_readings = None               # the readings downloaded for the latest forecast (reused by recent_readings)
-
-
-def models():
-    """The trained models, loaded once: {(pollen type, lead): model}."""
-    global _models
-    if _models is None:
-        _models = joblib.load(FOLDER / "models.joblib")
-    return _models
 
 
 def quantile_models():
@@ -76,7 +72,7 @@ def quantile_models():
 
 @st.cache_data(show_spinner=False)
 def model_choice():
-    """Which model won the 2025 comparison for each pollen type (see MODEL_REPORT.md)."""
+    """Which model was chosen (on 2024) for each pollen type, and its test results (see MODEL_REPORT.md)."""
     file = FOLDER / "model_choice.json"
     return json.loads(file.read_text(encoding="utf-8")) if file.exists() else {"choice": {}}
 
@@ -99,25 +95,24 @@ def meta():
 
 @st.cache_data(show_spinner=False)
 def test_results():
-    """{(pollen type, lead): {"reliable": True/False, "accuracy": share of in-season days right}}"""
-    results = {(r["pollen_type"], r["lead"]): {"reliable": bool(r["reliable"]), "accuracy": r["accuracy_season"],
-                                               "baseline": r["baseline_season"]}
-               for r in meta()["results"]}
-    # the pollen types that use ARIMAX have their own test results
-    for r in arimax_models()["results"]:
-        results[(r["pollen_type"], r["lead"])] = {"reliable": bool(r["reliable"]), "accuracy": r["accuracy_season"],
-                                                  "baseline": r["baseline_season"]}
-    return results
+    """
+    What the tests said about each pollen type, lead day and model ("gb" or "arimax"):
+    {(pollen type, lead, model): {"reliable", "accuracy", "margin"}}
+      reliable  decided on 2024 (did it clearly beat the baseline?)
+      accuracy  share of in-season days of 2025 (the untouched test year) with the right level
+      margin    how much the 80% interval is widened so that it really covers 80% (calibrated on 2024)
+    """
+    return {(r["pollen_type"], r["lead"], r["model"]): {"reliable": bool(r["reliable"]), "accuracy": r["accuracy_2025"],
+                                                        "margin": r["margin"]}
+            for r in model_choice().get("results", [])}
 
 
 def _arimax_rows(pollen_type, code, readings, weather, issue_day):
     """
     ARIMAX forecast for one station and pollen type, as of `issue_day`:
-    {lead: {"predicted_level", "prob_alto_or_more", "q10", "q50", "q90"}} or {} if this station has no fitted model.
+    {lead: {"q10", "q50", "q90"}} in grains/m3, or {} if this station has no fitted model.
     It only sees readings up to issue_day - 3 days; the weather of the coming days is the weather forecast.
     """
-    from scipy.stats import norm
-
     fitted = arimax_models()["models"].get(pollen_type, {}).get(code)
     if fitted is None:
         return {}
@@ -127,14 +122,14 @@ def _arimax_rows(pollen_type, code, readings, weather, issue_day):
     window = np.log1p(readings.reindex(window_days))
     mean, error = A.forecast(window, weather[A.WEATHER].reindex(window_days), weather[A.WEATHER].reindex(future_days),
                              fitted["order"], fitted["fourier_pairs"], fitted["params"])
-    alto = np.log1p(config.POLLEN_THRESHOLDS[pollen_type][1])
     rows = {}
     for lead in F.LEADS:
         i = F.READING_DELAY - 1 + lead                     # position of day D+lead among the forecast days
-        low, middle, high = np.expm1(A.quantiles(mean[i], error[i]))
-        rows[lead] = {"predicted_level": int(F.level_of(pollen_type, [middle])[0]),
-                      "prob_alto_or_more": round(float(1 - norm.cdf((alto - mean[i]) / error[i])), 3),
-                      "q10": round(float(low), 1), "q50": round(float(middle), 1), "q90": round(float(high), 1)}
+        if not np.isfinite(error[i]) or error[i] > A.MAX_LOG_ERROR:
+            continue                                       # unstable: gradient boosting answers for this day
+        margin = test_results().get((pollen_type, lead, "arimax"), {}).get("margin", 0.0)
+        low, middle, high = np.expm1(A.quantiles(mean[i], error[i], margin))
+        rows[lead] = {"q10": round(float(low), 1), "q50": round(float(middle), 1), "q90": round(float(high), 1)}
     return rows
 
 
@@ -195,8 +190,6 @@ def _predict(readings, weather_by_station, stations, issue_day):
     station_number = meta()["station_number"]
     all_days = pd.date_range(issue_day - pd.Timedelta(days=420), issue_day + pd.Timedelta(days=max(F.LEADS)), freq="D")
     results = test_results()
-    gb_results = {(r["pollen_type"], r["lead"]): {"reliable": bool(r["reliable"]), "accuracy": r["accuracy_season"]}
-                  for r in meta()["results"]}
     rows = []
     for pollen_type in F.POLLEN_TYPES:
         one = readings[readings["pollen_type"] == pollen_type]
@@ -220,17 +213,13 @@ def _predict(readings, weather_by_station, stations, issue_day):
                     continue                        # no reading in the last ~2 weeks: no forecast for this station
                 if lead in arimax:
                     prediction = {**arimax[lead], "model": "arimax"}
-                    result = results.get((pollen_type, lead), {"reliable": False, "accuracy": None})
-                else:
-                    model = models()[(pollen_type, lead)]
-                    probabilities = model.predict_proba(row[F.FEATURES])[0]
-                    prediction = {"predicted_level": int(model.predict(row[F.FEATURES])[0]), "model": "gb",
-                                  "prob_alto_or_more": round(float(sum(p for p, c in zip(probabilities, model.classes_) if c >= 2)), 3)}
-                    # the median and the 80% interval, in grains/m3
-                    if (pollen_type, lead) in quantile_models():
-                        prediction.update(F.predict_quantiles(quantile_models()[(pollen_type, lead)], row[F.FEATURES]).iloc[0].to_dict())
-                    # the test results of gradient boosting (not ARIMAX's, even for a type that normally uses ARIMAX)
-                    result = gb_results.get((pollen_type, lead), {"reliable": False, "accuracy": None})
+                else:                               # gradient boosting: the median and the calibrated 80% interval
+                    margin = results.get((pollen_type, lead, "gb"), {}).get("margin", 0.0)
+                    prediction = {"model": "gb", **F.predict_quantiles(quantile_models()[(pollen_type, lead)], row[F.FEATURES],
+                                                                        widen=margin).iloc[0].to_dict()}
+                # ONE SOURCE OF TRUTH: the level is the median forecast read against the official thresholds
+                prediction["predicted_level"] = int(F.level_of(pollen_type, [prediction["q50"]])[0])
+                result = results.get((pollen_type, lead, prediction["model"]), {"reliable": False, "accuracy": None})
                 rows.append({
                     "station_code": code, "pollen_type": pollen_type, "issue_date": issue_day,
                     "target_date": issue_day + pd.Timedelta(days=lead), "lead": lead, **prediction,
@@ -273,11 +262,9 @@ def _live_forecast(day_text):
 
 @st.cache_data(show_spinner=False)
 def _demo_forecast():
-    """The forecast as of 24 May 2025, made by train_pollen_model.py with only what was known that day."""
+    """The forecast as of 24 May 2025, made by compare_models.py with only what was known that day."""
     table = pd.read_csv(data.BACKUP_DIR / "replay" / f"pollen_forecast_{config.PLANNER_DEMO_DATE}.csv",
                         parse_dates=["issue_date", "target_date"])
-    results = test_results()
-    table["accuracy"] = [results.get((t, l), {}).get("accuracy") for t, l in zip(table["pollen_type"], table["lead"])]
     table.attrs["live"] = False
     table.attrs["fetched_at"] = pd.Timestamp(config.PLANNER_DEMO_DATE)
     return table

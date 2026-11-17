@@ -16,6 +16,10 @@ import pandas as pd
 WINDOW_DAYS = 120                   # how many days of readings a forecast looks back over
 WEATHER = ["temp_mean", "rain", "wind", "humidity"]
 Z80 = 1.2816                        # 10% and 90% points of a normal distribution (80% interval)
+# APP DECISION: an ARIMAX forecast whose standard error (log scale) is above this is treated as FAILED and
+# gradient boosting answers instead. It happens when a station has many gaps and its fitted AR terms are
+# almost 1 (Quercus at Las Rozas): the interval then spans a factor of thousands, which says nothing.
+MAX_LOG_ERROR = 3.0
 
 
 def exog_table(days, weather_table, fourier_pairs):
@@ -54,6 +58,10 @@ def forecast(window, window_weather, future_weather, order, fourier_pairs, param
     return result.predicted_mean.to_numpy(), result.se_mean.to_numpy()
 
 
-def quantiles(mean, error):
-    """The 10%, 50% and 90% points on the log scale (never below zero)."""
-    return max(mean - Z80 * error, 0.0), max(mean, 0.0), max(mean + Z80 * error, 0.0)
+def quantiles(mean, error, widen=0.0):
+    """
+    The 10%, 50% and 90% points on the log scale (never below zero).
+    `widen` is the calibration margin added on each side of the interval.
+    """
+    middle = max(mean, 0.0)
+    return min(max(mean - Z80 * error - widen, 0.0), middle), middle, max(mean + Z80 * error + widen, middle)

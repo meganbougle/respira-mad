@@ -8,9 +8,9 @@ What it does:
      station, the daily weather since 1993 (Open-Meteo historical weather).
   2. Builds the training table: one row per station, day and pollen type,
      for the 10 pollen types that have official thresholds (config.py).
-  3. Trains one small gradient-boosting model per pollen type and per lead
-     day (0 = today ... 5 = five days ahead) on data up to 2024.
-  4. Tests it on 2025, using the weather forecasts exactly as they were issued
+  3. Trains one small gradient-boosting classifier per pollen type and per
+     lead day (0 = today ... 5 = five days ahead) on data up to 2023.
+  4. Tests it on 2024 and 2025, using the weather forecasts as they were issued
      at the time, against a simple baseline ("the last available reading,
      adjusted for the season"). A type + lead day is marked RELIABLE only if
      the model clearly beats the baseline.
@@ -41,14 +41,17 @@ logging.getLogger("streamlit.runtime.caching.cache_data_api").setLevel(logging.E
 import config  # noqa: E402
 import data    # noqa: E402
 from pollen_model import features as F  # noqa: E402
+from pollen_model import issued_weather  # noqa: E402
 
 ROOT = Path(__file__).parent
 CACHE = ROOT / "model_data"
 OUT = ROOT / "pollen_model"
 CACHE.mkdir(exist_ok=True)
 
-TRAIN_UNTIL = pd.Timestamp("2024-12-31")          # train on data up to 2024 ...
-TEST_YEAR = 2025                                  # ... and test on 2025
+TRAIN_UNTIL = pd.Timestamp("2023-12-31")          # train on data up to 2023 ...
+CHOOSE_YEAR = 2024                                # ... 2024 is used to choose and calibrate (compare_models.py) ...
+TEST_YEAR = 2025                                  # ... and 2025 is the untouched test year
+EVAL_YEARS = (CHOOSE_YEAR, TEST_YEAR)
 CHECK_DAY = pd.Timestamp("2025-05-24")            # "what did it say on 24 May 2025?"
 REPORT_LEADS = [1, 2, 3, 4, 5]
 
@@ -207,9 +210,12 @@ for _, station in stations.iterrows():
     # stations very close to another one use that one's weather (see F.WEATHER_FROM)
     source = by_code.loc[F.WEATHER_FROM.get(code, code)]
     weather[code] = F.weather_features(load_weather(source)).set_index("date")
-    forecasts = load_issued_forecasts(source, TEST_YEAR)
+    forecasts = {year: issued_weather.load(source, year, weather[code]) for year in EVAL_YEARS}
     # where an archived forecast is missing, fall back to what happened
-    issued[code] = {k: table.combine_first(weather[code][table.columns].reindex(table.index)) for k, table in forecasts.items()}
+    issued[code] = {}
+    for k in range(1, 6):
+        table = pd.concat([forecasts[year][k] for year in EVAL_YEARS]).sort_index()
+        issued[code][k] = table.combine_first(weather[code][table.columns].reindex(table.index))
 
 all_days = pd.date_range("1993-01-01", history["date"].max(), freq="D")
 wide = {}                                         # pollen type -> table (index = every day, columns = stations)
@@ -246,7 +252,7 @@ def smooth_by_day(series_by_doy):
     return padded.rolling(15, center=True, min_periods=1).mean().iloc[15:-15].set_axis(range(1, 367))
 
 
-print("\nSTEP 2: training (data up to 2024) and testing (2025)")
+print("\nSTEP 2: training (data up to 2023), testing on 2024 and 2025")
 models, results, test_rows, climate, season = {}, [], [], {}, {}
 for pollen_type in F.POLLEN_TYPES:
     # seasonal pattern from the training years only: used by the baseline and to define the season
@@ -265,10 +271,10 @@ for pollen_type in F.POLLEN_TYPES:
         model.fit(train[F.FEATURES], train["target_level"].astype(int))
         models[(pollen_type, lead)] = model
 
-        # TEST on 2025: readings 3 days old, weather forecasts as they were issued
-        for delay in (3, 6):
+        # TEST on 2024 and 2025: readings 3 days old, weather forecasts as they were issued
+        for delay, year in [(d, y) for d in (3, 6) for y in EVAL_YEARS]:
             test = build(pollen_type, lead, delay, use_issued_forecasts=True)
-            test = test[test["target_date"].dt.year == TEST_YEAR].copy()
+            test = test[test["target_date"].dt.year == year].copy()
             test["predicted"] = model.predict(test[F.FEATURES])
             probabilities = model.predict_proba(test[F.FEATURES])
             test["prob_alto_or_more"] = probabilities[:, [i for i, c in enumerate(model.classes_) if c >= 2]].sum(axis=1)
@@ -286,7 +292,7 @@ for pollen_type in F.POLLEN_TYPES:
             in_season = test[test["in_season"]]
             high = in_season[in_season["target_level"] >= 2]
             entry = {
-                "pollen_type": pollen_type, "lead": lead, "delay": delay,
+                "pollen_type": pollen_type, "lead": lead, "delay": delay, "year": year,
                 "days": len(test), "season_days": len(in_season),
                 "accuracy_all": (test["predicted"] == test["target_level"]).mean(),
                 "baseline_all": (test["baseline"] == test["target_level"]).mean(),
@@ -309,13 +315,13 @@ for pollen_type in F.POLLEN_TYPES:
             if delay == 3:
                 test_rows.append(test[["station_code", "pollen_type", "issue_date", "target_date", "lead", "target_value",
                                        "target_level", "predicted", "baseline", "prob_alto_or_more", "in_season"]])
-    done = [r for r in results if r["pollen_type"] == pollen_type and r["delay"] == 3]
+    done = [r for r in results if r["pollen_type"] == pollen_type and r["delay"] == 3 and r["year"] == TEST_YEAR]
     print(f"  {pollen_type:22s} app level, in season: " + "  ".join(
         f"d{r['lead']} {r['accuracy_season']:.0%} vs {r['baseline_season']:.0%}{'*' if r['reliable'] else ' '}" for r in done))
 
 results = pd.DataFrame(results)
 test_rows = pd.concat(test_rows, ignore_index=True)
-main = results[results["delay"] == 3]
+main = results[(results["delay"] == 3) & (results["year"] == TEST_YEAR)]
 
 
 # ============================================================================
@@ -392,7 +398,8 @@ meta = {
 }
 (OUT / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=1), encoding="utf-8")
 results.to_csv(OUT / "backtest_2025.csv", index=False)
-test_rows.to_csv(CACHE / "test_rows_2025.csv.gz", index=False)
+for year in EVAL_YEARS:                           # compare_models.py scores every model on exactly these rows
+    test_rows[test_rows["target_date"].dt.year == year].to_csv(CACHE / f"test_rows_{year}.csv.gz", index=False)
 check.to_csv(OUT / f"check_{CHECK_DAY:%Y-%m-%d}.csv", index=False)
 
 # ---- chart: predicted vs real level, spring 2025, at the station with most readings in central Madrid
@@ -456,7 +463,7 @@ for _, r in main.iterrows():                       # lead 0 (the same day) is in
     lines.append(f"| {config.POLLEN_NAMES[r['pollen_type']]} | {r['lead']} | {r['accuracy_season']:.0%} | {r['baseline_season']:.0%} | "
                  f"{r['gain']:+.0%} | {r['exact_season']:.0%} / {r['baseline_exact_season']:.0%} | {caught} | {r['season_days']} | "
                  f"{'**RELIABLE**' if r['reliable'] else 'not reliable'} |")
-late = results[(results["delay"] == 6) & (results["lead"].isin(REPORT_LEADS))]
+late = results[(results["delay"] == 6) & (results["year"] == TEST_YEAR) & (results["lead"].isin(REPORT_LEADS))]
 lines += ["", "## If readings arrive later than 3 days", "",
           "The same test with readings 6 days old (it happens): average in-season accuracy "
           f"{late['accuracy_season'].mean():.0%} for the model and {late['baseline_season'].mean():.0%} for the baseline, "

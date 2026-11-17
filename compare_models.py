@@ -3,8 +3,8 @@ compare_models.py - compares classic time-series models with our gradient
 boosting model, on equal terms, and prepares what the app needs from the winner.
 
 Run it with:   .venv/bin/python compare_models.py        (about 15-25 minutes)
-Run train_pollen_model.py first: this script reuses its downloads (model_data/)
-and its 2025 test rows. Needs statsmodels and matplotlib (not needed by the app):
+Run train_air_model.py and train_pollen_model.py first: this script reuses their
+downloads (model_data/) and the 2024 and 2025 rows to score. Needs statsmodels and matplotlib (not needed by the app):
                .venv/bin/pip install statsmodels matplotlib
 
 Every model works on  log(1 + grains/m3)  per station and pollen type, daily,
@@ -12,21 +12,29 @@ and obeys the same rule as the app: a forecast made on day D only knows
 readings up to day D-3 (the publication delay). Lead 1 = tomorrow ... lead 5,
 so the models forecast 4 to 8 days after the last reading.
 
+The split, the same for every model:
+    TRAIN up to 2023  ->  CHOOSE on 2024  ->  TEST on 2025 (never used to decide anything)
+
 What it does:
   1. DIAGNOSTICS for three example series: ADF stationarity test, ACF / PACF
      and an STL decomposition. Plots go to pollen_model/plots/.
-  2. Fits, on data up to 2024:
+  2. Fits, on data up to 2023:
        a. Seasonal naive: the same day one year earlier.
        b. Exponential smoothing (simple / Holt / damped Holt, chosen by AIC).
        c. ARIMAX (dynamic harmonic regression): yearly cycle as Fourier terms,
           weather as exogenous variables, ARMA errors with orders chosen by AIC.
-       d. Gradient boosting with QUANTILE regression (10%, 50%, 90%), same
-          inputs as the classifier the app already uses.
-  3. Backtests all of them on 2025, same station-days, same lead days, same
-     metrics: mean absolute error on the log scale and accuracy on the
-     official level.
-  4. Saves the comparison (CSV + Markdown tables), the choice of model per
-     pollen type, the quantile models, and the demo-day forecast with intervals.
+       d. Gradient boosting with QUANTILE regression (10%, 50%, 90%).
+  3. Forecasts 2024 and 2025 with all of them: same station-days, same lead
+     days, same metrics (mean absolute error on the log scale and accuracy
+     on the official level).
+  4. On 2024: picks the model per pollen type, decides which type + lead
+     days are RELIABLE, and calibrates the 80% intervals (split conformal).
+  5. Reports everything on 2025, and saves what the app needs: the choice,
+     the quantile models, the ARIMAX parameters, the interval margins, the
+     demo-day forecast, tables and charts (including feature importance).
+
+ONE SOURCE OF TRUTH: the level the app shows is always the model's median
+forecast read against the official thresholds (not a separate classifier).
 
 The written explanation is MODEL_REPORT.md.
 """
@@ -43,6 +51,7 @@ import streamlit  # noqa: F401
 from joblib import Parallel, delayed
 from scipy.stats import norm
 from sklearn.ensemble import HistGradientBoostingRegressor
+from sklearn.inspection import permutation_importance
 
 logging.getLogger("streamlit.runtime.caching.cache_data_api").setLevel(logging.ERROR)
 warnings.filterwarnings("ignore")                    # statsmodels warns a lot about convergence; we check results ourselves
@@ -50,6 +59,7 @@ warnings.filterwarnings("ignore")                    # statsmodels warns a lot a
 import config  # noqa: E402
 from pollen_model import arimax as A  # noqa: E402
 from pollen_model import features as F  # noqa: E402
+from pollen_model import issued_weather  # noqa: E402
 
 ROOT = Path(__file__).parent
 CACHE = ROOT / "model_data"
@@ -57,14 +67,16 @@ OUT = ROOT / "pollen_model"
 PLOTS = OUT / "plots"
 PLOTS.mkdir(exist_ok=True)
 
-TRAIN_UNTIL = pd.Timestamp("2024-12-31")
-TEST_YEAR = 2025
+TRAIN_UNTIL = pd.Timestamp("2023-12-31")             # every model is fitted on data up to 2023 ...
+CHOOSE_YEAR = 2024                                   # ... the model per pollen type is CHOSEN (and intervals calibrated) on 2024 ...
+TEST_YEAR = 2025                                     # ... and 2025 is the untouched TEST year
+EVAL_YEARS = (CHOOSE_YEAR, TEST_YEAR)
 CHECK_DAY = pd.Timestamp(config.PLANNER_DEMO_DATE)   # the demo planner's day: 24 May 2025
 DELAY = F.READING_DELAY                              # 3 days
 REPORT_LEADS = [1, 2, 3, 4, 5]
 
 # ---- choices for the statistical models (ours; explained in MODEL_REPORT.md)
-FIT_FROM = pd.Timestamp("2015-01-01")                # they are fitted on the last 10 training years
+FIT_FROM = pd.Timestamp("2014-01-01")                # they are fitted on the last 10 training years (2014-2023)
 WINDOW_DAYS = A.WINDOW_DAYS                          # readings a forecast looks back over (120 days)
 FOURIER_CHOICES = range(1, 9)                        # how many yearly sine/cosine pairs to try
 ARMA_CHOICES = [(1, 0, 0), (2, 0, 0), (3, 0, 0), (1, 0, 1), (2, 0, 1), (1, 0, 2), (2, 0, 2)]
@@ -75,6 +87,23 @@ INTERVAL = 0.80
 
 EXAMPLES = [("Gramíneas", "ALER"), ("Plátano de paseo", "ALER"), ("Olivo", "ALER")]
 MODEL_NAMES = {"naive": "Estacional ingenuo", "ets": "Suavizado exponencial", "arimax": "ARIMAX", "gb": "Gradient boosting"}
+# APP DECISION: the app can only run ARIMAX and gradient boosting (they use the weather forecast and give
+# prediction intervals). Seasonal naive and exponential smoothing are REFERENCES: they are scored and reported,
+# but the model per pollen type is chosen between these two.
+CANDIDATES = ("arimax", "gb")
+IMPORTANCE_LEAD = 3                                  # the feature-importance chart is for forecasts 3 days ahead
+FEATURE_NAMES = {                                    # the model's inputs, in Spanish, for the feature-importance chart
+    "day_of_year": "Día del año", "day_sin": "Época del año (seno)", "day_cos": "Época del año (coseno)",
+    "last_value": "Última lectura", "last_age": "Antigüedad de la última lectura", "mean_7": "Media de 7 días",
+    "max_7": "Máximo de 7 días", "mean_14": "Media de 14 días", "trend": "Tendencia reciente",
+    "network_mean_3": "Media de la red (3 días)", "same_day_last_year": "Misma semana del año anterior",
+    "warmth_since_jan1": "Calor acumulado desde el 1 de enero (base 5 °C)", "warmth_since_jan1_base0": "Calor acumulado (base 0 °C)",
+    "rain_7": "Lluvia de 7 días", "rain_14": "Lluvia de 14 días", "rain_30": "Lluvia de 30 días", "rain_90": "Lluvia de 90 días",
+    "temp_mean_7": "Temperatura media de 7 días", "target_temp_mean": "Temperatura prevista (media)",
+    "target_temp_max": "Temperatura prevista (máxima)", "target_rain": "Lluvia prevista", "target_wind": "Viento previsto",
+    "target_humidity": "Humedad prevista", "between_rain": "Lluvia prevista hasta ese día",
+    "between_temp_mean": "Temperatura prevista hasta ese día", "station_number": "Estación", "lead": "Días de antelación",
+}
 
 
 # ============================================================================
@@ -83,11 +112,14 @@ MODEL_NAMES = {"naive": "Estacional ingenuo", "ets": "Suavizado exponencial", "a
 
 print("STEP 1: data")
 history = pd.read_csv(CACHE / "pollen_history.csv.gz", parse_dates=["date"])
-test_rows = pd.read_csv(CACHE / "test_rows_2025.csv.gz", parse_dates=["issue_date", "target_date"])
+# the rows every model is scored on: made by train_pollen_model.py for 2024 (choose) and 2025 (test)
+test_rows = pd.concat([pd.read_csv(CACHE / f"test_rows_{year}.csv.gz", parse_dates=["issue_date", "target_date"]) for year in EVAL_YEARS],
+                      ignore_index=True)
+test_rows["year"] = test_rows["target_date"].dt.year
 meta = json.loads((OUT / "meta.json").read_text(encoding="utf-8"))
 station_number = meta["station_number"]
-station_names = (pd.read_csv(ROOT / "backup" / "pollen.csv").drop_duplicates("station_code")
-                 .set_index("station_code")["station"].to_dict())
+places = pd.read_csv(ROOT / "backup" / "pollen.csv").drop_duplicates("station_code").set_index("station_code", drop=False)
+station_names = places["station"].to_dict()
 
 all_days = pd.date_range("1993-01-01", history["date"].max(), freq="D")
 wide = {}                                            # pollen type -> grains/m3 (index = every day, columns = stations)
@@ -95,16 +127,19 @@ for pollen_type in F.POLLEN_TYPES:
     one = history[history["pollen_type"] == pollen_type]
     wide[pollen_type] = one.pivot(index="date", columns="station_code", values="value").reindex(all_days)
 
-weather, issued = {}, {}                             # per station: weather that happened / forecasts as issued in 2025
+weather, issued = {}, {}                             # per station: weather that happened / forecasts as issued in 2024 and 2025
 for code in station_number:
     source = F.WEATHER_FROM.get(code, code)          # nearby stations share one weather series
     weather[code] = F.weather_features(pd.read_csv(CACHE / f"weather_{source}.csv", parse_dates=["date"])).set_index("date")
-    table = pd.read_csv(CACHE / f"issued_{source}_{TEST_YEAR}.csv", parse_dates=["date"])
-    issued[code] = {k: g.drop(columns="k").set_index("date").combine_first(weather[code][["temp_mean", "temp_max", "rain", "wind", "humidity"]].reindex(g["date"]))
-                    for k, g in table.groupby("k")}
+    by_year = {year: issued_weather.load(places.loc[source], year, weather[code]) for year in EVAL_YEARS}
+    issued[code] = {}
+    for k in range(1, 6):
+        table = pd.concat([by_year[year][k] for year in EVAL_YEARS]).sort_index()
+        # where there is no archived forecast (before 19 January 2024) the weather that happened stands in
+        issued[code][k] = table.combine_first(weather[code][table.columns].reindex(table.index))
 
 test_stations = sorted(test_rows["station_code"].unique())
-print(f"  {len(history):,} readings, {len(test_stations)} stations with 2025 data, {len(test_rows):,} test rows")
+print(f"  {len(history):,} readings, {len(test_stations)} stations, {len(test_rows):,} rows to score (2024 and 2025)")
 
 
 exog_table = A.exog_table                           # Fourier terms + the day's weather (shared with the app)
@@ -157,7 +192,7 @@ def diagnostics():
         for axis in axes.ravel():
             axis.set_xlabel("Retardo (días)", fontsize=8)
             axis.tick_params(labelsize=8)
-        figure.suptitle(f"{name}: autocorrelación, 2015–2024", fontsize=11.5, x=0.01, ha="left")
+        figure.suptitle(f"{name}: autocorrelación, {FIT_FROM.year}–{TRAIN_UNTIL.year}", fontsize=11.5, x=0.01, ha="left")
         figure.tight_layout(rect=(0, 0, 1, 0.96))
         figure.savefig(PLOTS / f"acf_pacf_{slug}.png", dpi=120, facecolor="white")
         plt.close(figure)
@@ -173,7 +208,7 @@ def diagnostics():
             axis.tick_params(labelsize=8)
             for side in ("top", "right"):
                 axis.spines[side].set_visible(False)
-        figure.suptitle(f"{name}: descomposición STL, 2015–2024", fontsize=11.5, x=0.01, ha="left")
+        figure.suptitle(f"{name}: descomposición STL, {FIT_FROM.year}–{TRAIN_UNTIL.year}", fontsize=11.5, x=0.01, ha="left")
         figure.tight_layout(rect=(0, 0, 1, 0.96))
         figure.savefig(PLOTS / f"stl_{slug}.png", dpi=120, facecolor="white")
         plt.close(figure)
@@ -246,9 +281,9 @@ def smoothing_forecast(values, steps, alpha, beta, phi):
 
 def fit_and_backtest(pollen_type, code, pairs, order, issue_days):
     """
-    Fits exponential smoothing and ARIMAX on one station's series (2015-2024),
+    Fits exponential smoothing and ARIMAX on one station's series (2014-2023),
     then, for every issue day, forecasts with only the readings up to D-3.
-    The parameters stay fixed during 2025: nothing from the test year is learnt.
+    The parameters stay fixed during 2024 and 2025: nothing from those years is learnt.
     Returns (table of forecasts, the fitted parameters).
     """
     from statsmodels.tsa.statespace.exponential_smoothing import ExponentialSmoothing
@@ -358,17 +393,41 @@ def train_quantiles(pollen_type, lead):
     def predict(rows):
         return F.predict_quantiles(fitted, rows[F.FEATURES], grains=False).set_axis(rows.index).add_prefix("gb_")
 
-    test = build(pollen_type, lead, DELAY, use_issued_forecasts=True)
-    test = test[(test["target_date"].dt.year == TEST_YEAR) & test["target_value"].notna()].copy()
-    test = pd.concat([test[["station_code", "issue_date", "lead"]], predict(test)], axis=1)
-    test["pollen_type"] = pollen_type
+    # the forecasts for 2024 (choosing and calibrating) and 2025 (test), with the weather forecasts as issued
+    every = build(pollen_type, lead, DELAY, use_issued_forecasts=True)
+    test = every[every["target_date"].dt.year.isin(EVAL_YEARS) & every["target_value"].notna()].copy()
+    out = pd.concat([test[["station_code", "issue_date", "lead"]], predict(test)], axis=1)
+    out["pollen_type"] = pollen_type
+
+    # which inputs matter: shuffle one input at a time on the 2024 rows and see how much worse the forecast gets
+    importance = None
+    if lead == IMPORTANCE_LEAD:
+        sample = test[(test["target_date"].dt.year == CHOOSE_YEAR) & (test["target_value"] > 0)]
+        if len(sample) > 200:
+            sample = sample.sample(min(len(sample), 3000), random_state=0)
+            found = permutation_importance(fitted["mean"], sample[F.FEATURES], np.log1p(sample["target_value"]),
+                                           scoring="neg_mean_absolute_error", n_repeats=3, random_state=0)
+            importance = dict(zip(F.FEATURES, found.importances_mean))
 
     # the forecast as of the demo day (24 May 2025), with only what was known then
-    demo = build(pollen_type, lead, DELAY, use_issued_forecasts=True)
-    demo = demo[(demo["issue_date"] == CHECK_DAY) & demo["last_value"].notna()].copy()
+    demo = every[(every["issue_date"] == CHECK_DAY) & every["last_value"].notna()].copy()
     demo = pd.concat([demo[["station_code", "lead"]], predict(demo)], axis=1)
     demo["pollen_type"] = pollen_type
-    return (pollen_type, lead), fitted, test, demo
+    return (pollen_type, lead), fitted, out, demo, importance
+
+
+def conformal_margin(low, high, actual):
+    """
+    Split conformal calibration (conformalized quantile regression): how much
+    the 80% interval must be widened (or narrowed, if negative) so that it
+    would have covered 80% of the calibration year. The score of each day is
+    how far outside the interval the real value fell (negative if inside).
+    """
+    scores = np.maximum(low - actual, actual - high)
+    n = len(scores)
+    if n < 30:
+        return 0.0
+    return float(np.quantile(scores, min(1.0, np.ceil((n + 1) * INTERVAL) / n)))
 
 
 # ============================================================================
@@ -378,11 +437,11 @@ def train_quantiles(pollen_type, lead):
 if __name__ == "__main__":
     diagnostics_found = diagnostics()
 
-    print("\nSTEP 3: statistical models (orders chosen by AIC, fitted on 2015-2024, tested on 2025)")
-    stat_cache = CACHE / "stat_backtest_2025.csv.gz"
+    print("\nSTEP 3: statistical models (orders chosen by AIC, fitted on 2014-2023, forecasts for 2024 and 2025)")
+    stat_cache = CACHE / "stat_backtest.csv.gz"
     fits_cache = CACHE / "stat_fits.json"
     if stat_cache.exists() and fits_cache.exists():
-        print("  (using the saved results in model_data/; delete stat_backtest_2025.csv.gz to redo them)")
+        print("  (using the saved results in model_data/; delete stat_backtest.csv.gz to redo them)")
         stat = pd.read_csv(stat_cache, parse_dates=["issue_date"])
         saved = json.loads(fits_cache.read_text(encoding="utf-8"))
         orders, fits = saved["orders"], saved["fits"]
@@ -401,118 +460,172 @@ if __name__ == "__main__":
         stat.to_csv(stat_cache, index=False)
         fits_cache.write_text(json.dumps({"orders": orders, "fits": fits}, ensure_ascii=False, indent=1), encoding="utf-8")
 
-    print("\nSTEP 4: gradient boosting with quantile regression (trained up to 2024)")
+    print("\nSTEP 4: gradient boosting with quantile regression (trained up to 2023)")
     done = Parallel(n_jobs=-1, verbose=5)(delayed(train_quantiles)(t, lead) for t in F.POLLEN_TYPES for lead in F.LEADS)
-    quantile_models = {key: fitted for key, fitted, _, _ in done}
+    quantile_models = {key: fitted for key, fitted, *_ in done}
     gb = pd.concat([d[2] for d in done], ignore_index=True)
     demo_quantiles = pd.concat([d[3] for d in done], ignore_index=True)
+    importances = {d[0][0]: d[4] for d in done if d[4] is not None}        # {pollen type: {feature: importance}}
     joblib.dump(quantile_models, OUT / "quantile_models.joblib", compress=3)
     print(f"  saved quantile_models.joblib ({(OUT / 'quantile_models.joblib').stat().st_size / 1e6:.1f} MB)")
 
     # ------------------------------------------------------------------------
     # 5. THE COMPARISON: same rows, same lead days, same metrics for everyone
     # ------------------------------------------------------------------------
-    print("\nSTEP 5: comparison on 2025")
+    print("\nSTEP 5: comparison (choose on 2024, test on 2025)")
     keys = ["station_code", "pollen_type", "issue_date", "lead"]
     rows = test_rows.merge(stat, on=keys, how="inner").merge(gb, on=keys, how="inner")
-    print(f"  {len(rows):,} of {len(test_rows):,} test rows have a forecast from every model")
+    print(f"  {len(rows):,} of {len(test_rows):,} rows have a forecast from every model")
     rows["actual"] = np.log1p(rows["target_value"])
-    rows["gb"] = rows["gb_q50"]                           # gradient boosting's point forecast = its median
+    rows["gb"] = rows["gb_q50"]                           # gradient boosting's forecast = its median
+    # the same rule as the app: an unstable ARIMAX forecast (see A.MAX_LOG_ERROR) is replaced by gradient boosting
+    unstable = ~(rows["arimax_se"] <= A.MAX_LOG_ERROR)
+    rows.loc[unstable, ["arimax", "arimax_q10", "arimax_q90"]] = rows.loc[unstable, ["gb", "gb_q10", "gb_q90"]].to_numpy()
+    print(f"  {int(unstable.sum()):,} unstable ARIMAX forecasts replaced by gradient boosting (as in the app)")
     for pollen_type, index in rows.groupby("pollen_type").groups.items():
-        for name in ("naive", "ets", "arimax", "gb_q50"):
+        for name in MODEL_NAMES:                          # every model's level = its forecast read against the official thresholds
             rows.loc[index, f"{name}_level"] = F.level_of(pollen_type, np.expm1(rows.loc[index, name]))
-    rows["gb_level"] = rows["predicted"]                  # the level of the classifier the app already uses
-    rows.to_csv(CACHE / "comparison_rows_2025.csv.gz", index=False)
+    rows["classifier_level"] = rows["predicted"]          # the old classifier, kept only to compare with the median
+    rows.to_csv(CACHE / "comparison_rows.csv.gz", index=False)
+
+    def app_level(series):                                # bajo / medio / alto-or-more: the three levels the app acts on
+        return series.clip(upper=2)
 
     results = []
-    for (pollen_type, lead), group in rows.groupby(["pollen_type", "lead"], sort=False):
+    for (pollen_type, lead, year), group in rows.groupby(["pollen_type", "lead", "year"], sort=False):
         season = group[group["in_season"]]
-        entry = {"pollen_type": pollen_type, "lead": lead, "season_days": len(season), "all_days": len(group)}
-        for name in MODEL_NAMES:
-            entry[f"{name}_mae"] = (season[name] - season["actual"]).abs().mean()                   # log scale, in season
-            entry[f"{name}_acc"] = (season[f"{name}_level"] == season["target_level"]).mean()      # exact official level
-            entry[f"{name}_acc_app"] = (season[f"{name}_level"].clip(upper=2) == season["target_level"].clip(upper=2)).mean()
-            entry[f"{name}_mae_all"] = (group[name] - group["actual"]).abs().mean()                 # whole year
-        entry["gb_q50_acc"] = (season["gb_q50_level"] == season["target_level"]).mean()            # level read off the median
-        for name in ("arimax", "gb"):                     # how often the real value fell inside the 80% interval
-            entry[f"{name}_coverage"] = ((season["actual"] >= season[f"{name}_q10"]) & (season["actual"] <= season[f"{name}_q90"])).mean()
-            entry[f"{name}_width"] = (season[f"{name}_q90"] - season[f"{name}_q10"]).mean()
+        entry = {"pollen_type": pollen_type, "lead": lead, "year": year, "season_days": len(season), "all_days": len(group)}
+        real = season["target_level"]
+        for name in list(MODEL_NAMES) + ["classifier"]:
+            entry[f"{name}_acc"] = (season[f"{name}_level"] == real).mean()                         # exact official level
+            entry[f"{name}_acc_app"] = (app_level(season[f"{name}_level"]) == app_level(real)).mean()
+            entry[f"{name}_err_app"] = (app_level(season[f"{name}_level"]) - app_level(real)).abs().mean()
+            if name in MODEL_NAMES:
+                entry[f"{name}_mae"] = (season[name] - season["actual"]).abs().mean()               # log scale, in season
+        entry["baseline_acc_app"] = (app_level(season["baseline"]) == app_level(real)).mean()      # last reading adjusted for the season
+        entry["baseline_err_app"] = (app_level(season["baseline"]) - app_level(real)).abs().mean()
         results.append(entry)
     results = pd.DataFrame(results)
-    results.to_csv(OUT / "comparison_2025.csv", index=False)
 
-    # ---- the best model per pollen type: highest accuracy on the official level (leads 1-5, in season);
-    #      if two models are within one point of each other, the lower log error decides
+    # ---- CHOOSE on 2024: per pollen type, the highest accuracy on the official level in season (lead days 1-5);
+    #      models within one point of each other are separated by the lower log error
     report = results[results["lead"].isin(REPORT_LEADS)]
-    summary = report.groupby("pollen_type", sort=False)[[f"{m}_{k}" for m in MODEL_NAMES for k in ("mae", "acc", "acc_app")]
-                                                         + ["arimax_coverage", "gb_coverage", "arimax_width", "gb_width"]].mean()
+    metric_columns = [c for c in results.columns if c.endswith(("_mae", "_acc", "_acc_app"))]
+    summary = {year: report[report["year"] == year].groupby("pollen_type", sort=False)[metric_columns].mean() for year in EVAL_YEARS}
     choice = {}
-    for pollen_type, r in summary.iterrows():
-        best_accuracy = max(r[f"{m}_acc"] for m in MODEL_NAMES)
-        close = [m for m in MODEL_NAMES if r[f"{m}_acc"] >= best_accuracy - 0.01]
+    for pollen_type, r in summary[CHOOSE_YEAR].iterrows():
+        best_accuracy = max(r[f"{m}_acc"] for m in CANDIDATES)
+        close = [m for m in CANDIDATES if r[f"{m}_acc"] >= best_accuracy - 0.01]
         choice[pollen_type] = min(close, key=lambda m: r[f"{m}_mae"])
-        print(f"  {pollen_type:22s} " + "  ".join(f"{m} {r[f'{m}_acc']:.0%}/{r[f'{m}_mae']:.2f}" for m in MODEL_NAMES)
-              + f"   -> {choice[pollen_type]}")
-    # ---- for the pollen types where ARIMAX won, the app needs the same facts it has for gradient boosting:
-    #      per lead day, is it RELIABLE (same rule as train_pollen_model.py: at least 5 points better than the
-    #      baseline on the level the app acts on, with a smaller mean error) and how often it was right
+        t = summary[TEST_YEAR].loc[pollen_type]
+        print(f"  {pollen_type:22s} 2024: " + "  ".join(f"{m} {r[f'{m}_acc']:.0%}/{r[f'{m}_mae']:.2f}" for m in MODEL_NAMES)
+              + f"  -> {choice[pollen_type]}   | 2025: " + "  ".join(f"{m} {t[f'{m}_acc']:.0%}" for m in MODEL_NAMES))
+
+    # ---- CALIBRATE the 80% intervals on 2024 (in season), then measure their coverage on 2025
+    margins, coverage = {}, []
+    for (pollen_type, lead), group in rows.groupby(["pollen_type", "lead"], sort=False):
+        calibration = group[(group["year"] == CHOOSE_YEAR) & group["in_season"]]
+        test = group[(group["year"] == TEST_YEAR) & group["in_season"]]
+        for name in ("gb", "arimax"):
+            margin = conformal_margin(calibration[f"{name}_q10"], calibration[f"{name}_q90"], calibration["actual"])
+            margins[(pollen_type, lead, name)] = margin
+            low, high = test[f"{name}_q10"], test[f"{name}_q90"]
+            wide_low, wide_high = np.minimum((low - margin).clip(lower=0), test[name]), np.maximum(high + margin, test[name])
+            coverage.append({"pollen_type": pollen_type, "lead": lead, "model": name, "margin": margin,
+                             "before": ((test["actual"] >= low) & (test["actual"] <= high)).mean(),
+                             "after": ((test["actual"] >= wide_low) & (test["actual"] <= wide_high)).mean(),
+                             "width_before": (high - low).mean(), "width_after": (wide_high - wide_low).mean()})
+    coverage = pd.DataFrame(coverage)
+
+    # ---- RELIABLE (decided on 2024, same rule as before): on in-season days the model gets the level the app acts on
+    #      right at least 5 points more often than the baseline, with a smaller mean error, on at least 200 station-days
+    flags = []
+    for _, r in results[results["year"] == CHOOSE_YEAR].iterrows():
+        test = results[(results["year"] == TEST_YEAR) & (results["pollen_type"] == r["pollen_type"]) & (results["lead"] == r["lead"])].iloc[0]
+        for name in ("gb", "arimax"):
+            reliable = bool(r[f"{name}_acc_app"] - r["baseline_acc_app"] >= MIN_GAIN and r[f"{name}_err_app"] < r["baseline_err_app"]
+                            and r["season_days"] >= MIN_SEASON_DAYS)
+            flags.append({"pollen_type": r["pollen_type"], "lead": int(r["lead"]), "model": name, "reliable": reliable,
+                          "accuracy_2024": round(float(r[f"{name}_acc_app"]), 4), "baseline_2024": round(float(r["baseline_acc_app"]), 4),
+                          "accuracy_2025": round(float(test[f"{name}_acc_app"]), 4), "baseline_2025": round(float(test["baseline_acc_app"]), 4),
+                          "margin": round(margins[(r["pollen_type"], int(r["lead"]), name)], 4)})
+    flags = pd.DataFrame(flags)
+    chosen_flags = flags[[choice[t] == m for t, m in zip(flags["pollen_type"], flags["model"])]]
+    used = chosen_flags[chosen_flags["lead"].isin(REPORT_LEADS)]
+    print(f"  RELIABLE (decided on 2024): {int(used['reliable'].sum())} of {len(used)} type + lead-day combinations of the chosen models")
+
+    results.to_csv(OUT / "comparison.csv", index=False)
+    coverage.to_csv(OUT / "interval_coverage.csv", index=False)
+
     arimax_types = [t for t, m in choice.items() if m == "arimax"]
-    arimax_results = []
-    for (pollen_type, lead), group in rows[rows["pollen_type"].isin(arimax_types)].groupby(["pollen_type", "lead"], sort=False):
-        season = group[group["in_season"]]
-        real, baseline, model = season["target_level"].clip(upper=2), season["baseline"].clip(upper=2), season["arimax_level"].clip(upper=2)
-        accuracy, baseline_accuracy = (model == real).mean(), (baseline == real).mean()
-        reliable = bool(accuracy - baseline_accuracy >= MIN_GAIN and (model - real).abs().mean() < (baseline - real).abs().mean()
-                        and len(season) >= MIN_SEASON_DAYS)
-        arimax_results.append({"pollen_type": pollen_type, "lead": int(lead), "reliable": reliable,
-                               "accuracy_season": round(float(accuracy), 4), "baseline_season": round(float(baseline_accuracy), 4)})
     by_series = {(f["pollen_type"], f["station_code"]): f for f in fits}
     (OUT / "arimax_params.json").write_text(json.dumps({
         "made": pd.Timestamp.now().strftime("%Y-%m-%d"), "fitted_on": f"{FIT_FROM:%Y-%m-%d} to {TRAIN_UNTIL:%Y-%m-%d}",
-        "results": arimax_results,
         "models": {t: {code: {"order": by_series[(t, code)]["order"], "fourier_pairs": by_series[(t, code)]["fourier_pairs"],
                               "params": by_series[(t, code)]["arimax_params"]}
                        for code in test_stations if (t, code) in by_series} for t in arimax_types},
     }, ensure_ascii=False), encoding="utf-8")
-
     (OUT / "model_choice.json").write_text(json.dumps({
         "made": pd.Timestamp.now().strftime("%Y-%m-%d"),
-        "rule": "per pollen type, the model with the highest accuracy on the official level in season (2025, lead days 1-5); "
+        "split": f"trained up to {TRAIN_UNTIL.year}, chosen and calibrated on {CHOOSE_YEAR}, tested on {TEST_YEAR}",
+        "rule": f"per pollen type, between ARIMAX and gradient boosting (the models the app can run), the one with the highest accuracy on the official level in season ({CHOOSE_YEAR}, lead days 1-5); "
                 "models within one percentage point are separated by the lower mean absolute error on the log scale",
+        "reliable_rule": f"decided on {CHOOSE_YEAR}: on in-season days the model gets the app's level (bajo / medio / alto-or-more) right at "
+                         f"least {MIN_GAIN * 100:.0f} points more often than the baseline, with a smaller mean level error, on at least "
+                         f"{MIN_SEASON_DAYS} station-days",
         "choice": choice, "interval": INTERVAL,
-        "summary": {t: {k: round(float(v), 4) for k, v in r.items()} for t, r in summary.iterrows()},
+        "results": flags.to_dict("records"),
+        "summary": {str(year): {t: {k: round(float(v), 4) for k, v in r.items()} for t, r in table.iterrows()} for year, table in summary.items()},
         "orders": {o["pollen_type"]: {"fourier_pairs": o["fourier_pairs"], "order": o["order"]} for o in orders},
     }, ensure_ascii=False, indent=1), encoding="utf-8")
 
     # ---- Markdown tables for MODEL_REPORT.md
     order = list(MODEL_NAMES)
-    lines = ["| Tipo de polen | " + " | ".join(f"{MODEL_NAMES[m]}: acierto / MAE" for m in order) + " | Mejor |", "|---|" + "---|" * (len(order) + 1)]
-    for pollen_type, r in summary.iterrows():
-        cells = [f"{'**' if m == choice[pollen_type] else ''}{r[f'{m}_acc']:.0%} / {r[f'{m}_mae']:.2f}{'**' if m == choice[pollen_type] else ''}" for m in order]
-        lines.append(f"| {config.POLLEN_NAMES[pollen_type]} | " + " | ".join(cells) + f" | {MODEL_NAMES[choice[pollen_type]]} |")
-    mean = summary.mean()
-    lines.append("| **Media** | " + " | ".join(f"{mean[f'{m}_acc']:.0%} / {mean[f'{m}_mae']:.2f}" for m in order) + " | |")
-    lines += ["", "| Tipo de polen | Día | " + " | ".join(f"{MODEL_NAMES[m]}: acierto / MAE" for m in order) + " | Días de temporada |",
+    lines = []
+    for year, title in ((CHOOSE_YEAR, "año de elección"), (TEST_YEAR, "año de prueba, no usado para decidir")):
+        lines += [f"**{year} ({title})**", "",
+                  "| Tipo de polen | " + " | ".join(f"{MODEL_NAMES[m]}: acierto / MAE" for m in order) + " | Elegido |", "|---|" + "---|" * (len(order) + 1)]
+        for pollen_type, r in summary[year].iterrows():
+            cells = [f"{'**' if m == choice[pollen_type] else ''}{r[f'{m}_acc']:.0%} / {r[f'{m}_mae']:.2f}{'**' if m == choice[pollen_type] else ''}" for m in order]
+            lines.append(f"| {config.POLLEN_NAMES[pollen_type]} | " + " | ".join(cells) + f" | {MODEL_NAMES[choice[pollen_type]]} |")
+        mean = summary[year].mean()
+        picked = np.mean([summary[year].loc[t, f"{choice[t]}_acc"] for t in choice])
+        lines += ["| **Media** | " + " | ".join(f"{mean[f'{m}_acc']:.0%} / {mean[f'{m}_mae']:.2f}" for m in order) + f" | {picked:.0%} con el elegido |", ""]
+    lines += [f"**{TEST_YEAR}, por día de antelación (en negrita, el mejor acierto de cada fila)**", "",
+              "| Tipo de polen | Día | " + " | ".join(f"{MODEL_NAMES[m]}: acierto / MAE" for m in order) + " | Días de temporada |",
               "|---|---|" + "---|" * (len(order) + 1)]
-    for _, r in report.iterrows():
+    for _, r in report[report["year"] == TEST_YEAR].iterrows():
         best = max(order, key=lambda m: r[f"{m}_acc"])
         cells = [f"{'**' if m == best else ''}{r[f'{m}_acc']:.0%} / {r[f'{m}_mae']:.2f}{'**' if m == best else ''}" for m in order]
         lines.append(f"| {config.POLLEN_NAMES[r['pollen_type']]} | +{r['lead']} | " + " | ".join(cells) + f" | {r['season_days']} |")
-    lines += ["", "| Tipo de polen | Fourier (pares) | Orden ARMA (p, d, q) | Cobertura intervalo 80%: ARIMAX | Cobertura intervalo 80%: gradient boosting |", "|---|---|---|---|---|"]
+    chosen_coverage = coverage[coverage["lead"].isin(REPORT_LEADS)].groupby(["pollen_type", "model"], sort=False)[["before", "after", "width_before", "width_after"]].mean()
+    lines += ["", f"**Intervalos del 80 %: cobertura real en {TEST_YEAR} (temporada), antes y después de calibrarlos con {CHOOSE_YEAR}**", "",
+              "| Tipo de polen | Modelo usado | Antes | Después | Anchura media (log): antes → después | Fourier (pares) | Orden ARMA |", "|---|---|---|---|---|---|---|"]
     for o in orders:
-        r = summary.loc[o["pollen_type"]]
-        lines.append(f"| {config.POLLEN_NAMES[o['pollen_type']]} | {o['fourier_pairs']} | {tuple(o['order'])} | {r['arimax_coverage']:.0%} | {r['gb_coverage']:.0%} |")
-    lines += ["", "| Serie | ADF (serie) | p | ADF (sin ciclo anual) | p | Días con cero | Fuerza estacional (STL) |", "|---|---|---|---|---|---|---|"]
+        t = o["pollen_type"]
+        c = chosen_coverage.loc[(t, choice[t])]
+        lines.append(f"| {config.POLLEN_NAMES[t]} | {MODEL_NAMES[choice[t]]} | {c['before']:.0%} | {c['after']:.0%} | "
+                     f"{c['width_before']:.2f} → {c['width_after']:.2f} | {o['fourier_pairs']} | {tuple(o['order'])} |")
+    both = coverage[coverage["lead"].isin(REPORT_LEADS)].groupby("model")[["before", "after"]].mean()
+    used_cover = np.mean([chosen_coverage.loc[(t, choice[t]), "after"] for t in choice]), np.mean([chosen_coverage.loc[(t, choice[t]), "before"] for t in choice])
+    lines += [f"| **Media (modelo usado)** | | {used_cover[1]:.0%} | {used_cover[0]:.0%} | | | |",
+              f"| Media gradient boosting (10 tipos) | | {both.loc['gb', 'before']:.0%} | {both.loc['gb', 'after']:.0%} | | | |",
+              f"| Media ARIMAX (10 tipos) | | {both.loc['arimax', 'before']:.0%} | {both.loc['arimax', 'after']:.0%} | | | |", ""]
+    median_vs_classifier = report[report["year"] == TEST_YEAR][["gb_acc", "classifier_acc", "gb_acc_app", "classifier_acc_app"]].mean()
+    lines += [f"**Nivel leído de la mediana frente al clasificador antiguo ({TEST_YEAR}, temporada, media de 10 tipos):** nivel exacto "
+              f"{median_vs_classifier['gb_acc']:.1%} (mediana) frente a {median_vs_classifier['classifier_acc']:.1%} (clasificador); "
+              f"tres niveles de la aplicación {median_vs_classifier['gb_acc_app']:.1%} frente a {median_vs_classifier['classifier_acc_app']:.1%}.", ""]
+    lines += ["| Serie | ADF (serie) | p | ADF (sin ciclo anual) | p | Días con cero | Fuerza estacional (STL) |", "|---|---|---|---|---|---|---|"]
     for d in diagnostics_found:
         lines.append(f"| {d['series']} | {d['adf_stat']:.1f} | {d['adf_p']:.4f} | {d['adf_resid_stat']:.1f} | {d['adf_resid_p']:.4f} | {d['share_zero']:.0%} | {d['seasonal_strength']:.2f} |")
     (OUT / "comparison_tables.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
-    # ---- chart: accuracy and error by lead day, averaged over the ten pollen types
+    # ---- charts
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     colours = {"naive": "#9a9a92", "ets": "#e0902b", "arimax": "#7b4fc4", "gb": "#2a78d6"}
-    by_lead = report.groupby("lead")[[f"{m}_{k}" for m in MODEL_NAMES for k in ("mae", "acc")]].mean()
+    by_lead = report[report["year"] == TEST_YEAR].groupby("lead")[[f"{m}_{k}" for m in MODEL_NAMES for k in ("mae", "acc")]].mean()
     figure, axes = plt.subplots(1, 2, figsize=(11, 4))
     for m in MODEL_NAMES:
         axes[0].plot(by_lead.index, by_lead[f"{m}_acc"] * 100, marker="o", color=colours[m], label=MODEL_NAMES[m])
@@ -526,16 +639,18 @@ if __name__ == "__main__":
         for side in ("top", "right"):
             axis.spines[side].set_visible(False)
     axes[0].legend(fontsize=8.5, frameon=False)
-    figure.suptitle("Comparación de modelos en 2025 (media de los 10 tipos de polen)", fontsize=11.5, x=0.01, ha="left")
+    figure.suptitle(f"Comparación de modelos en {TEST_YEAR}, año de prueba (media de los 10 tipos de polen)", fontsize=11.5, x=0.01, ha="left")
     figure.tight_layout(rect=(0, 0, 1, 0.95))
     figure.savefig(PLOTS / "comparison_by_lead.png", dpi=120, facecolor="white")
 
-    # ---- chart: forecasts 3 days ahead against reality, grass at Barrio de Salamanca, spring 2025
+    # forecasts 3 days ahead against reality, grass at Barrio de Salamanca, spring 2025, with the calibrated intervals
     example = rows[(rows["pollen_type"] == "Gramíneas") & (rows["station_code"] == "ALER") & (rows["lead"] == 3)
                    & (rows["target_date"] >= f"{TEST_YEAR}-04-01") & (rows["target_date"] <= f"{TEST_YEAR}-07-15")].sort_values("target_date")
     figure, axes = plt.subplots(2, 1, figsize=(11, 6.5), sharex=True, sharey=True)
     for axis, m in zip(axes, ("arimax", "gb")):
-        axis.fill_between(example["target_date"], np.expm1(example[f"{m}_q10"]), np.expm1(example[f"{m}_q90"]), color=colours[m], alpha=0.18, label="Intervalo del 80%")
+        margin = margins[("Gramíneas", 3, m)]
+        axis.fill_between(example["target_date"], np.expm1((example[f"{m}_q10"] - margin).clip(lower=0)), np.expm1(example[f"{m}_q90"] + margin),
+                          color=colours[m], alpha=0.18, label="Intervalo del 80 % (calibrado)")
         axis.plot(example["target_date"], np.expm1(example[m]), color=colours[m], linewidth=1.6, linestyle="--", label=f"{MODEL_NAMES[m]} (3 días antes)")
         axis.plot(example["target_date"], example["target_value"], color="#222", linewidth=1.2, label="Medido")
         for threshold in config.POLLEN_THRESHOLDS["Gramíneas"]:
@@ -550,27 +665,46 @@ if __name__ == "__main__":
     figure.tight_layout(rect=(0, 0, 1, 0.95))
     figure.savefig(PLOTS / "forecast_vs_real_gramineas_ALER.png", dpi=120, facecolor="white")
 
-    # ---- the demo-day forecast (24 May 2025) gets its interval columns
+    # feature importance of gradient boosting (average of the 10 pollen types, forecasts 3 days ahead)
+    importance = pd.DataFrame(importances).mean(axis=1).sort_values()
+    importance = importance[importance > 0].tail(14)
+    figure, axis = plt.subplots(figsize=(8.5, 5))
+    axis.barh([FEATURE_NAMES.get(name, name) for name in importance.index], importance, color="#2a78d6", height=0.6)
+    axis.set_xlabel("Cuánto empeora el error (escala log) si se desordena esa variable", fontsize=9)
+    axis.tick_params(labelsize=9)
+    axis.grid(axis="x", color="#e1e0d9", linewidth=0.6)
+    for side in ("top", "right"):
+        axis.spines[side].set_visible(False)
+    figure.suptitle(f"Qué variables pesan más en el gradient boosting (previsión a {IMPORTANCE_LEAD} días, media de los 10 tipos, {CHOOSE_YEAR})",
+                    fontsize=10.5, x=0.01, ha="left")
+    figure.tight_layout(rect=(0, 0, 1, 0.95))
+    figure.savefig(PLOTS / "feature_importance.png", dpi=120, facecolor="white")
+    pd.DataFrame(importances).to_csv(OUT / "feature_importance.csv")
+
+    # ------------------------------------------------------------------------
+    # 6. The demo-day forecast (24 May 2025): the chosen model's median, its level and its calibrated interval
+    # ------------------------------------------------------------------------
     demo_file = ROOT / "backup" / "replay" / f"pollen_forecast_{CHECK_DAY:%Y-%m-%d}.csv"
-    demo = pd.read_csv(demo_file).drop(columns=["q10", "q50", "q90", "model"], errors="ignore")
-    for name in QUANTILES:
-        demo_quantiles[name] = np.expm1(demo_quantiles[f"gb_{name}"]).round(1)       # back to grains/m3
-    demo = demo.merge(demo_quantiles[["station_code", "pollen_type", "lead", "q10", "q50", "q90"]],
-                      on=["station_code", "pollen_type", "lead"], how="left")
-    demo["model"] = "gb"
-    # where ARIMAX won, its forecast of that day replaces gradient boosting's
-    flags = {(r["pollen_type"], r["lead"]): r["reliable"] for r in arimax_results}
-    that_day = stat[(stat["issue_date"] == CHECK_DAY) & stat["pollen_type"].isin(arimax_types)].set_index(["station_code", "pollen_type", "lead"])
-    for i, row in demo.iterrows():
+    demo = pd.read_csv(demo_file).drop(columns=["q10", "q50", "q90", "model", "accuracy"], errors="ignore")
+    demo = demo.merge(demo_quantiles, on=["station_code", "pollen_type", "lead"], how="left")
+    flag_of = {(r["pollen_type"], r["lead"], r["model"]): r for r in flags.to_dict("records")}
+    that_day = stat[stat["issue_date"] == CHECK_DAY].set_index(["station_code", "pollen_type", "lead"])
+    out = []
+    for _, row in demo.iterrows():
+        model = choice[row["pollen_type"]]
         key = (row["station_code"], row["pollen_type"], row["lead"])
-        if key in that_day.index:
-            f = that_day.loc[key]
-            alto = np.log1p(config.POLLEN_THRESHOLDS[row["pollen_type"]][1])
-            demo.loc[i, ["q10", "q50", "q90"]] = np.expm1([f["arimax_q10"], f["arimax"], f["arimax_q90"]]).round(1)
-            demo.loc[i, "predicted_level"] = int(F.level_of(row["pollen_type"], [np.expm1(f["arimax"])])[0])
-            demo.loc[i, "prob_alto_or_more"] = float(1 - norm.cdf((alto - f["arimax"]) / f["arimax_se"]))
-            demo.loc[i, "reliable"] = flags[(row["pollen_type"], row["lead"])]
-            demo.loc[i, "model"] = "arimax"
+        if model == "arimax" and key in that_day.index and that_day.loc[key, "arimax_se"] <= A.MAX_LOG_ERROR:
+            low, middle, high = that_day.loc[key, ["arimax_q10", "arimax", "arimax_q90"]]
+        else:
+            model = "gb"
+            low, middle, high = row["gb_q10"], row["gb_q50"], row["gb_q90"]
+        flag = flag_of[(row["pollen_type"], row["lead"], model)]
+        low, high = min(max(low - flag["margin"], 0), middle), max(high + flag["margin"], middle)
+        out.append({"model": model, "q10": round(float(np.expm1(low)), 1), "q50": round(float(np.expm1(middle)), 1),
+                    "q90": round(float(np.expm1(high)), 1), "reliable": flag["reliable"], "accuracy": flag["accuracy_2025"],
+                    "predicted_level": int(F.level_of(row["pollen_type"], [np.expm1(middle)])[0])})
+    demo = pd.concat([demo.drop(columns=["gb_q10", "gb_q50", "gb_q90", "reliable", "predicted_level", "prob_alto_or_more"], errors="ignore"),
+                      pd.DataFrame(out)], axis=1)
     demo.to_csv(demo_file, index=False)
 
     # ---- the readings that had been published by the demo day (up to 3 days before it), for the app's chart
@@ -578,4 +712,4 @@ if __name__ == "__main__":
     recent = recent.rename(columns={"date": "timestamp"})
     recent["station"] = recent["station_code"].map(station_names)
     recent.to_csv(ROOT / "backup" / "replay" / f"pollen_recent_{CHECK_DAY:%Y-%m-%d}.csv", index=False)
-    print(f"\nSaved: comparison_2025.csv, comparison_tables.md, model_choice.json, arimax_params.json, plots/, and the intervals in {demo_file.name}")
+    print(f"\nSaved: comparison.csv, interval_coverage.csv, comparison_tables.md, model_choice.json, arimax_params.json, plots/, and {demo_file.name}")
