@@ -21,6 +21,8 @@ import pandas as pd
 
 import config
 import data
+from air_model import predict as air_predict
+from pollen_model import predict as pollen_predict
 
 
 # ----------------------------------------------------------------------------
@@ -220,35 +222,56 @@ def pollen_near(lat, lon, pollen):
     }
 
 
-def pollen_from_forecast(forecast_air, day):
+def pollen_forecast_rows(lat, lon, demo=False):
     """
-    Used only when no pollen station has a recent reading: the average of the
-    day's hourly FORECAST for the two types that have an official threshold
-    (grass and olive). Returns None if the forecast has no data for that day.
+    OUR pollen model's forecast at the nearest pollen station that has one.
+    Returns (rows of that station, {"station", "distance_km"}), or (None, None).
     """
-    hours = forecast_air[forecast_air["timestamp"].dt.normalize() == day]
-    types = []
-    for column, official_type in config.FORECAST_POLLEN_TO_OFFICIAL.items():
-        value = hours[column].mean()
-        if pd.notna(value):
-            types.append(_pollen_entry(official_type, round(float(value), 1)))
-    if not types:
-        return None
-    types.sort(key=lambda t: (t["level"], t["ratio"]), reverse=True)
-    return {"kind": "forecast", "station": "Open-Meteo", "distance_km": 0.0,
-            "reading_date": day, "age_days": 0, "types": types}
+    table = pollen_predict.forecast(demo)
+    if table.empty:
+        return None, None
+    table = _add_distance(table, lat, lon)
+    nearest = table.iloc[0]
+    rows = table[table["station"] == nearest["station"]]
+    return rows, {"station": nearest["station"], "distance_km": round(float(nearest["distance_km"]), 1)}
+
+
+def pollen_forecast_entry(pollen_type, date, rows):
+    """
+    The forecast of one pollen type for one day, from our model:
+    {"pollen_type", "name", "level" (0-3 or None), "level_name", "kind": "model" or "none", "source", "accuracy"}.
+    Where our model is not reliable for that type and day there is NO forecast
+    ("Sin previsión fiable"): no other forecast is used (data rule).
+    """
+    row = None
+    if rows is not None:
+        match = rows[(rows["pollen_type"] == pollen_type) & (rows["target_date"] == date)]
+        row = match.iloc[0] if len(match) else None
+    chosen = pollen_predict.best_source(pollen_type, row)
+    entry = {"pollen_type": pollen_type, "name": config.POLLEN_NAMES[pollen_type], **chosen,
+             "level_name": config.POLLEN_LEVELS[chosen["level"]] if chosen["level"] is not None else None}
+    if row is not None:
+        entry["model_level_name"] = config.POLLEN_LEVELS[int(row["predicted_level"])]
+        entry["model_reliable"] = bool(row["reliable"])
+    return entry
 
 
 # ----------------------------------------------------------------------------
 # Hour-by-hour levels and best windows (FORECAST)
 # ----------------------------------------------------------------------------
 
-def hourly_levels(forecast_air, forecast_weather, profile, allergy_types=()):
+def hourly_levels(forecast_air, forecast_weather, profile, pollen_by_day=None):
     """
     The forecast table with, for every hour, the app level (0, 1, 2), a
     pollution score (to rank hours of the same level) and what limits it.
+
+    forecast_air   our own air forecast for this place (air_model.predict.at_point)
+    pollen_by_day  {date: (app level, pollen name)}: the forecast pollen level of each
+                   day for the pollen types the person selected (pollen is a daily
+                   value, so every hour of a day gets the same one)
     """
     audience = config.PROFILES[profile]["air"]
+    pollen_by_day = pollen_by_day or {}
     table = forecast_air.merge(
         forecast_weather[["timestamp", "temperature_c", "rain_mm"]], on="timestamp", how="left")
     levels, scores, reasons, categories = [], [], [], []
@@ -266,17 +289,12 @@ def hourly_levels(forecast_air, forecast_weather, profile, allergy_types=()):
             if air_level > level:
                 level, reason = air_level, pollutant
 
-        # pollen: only the types the person says they are allergic to
-        for column, official_type in config.FORECAST_POLLEN_TO_OFFICIAL.items():
-            if official_type not in allergy_types:
-                continue
-            p_level = pollen_level(official_type, row[column])
-            if p_level is None:
-                continue
-            score += row[column] / config.POLLEN_THRESHOLDS[official_type][0]
-            app_level = config.POLLEN_TO_LEVEL[p_level]
-            if app_level > level:
-                level, reason = app_level, f"polen de {config.POLLEN_NAMES[official_type].lower()}"
+        # pollen: the forecast level of that day, only for the types the person is allergic to
+        day_pollen = pollen_by_day.get(row["timestamp"].normalize())
+        if day_pollen is not None:
+            score += day_pollen[0]
+            if day_pollen[0] > level:
+                level, reason = day_pollen[0], f"polen de {day_pollen[1].lower()} (previsión)"
 
         levels.append(level)
         scores.append(score)
@@ -363,14 +381,29 @@ def assess(lat, lon, profile="general", allergy_types=(), now=None, demo=False):
     day_text = config.REPLAY_DATE if demo else None
     notes = []                                          # warnings for the app
 
-    # ---- FORECAST (Open-Meteo, for this exact point): chart, windows, pollen fallback
+    # ---- FORECAST for this place: OUR air model (nearest stations), OUR pollen model (nearest
+    # pollen station) and the weather forecast (Open-Meteo). Used for the hours and the best windows.
     all_hours, forecast_air = None, None
     try:
-        forecast_air = data.load_forecast_air(round(lat, 2), round(lon, 2), day_text)
+        forecast_air = air_predict.at_point(lat, lon, air_predict.forecast(demo, now))
+        if forecast_air is None:
+            raise ValueError("ninguna estación cercana tiene lecturas recientes")
         forecast_weather = data.load_forecast_weather(round(lat, 2), round(lon, 2), day_text)
-        all_hours = hourly_levels(forecast_air, forecast_weather, profile, allergy_types)
+        pollen_by_day = {}
+        if allergy_types:
+            try:
+                rows, _ = pollen_forecast_rows(lat, lon, demo)
+                for date in (today, today + pd.Timedelta(days=1)):
+                    entries = [pollen_forecast_entry(t, date, rows) for t in allergy_types]
+                    entries = [e for e in entries if e["level"] is not None]
+                    if entries:
+                        worst = max(entries, key=lambda e: e["level"])
+                        pollen_by_day[date] = (config.POLLEN_TO_LEVEL[worst["level"]], worst["name"])
+            except Exception as error:
+                notes.append(f"Sin previsión de polen para las próximas horas ({error}).")
+        all_hours = hourly_levels(forecast_air, forecast_weather, profile, pollen_by_day)
     except Exception as error:
-        notes.append(f"Sin previsión disponible, así que no hay mejores horas ({error}).")
+        notes.append(f"Sin previsión de calidad del aire, así que no hay mejores horas ({error}).")
 
     # ---- AIR (official station measurements)
     air_level, air_worst, air_readings, air_table = None, None, [], None
@@ -388,7 +421,7 @@ def assess(lat, lon, profile="general", allergy_types=(), now=None, demo=False):
         if now - oldest > pd.Timedelta(hours=6):
             notes.append(f"Algunas mediciones de aire son antiguas (del {oldest:%d/%m a las %H:%M}).")
 
-    # ---- POLLEN (station measurement; forecast only if there is no recent reading)
+    # ---- POLLEN (official station measurement; if no station has a recent reading there is no pollen level)
     pollen, pollen_table = None, None
     try:
         pollen_table = data.load_replay_pollen() if demo else data.load_pollen(today=today)
@@ -398,10 +431,6 @@ def assess(lat, lon, profile="general", allergy_types=(), now=None, demo=False):
     if pollen is None:
         notes.append("Sin lectura reciente de polen "
                      f"(ninguna estación tiene datos de los últimos {config.POLLEN_MAX_AGE_DAYS} días).")
-        if forecast_air is not None:
-            pollen = pollen_from_forecast(forecast_air, today)
-            if pollen:
-                notes.append("Se usa la PREVISIÓN de Open-Meteo para gramíneas y olivo (modelo, no medición).")
 
     # the allergy rule: only for the pollen types the person selected
     pollen_app_level, pollen_worst = None, None
@@ -420,7 +449,7 @@ def assess(lat, lon, profile="general", allergy_types=(), now=None, demo=False):
     # the model forecasts less pollen (see config.py, section 4).
     hours, windows = None, []
     if all_hours is not None:
-        if pollen_app_level and pollen["kind"] == "measurement":
+        if pollen_app_level:
             is_today = all_hours["timestamp"].dt.normalize() == today
             worse = is_today & (all_hours["level"] < pollen_app_level)
             all_hours.loc[worse, "level"] = pollen_app_level
@@ -443,12 +472,9 @@ def assess(lat, lon, profile="general", allergy_types=(), now=None, demo=False):
             f"categoría «{air_worst['category_name']}»",
             config.ICA_ADVICE_ES[audience][air_worst["category"]])
     if pollen_worst:
-        if pollen["kind"] == "measurement":
-            age = "de hoy" if pollen["age_days"] == 0 else f"de hace {pollen['age_days']} días"
-            where = (f"{pollen_worst['value']:.0f} granos/m³ en {pollen['station']}, "
-                     f"lectura del {pollen['reading_date']:%d/%m}, {age}")
-        else:
-            where = f"{pollen_worst['value']:.0f} granos/m³, PREVISIÓN de Open-Meteo para hoy"
+        age = "de hoy" if pollen["age_days"] == 0 else f"de hace {pollen['age_days']} días"
+        where = (f"{pollen_worst['value']:.0f} granos/m³ en {pollen['station']}, "
+                 f"lectura del {pollen['reading_date']:%d/%m}, {age}")
         pollen_text = f"Polen de {pollen_worst['name'].lower()} en nivel {pollen_worst['level_name']} ({where})."
         if pollen_app_level >= 1:                       # the leaflet's advice is for high-pollen days
             pollen_advice = (
@@ -480,7 +506,7 @@ def assess(lat, lon, profile="general", allergy_types=(), now=None, demo=False):
         "air_table": air_table,
         "pollen": pollen,
         "pollen_table": pollen_table,
-        "forecast": forecast_air,                       # None if there is no forecast
+        "forecast": forecast_air,                       # our air forecast for this place (None if there is none)
         "notes": notes,
         "time": now,
     }

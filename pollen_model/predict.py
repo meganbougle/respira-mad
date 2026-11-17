@@ -16,9 +16,8 @@ pollen_model/predict.py - makes pollen forecasts in the app with OUR model.
     MODEL_REPORT.md and model_choice.json): gradient boosting for most, ARIMAX
     for a few. Column `model` says which ("gb" or "arimax").
 
-    best_source(...) picks, for one pollen type and day, our model if it is
-    RELIABLE, otherwise the European forecast (grass and olive only),
-    otherwise nothing ("Sin previsión fiable").
+    best_source(...) gives, for one pollen type and day, our model's level if
+    it is RELIABLE, otherwise nothing ("Sin previsión fiable").
 
 The model itself is trained by train_pollen_model.py and stored in
 pollen_model/models.joblib. This file only uses it.
@@ -46,7 +45,6 @@ DAILY = {"temperature_2m_mean": "temp_mean", "temperature_2m_max": "temp_max", "
          "wind_speed_10m_max": "wind", "relative_humidity_2m_mean": "humidity"}
 
 OUR_MODEL = "Modelo propio de Respira MAD"
-EUROPEAN = "Previsión europea CAMS (Open-Meteo)"
 
 RECENT_DAYS = 14                    # how many days of readings recent_readings() keeps
 
@@ -319,17 +317,15 @@ def forecast(demo=False):
     return _live_forecast(data._madrid_now().strftime("%Y-%m-%d"))
 
 
-def best_source(pollen_type, lead, model_row, european_level):
+def best_source(pollen_type, model_row):
     """
-    Which forecast to trust for one pollen type and day:
-      1. our model, if that type + lead day was RELIABLE in the 2025 test;
-      2. otherwise the European forecast, if it has that type (grass, olive) and that day;
-      3. otherwise nothing.
-    Returns {"level": 0-3 or None, "source": text, "kind": "model" / "european" / "none", "accuracy": share or None}.
+    The forecast to show for one pollen type and day: our model, if that type
+    and lead day was RELIABLE in the test; otherwise nothing ("Sin previsión
+    fiable"). No other forecast is used: the data rule only allows forecasts
+    made from the official measurements.
+    Returns {"level": 0-3 or None, "source": text, "kind": "model" / "none", "accuracy": share or None}.
     """
     if model_row is not None and model_row["reliable"]:
         return {"level": int(model_row["predicted_level"]), "source": OUR_MODEL, "kind": "model",
                 "accuracy": model_row["accuracy"]}
-    if european_level is not None:
-        return {"level": int(european_level), "source": EUROPEAN, "kind": "european", "accuracy": None}
     return {"level": None, "source": "Sin previsión fiable", "kind": "none", "accuracy": None}
