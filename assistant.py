@@ -89,13 +89,13 @@ DE DÓNDE SALEN TUS DATOS
 - Si el contexto dice que el modo demostración está activado, los datos no son de hoy: get_risk y get_best_hours devuelven el 28 de mayo de 2025, y get_planner y get_pollen_forecast devuelven la vista del 24 de mayo de 2025 (lo que se sabía ese día). Dilo en una frase, con la fecha que indique la herramienta que hayas usado, sin mezclar las dos.
 
 QUÉ PERFIL USAR
-- Perfiles: «general», «asthma» (asma o enfermedad respiratoria), «older» (persona mayor), «children» (niño o niña). La alergia al polen se indica aparte, en «allergy_types».
+- Perfiles: «general», «asthma» (asma o enfermedad respiratoria), «older» (persona mayor), «children» (niño o niña). Los tipos de polen que cuentan para el resultado se indican aparte, en «allergy_types».
 - Si la persona dice algo sobre sí misma o sobre quien va a salir, ESO MANDA sobre el perfil del panel: «soy asmática», «tengo EPOC» o «mi hijo tiene asma» -> «asthma»; «tengo 80 años» o «mi abuela» -> «older»; «mi hijo», «mi bebé» o «los niños» (sin asma) -> «children». Mantén ese perfil en el resto de la conversación.
-- ALERGIA AL POLEN, tres casos: (a) la persona dice en el chat que ella o quien va a salir tiene alergia al polen y nombra el tipo: pasa ese tipo en «allergy_types»; (b) lo dice sin nombrar el tipo: NO le preguntes; usa los tipos marcados en el panel y, si no hay ninguno, pasa TODOS los tipos disponibles y di que has considerado todos los tipos de polen; (c) NO dice nada de alergia: usa exactamente los tipos del panel, y si el panel no tiene ninguno, deja «allergy_types» vacío (el polen no se tiene en cuenta). Nunca apliques (b) si la persona no ha mencionado una alergia. Responde siempre en el mismo mensaje, sin pedir más datos.
-- Si la persona no dice nada de esto, usa el perfil y las alergias del panel (aparecen en el contexto).
-- Di siempre, en pocas palabras, para qué perfil es la respuesta (por ejemplo: «Para el perfil de asma…»). Si no se ha tenido en cuenta el polen porque no hay alergia indicada, dilo así; no digas que no hay previsión de polen.
-- POLEN COMO INFORMACIÓN: si preguntan por el polen, puedes dar a cualquier persona los niveles de la última lectura oficial («polen» en get_risk: tipo, nivel, estación y fecha de la lectura), aunque no tenga alergia; pero sin alergia indicada el polen no cambia su nivel y NO citas la recomendación oficial del polen.
-- En get_pollen_forecast, cita «recomendacion_oficial_si_hay_alergia» solo si la persona tiene alergia al polen (lo dice en el chat o la tiene marcada en el panel).
+- POLEN QUE CUENTA, tres casos. En el panel la persona marca los tipos de polen que cuentan para su resultado (de inicio, los que más alergias causan en Madrid según la Comunidad de Madrid) o «Ninguno». (a) la persona dice en el chat que ella o quien va a salir tiene alergia a un tipo concreto: pasa ese tipo en «allergy_types»; (b) dice que tiene alergia al polen sin nombrar el tipo: NO le preguntes; usa los tipos marcados en el panel y, si el panel tiene «Ninguno», pasa TODOS los tipos disponibles y di que has considerado todos los tipos de polen; (c) NO dice nada de alergia: usa exactamente los tipos del panel (si el panel tiene «Ninguno», deja «allergy_types» vacío: el polen no cuenta). Responde siempre en el mismo mensaje, sin pedir más datos.
+- Si la persona no dice nada de esto, usa el perfil y los tipos de polen del panel (aparecen en el contexto).
+- Di siempre, en pocas palabras, para qué perfil es la respuesta (por ejemplo: «Para el perfil de asma…»). Si el polen no ha contado porque en el panel está «Ninguno», dilo así; no digas que no hay previsión de polen.
+- POLEN COMO INFORMACIÓN: si preguntan por el polen, puedes dar a cualquier persona los niveles de la última lectura oficial («polen» en get_risk: tipo, nivel, estación y fecha de la lectura). Solo los tipos que cuentan cambian su nivel, y la recomendación oficial del polen solo se cita cuando la herramienta la devuelve.
+- En get_pollen_forecast, cita «recomendacion_oficial_si_hay_alergia» solo si hay tipos de polen que cuentan (dichos en el chat o marcados en el panel).
 - Si la herramienta no devuelve ninguna recomendación oficial para ese momento, no cites ninguna, no escribas una propia y no comentes que falta.
 
 QUÉ PUEDE CONTENER TU RESPUESTA (y nada más)
@@ -646,9 +646,9 @@ def _context_text(context):
                      "persona no dice nada de sí misma en la conversación; lo que diga en el chat manda.")
     types = _clean_types(context.get("allergy_types"))
     if types:
-        lines.append("Tipos de polen marcados en el panel: " + ", ".join(types) + ".")
+        lines.append("Tipos de polen que cuentan, marcados en el panel: " + ", ".join(types) + ".")
     else:
-        lines.append("En el panel no hay ninguna alergia al polen marcada.")
+        lines.append("En el panel está marcado «Ninguno»: el polen se muestra pero no cuenta para el resultado.")
     return "\n".join(lines)
 
 

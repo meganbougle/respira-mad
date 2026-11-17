@@ -44,7 +44,8 @@ DEMO_DAYS = 7                     # the demo day and the 6 days after it
 BATCH_SIZE = 50                   # grid cells per request
 RETRY_WAITS = [2, 5, 12]          # seconds to wait before each new try (backoff)
 MAX_RETRY_AFTER = 20              # never wait longer than this, even if Open-Meteo asks for more
-TIMEOUT = 30
+TIMEOUT = 30                      # seconds; background requests
+VISITOR_TIMEOUT = 8               # seconds; when a visitor is waiting, give up sooner and use the cached copy
 NEAREST_CELL_MAX = 0.3            # if a cell has no data at all, borrow a cached cell up to ~30 km away
 
 FOLDER = Path(__file__).parent / "backup" / "weather"
@@ -81,7 +82,7 @@ def _age_seconds(path):
     return time.time() - path.stat().st_mtime
 
 
-def get_json(url, params, retries=len(RETRY_WAITS)):
+def get_json(url, params, retries=len(RETRY_WAITS), timeout=TIMEOUT):
     """
     One request to Open-Meteo, retried with backoff when it fails (`retries` times at most).
     Raises the last error if every try fails (the caller then uses the cache).
@@ -90,7 +91,7 @@ def get_json(url, params, retries=len(RETRY_WAITS)):
     for attempt in range(retries + 1):
         wait = RETRY_WAITS[min(attempt, len(RETRY_WAITS) - 1)]
         try:
-            response = requests.get(url, params=params, timeout=TIMEOUT)
+            response = requests.get(url, params=params, timeout=timeout)
             if response.status_code == 429 or response.status_code >= 500:
                 # too many requests / server trouble: wait (as long as Open-Meteo asks, within limits) and try again
                 retry_after = response.headers.get("Retry-After", "")
@@ -124,7 +125,7 @@ def _to_table(answer, grid_cell):
 # Fetching (several grid cells per request)
 # ----------------------------------------------------------------------------
 
-def fetch_cells(cells, day=None, retries=len(RETRY_WAITS)):
+def fetch_cells(cells, day=None, retries=len(RETRY_WAITS), timeout=TIMEOUT):
     """
     Download the hourly weather of several grid cells, in batches, and save
     each one to its cache file. Returns {cell: table} for the cells that worked.
@@ -148,7 +149,7 @@ def fetch_cells(cells, day=None, retries=len(RETRY_WAITS)):
             params["forecast_days"] = FORECAST_DAYS
             url = FORECAST_URL
         try:
-            answer = get_json(url, params, retries)
+            answer = get_json(url, params, retries, timeout)
         except Exception as error:
             log.warning("Open-Meteo batch of %d cells failed: %s", len(batch), error)
             continue                                    # the other batches may still work
@@ -202,7 +203,7 @@ def hourly(lat, lon, day=None, days=2):
     else:
         # 2. ask Open-Meteo. A visitor is waiting, so: one quick try if an older copy exists, else one retry.
         #    (The hourly background prefetch is the one that retries patiently.)
-        table = fetch_cells([grid_cell], day, retries=0 if path.exists() else 1).get(grid_cell)
+        table = fetch_cells([grid_cell], day, retries=0 if path.exists() else 1, timeout=VISITOR_TIMEOUT).get(grid_cell)
         if table is None:
             # 3. Open-Meteo failed: an older copy of this cell, or of the nearest cell that has one
             live = False

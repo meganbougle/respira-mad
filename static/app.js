@@ -22,8 +22,7 @@ const isPhoneLayout = () => window.innerWidth < 900;   // map on top and panel b
 const state = {
   lat: null, lon: null, placeName: "",
   profile: "general",
-  allergic: false,
-  types: new Set(["Gramíneas"]),
+  types: new Set(),         // pollen types that count for the result; filled with the official defaults at start (empty = "Ninguno")
   demo: false,
   hour: 10,                 // only used in demo mode
   selectedHour: null,       // the hour tapped in the strip
@@ -71,7 +70,7 @@ function commonParams() {
   return {
     lat: state.lat.toFixed(5), lon: state.lon.toFixed(5),
     profile: state.profile,
-    allergy_types: state.allergic ? [...state.types].join("|") : "",
+    allergy_types: [...state.types].join("|"),
     demo: state.demo,
     hour: state.demo ? state.hour : null,
   };
@@ -122,20 +121,27 @@ function buildControls() {
     refresh();
   });
 
-  // pollen allergy switch + type chips (pick several)
+  // pollen types as filters (pick several). Selected by default: the types the Comunidad de Madrid names as
+  // the main causes of pollen allergy in the region. "Ninguno": pollen is shown but does not change the result.
+  state.types = new Set(config.pollen_default);
+  $("types-help").innerHTML = `Marcados de inicio: los tipos que más alergias causan en Madrid, según la `
+    + `<a href="${esc(config.pollen_default_url)}" target="_blank" rel="noopener">Comunidad de Madrid</a>. «Ninguno»: el polen se muestra pero no cambia tu resultado.`;
   $("pollen-types").innerHTML = config.pollen_types.map((t) =>
-    `<button class="chip" type="button" data-key="${esc(t.key)}" aria-pressed="${state.types.has(t.key)}">${esc(t.label)}</button>`).join("");
-  $("allergy").addEventListener("change", (event) => {
-    state.allergic = event.target.checked;
-    $("pollen-types").hidden = !state.allergic;
-    refresh();
-  });
+    `<button class="chip" type="button" data-key="${esc(t.key)}">${esc(t.label)}</button>`).join("")
+    + '<button class="chip chip-none" type="button" data-key="">Ninguno</button>';
+  const drawTypeChips = () => {
+    for (const chip of $("pollen-types").children) {
+      chip.setAttribute("aria-pressed", chip.dataset.key ? state.types.has(chip.dataset.key) : state.types.size === 0);
+    }
+  };
+  drawTypeChips();
   $("pollen-types").addEventListener("click", (event) => {
     const chip = event.target.closest(".chip");
     if (!chip) return;
     const key = chip.dataset.key;
-    if (state.types.has(key)) state.types.delete(key); else state.types.add(key);
-    chip.setAttribute("aria-pressed", state.types.has(key));
+    if (!key) state.types.clear();                                  // "Ninguno"
+    else if (state.types.has(key)) state.types.delete(key); else state.types.add(key);
+    drawTypeChips();
     refresh();
   });
 
@@ -301,7 +307,7 @@ function drawRisk(risk) {
   card.style.setProperty("--level-bg", level ? level.color : "#dfe5e2");
   card.style.setProperty("--level-ink", level ? level.text_color : "#14201b");
   $("result-icon").innerHTML = level ? ICONS[risk.level_index] : "";
-  $("result-label").textContent = risk.level_label;
+  $("result-label").textContent = risk.headline;      // the level with its cause, e.g. "Precaución por polen de gramíneas"
   // the same name for the point everywhere: card, dropdown and (later) the chat
   state.placeName = risk.place_label;
   const custom = $("place").querySelector(`option[value="${CUSTOM_PLACE}"]`);
@@ -343,11 +349,9 @@ function drawRisk(risk) {
     const head = `<b>Polen</b> · ${esc(pollen.station)} (${num(pollen.distance_km, 1)} km) · lectura del ${ddmm(pollen.reading_date)}, <b>${age}</b>`;
     // the main types: the ones that count for you, any above "bajo", and at least the top 3 (the list comes worst first)
     const shown = pollen.types.filter((t, i) => t.counts_for_you || t.level > 0 || i < 3).slice(0, 6);
-    const foot = !state.allergic
-      ? "Solo informativo: no cambia tu resultado. Para que cuente, activa «Tengo alergia al polen»."
-      : state.types.size
-        ? "Solo cuentan para tu resultado los tipos que has elegido («cuenta para ti»)."
-        : "Elige arriba tus tipos de polen para que cuenten en tu resultado.";
+    const foot = state.types.size
+      ? "Solo cuentan para tu resultado los tipos marcados arriba («cuenta para ti»); el resto es informativo."
+      : "Has elegido «Ninguno»: el polen se muestra, pero no cambia tu resultado.";
     box.innerHTML = `<div class="pollen-head">${head}</div>` + shown.map((t) => `
       <div class="pollen-row ${t.counts_for_you ? "counts" : ""}">
         <span>${esc(t.name)}${t.counts_for_you ? '<span class="pollen-you">cuenta para ti</span>' : ""}</span>
@@ -495,7 +499,7 @@ function highlightStations() {
   // which pollutants each air station supplies, and the pollen station (only if pollen counts for this person)
   const airUse = {};
   for (const a of lastRisk.air) (airUse[`${a.station}|${a.source}`] = airUse[`${a.station}|${a.source}`] || []).push(a.pollutant);
-  const pollenUsed = state.allergic && lastRisk.pollen && lastRisk.pollen.kind === "measurement" ? lastRisk.pollen.station : null;
+  const pollenUsed = lastRisk.pollen && lastRisk.pollen.kind === "measurement" ? lastRisk.pollen.station : null;
   for (const entry of stationMarkers) {
     entry.usedFor = entry.kind === "air" ? airUse[`${entry.name}|${entry.source}`] : (entry.name === pollenUsed ? ["polen"] : null);
     const used = Boolean(entry.usedFor);
@@ -559,7 +563,7 @@ const info = {
   hours: { title: "Mejores horas", html:
     "<p><b>Previsión</b> de nuestro modelo de calidad del aire, hecho con las mediciones oficiales de las estaciones más cercanas; no son mediciones. La temperatura y la lluvia son de Open-Meteo.</p>"
     + "<p>Cada barra es una hora de las próximas 24, empezando por la actual, de día y de noche. La línea vertical marca la medianoche. La estrella marca las mejores franjas de tres horas. En el móvil, desliza hacia la izquierda para ver más horas.</p>"
-    + "<p>Si tienes alergia y la última medición de polen es alta, ninguna hora de hoy aparece mejor que esa medición.</p>" },
+    + "<p>Si la última medición de polen de los tipos que cuentan para ti es medio o más, ninguna hora de hoy aparece mejor que esa medición.</p>" },
   measurements: { title: "Mediciones cerca de ti", html:
     "<p>Son <b>mediciones oficiales</b> de la estación más cercana que mide cada contaminante (redes de la Comunidad de Madrid y del Ayuntamiento de Madrid).</p>"
     + "<p>El valor es el que usa el Índice Nacional de Calidad del Aire: media de la última hora (NO2), de hasta 8 horas (O3) o de hasta 24 horas (PM10 y PM2.5), calculada con las horas del día en curso.</p>"
@@ -679,10 +683,14 @@ function plannerDetail(day, block) {
   html += `<p>${esc(block.basis)}</p>`;
   if (block.next_day) html += `<p>Esta madrugada pertenece a la noche ${day.label === "Hoy" ? "de hoy" : `del ${esc(day.label.toLowerCase())}`}: son las primeras horas del día ${ddmm(block.date)}.</p>`;
 
-  html += "<h4>Polen (previsión para ese día)</h4>";
+  // pollen of that day: always shown; only the types marked in the panel count for the level
+  html += "<h4>Polen de ese día</h4>";
   if (!block.pollen.length) {
-    html += "<p>No has marcado alergia al polen, así que el polen no cuenta para este nivel.</p>";
+    html += "<p>Sin datos de polen para este día.</p>";
   } else {
+    const counted = block.pollen.some((p) => p.counts);
+    html += counted ? "<p>Cuentan para el nivel los tipos marcados con «cuenta para ti»; el resto es informativo.</p>"
+      : "<p>Has elegido «Ninguno»: el polen se muestra, pero no cuenta para este nivel.</p>";
     html += "<ul>" + block.pollen.map((p) => {
       const chip = p.kind === "model" ? '<span class="source-chip">Nuestro modelo</span>'
         : p.kind === "measurement" ? '<span class="source-chip is-measured">Medición oficial</span>'
@@ -691,7 +699,7 @@ function plannerDetail(day, block) {
       const level = p.level_name ? `nivel <b>${esc(p.level_name)}</b>` : "sin nivel";
       const why = p.kind === "none" ? " Nuestro modelo no superó la prueba para este tipo y antelación."
         : p.kind === "measurement" ? ` ${esc(p.source)}.` : "";
-      return `<li><b>${esc(p.name)}</b>: ${level} ${chip}${accuracy}${why}</li>`;
+      return `<li><b>${esc(p.name)}</b>${p.counts ? " · cuenta para ti" : ""}: ${level} ${chip}${accuracy}${why}</li>`;
     }).join("") + "</ul>";
   }
 
@@ -859,7 +867,7 @@ function drawPollenChart(data) {
   ].filter(Boolean).join(" ");
 
   if (!data.series.length) {
-    chartEmpty("Activa «Tengo alergia al polen» y elige uno o más tipos para ver sus lecturas y su previsión. Mientras tanto puedes ver la previsión del aire.");
+    chartEmpty("No hay lecturas ni previsión de polen para este punto. Puedes ver la previsión del aire.");
     return;
   }
 
@@ -1128,7 +1136,7 @@ async function sendChat(text) {
         // what the panel already knows, so the assistant can use it
         context: {
           lat: state.lat, lon: state.lon, place: state.placeName, profile: state.profile,
-          allergy_types: state.allergic ? [...state.types] : [],
+          allergy_types: [...state.types],
           demo: state.demo, hour: state.demo ? state.hour : null,
         },
       }),

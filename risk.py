@@ -143,6 +143,11 @@ def place_name(lat, lon, places=None):
 # Air: nearest station with data for each pollutant (MEASUREMENTS)
 # ----------------------------------------------------------------------------
 
+# How each pollutant is named when it is the cause of the level (in the headline)
+POLLUTANT_CAUSE = {"NO2": "el dióxido de nitrógeno (NO2)", "O3": "el ozono (O3)",
+                   "PM10": "las partículas (PM10)", "PM2.5": "las partículas finas (PM2,5)"}
+
+
 def is_stale(timestamp, now):
     """True if a reading is too old to describe "now" (config.STALE_HOURS)."""
     return now is not None and now - timestamp > pd.Timedelta(hours=config.STALE_HOURS)
@@ -579,9 +584,20 @@ def assess(lat, lon, profile="general", allergy_types=(), now=None, demo=False):
     reason = " ".join(text for text, _ in ordered if text) or "No hay mediciones disponibles en este momento."
     recommendations = [advice for _, advice in ordered if advice]
 
+    # ---- the headline names its cause: "Precaución por polen de gramíneas", "Mejor quédate en casa por el ozono (O3)"
+    cause = None
+    if level:                                           # "Puedes salir" needs no cause
+        if pollen_first:
+            cause = f"polen de {pollen_worst['name'].lower()}"
+        elif air_worst:
+            cause = POLLUTANT_CAUSE.get(air_worst["pollutant"], air_worst["pollutant"])
+    headline = config.LEVEL_LABELS[level] + (f" por {cause}" if cause else "") if level is not None else None
+
     return {
         "profile": profile,
         "level_index": level,
+        "headline": headline,                           # the level with its cause
+        "cause": cause,
         "level": config.LEVELS[level] if level is not None else "unknown",
         "reason": reason,
         "recommendations": recommendations,             # list of (source, official text)

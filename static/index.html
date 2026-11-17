@@ -91,15 +91,12 @@
       <h2 class="block-title">Tu perfil</h2>
       <div class="chips chips-profile" id="profiles" role="radiogroup" aria-label="Perfil"></div>
 
-      <label class="switch-row" for="allergy">
-        <span>
-          <span class="switch-title">Tengo alergia al polen</span>
-          <span class="switch-help">Solo cuenta para los tipos que elijas</span>
-        </span>
-        <input type="checkbox" id="allergy" role="switch">
-        <span class="switch" aria-hidden="true"></span>
-      </label>
-      <div class="chips chips-small" id="pollen-types" hidden aria-label="Tipos de polen"></div>
+      <!-- pollen types as filters: the selected ones count for the result; pollen is shown to everyone anyway -->
+      <div class="types-head">
+        <span class="switch-title" id="types-title">Polen que cuenta para tu resultado</span>
+        <span class="switch-help" id="types-help">Marcados: los tipos que más alergias causan en Madrid, según la Comunidad de Madrid.</span>
+      </div>
+      <div class="chips chips-small" id="pollen-types" role="group" aria-labelledby="types-title"></div>
     </section>
 
     <!-- the result: level, reason and the official recommendation, all in one card -->

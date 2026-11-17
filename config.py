@@ -228,9 +228,22 @@ POLLEN_MAX_AGE_DAYS = 10
 # APP DECISION: how the four pollen levels become the app's three levels.
 # One number per pollen level (bajo, medio, alto, muy alto):
 #   bajo = good, medio = be careful, alto and muy alto = stay in.
-# It is only applied to people who tick "Tengo alergia al polen", and only
-# for the pollen types they select.
+# It is only applied to the pollen types selected in the panel ("Polen que
+# cuenta para tu resultado"). With "Ninguno" pollen is shown but never
+# changes the result.
 POLLEN_TO_LEVEL = [0, 1, 2, 2]
+
+# The types selected by default, the same for every profile (no official
+# source gives a different list per profile). Official source: the Comunidad
+# de Madrid page "Polen y alergias" (checked 17 Nov 2026):
+#   "La Red Palinocam ... Ofrece información de los principales tipos de polen
+#   responsables de alergia y polinosis en nuestra región, como son los
+#   procedentes de cupresáceas, plátano de paseo, gramíneas, plantago y olivo."
+#   https://www.comunidad.madrid/salud/polen
+# All five have official thresholds (keys of POLLEN_THRESHOLDS below).
+POLLEN_DEFAULT_TYPES = ["Cupresáceas/Taxáceas", "Plátano de paseo", "Gramíneas", "Plantago", "Olivo"]
+POLLEN_DEFAULT_SOURCE = "Comunidad de Madrid, «Polen y alergias»"
+POLLEN_DEFAULT_URL = "https://www.comunidad.madrid/salud/polen"
 
 # Friendly Spanish names for the pollen types that have official thresholds
 # (shown in the app's multi-select). The keys must match POLLEN_THRESHOLDS.

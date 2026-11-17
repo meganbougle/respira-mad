@@ -81,11 +81,12 @@ def unexpected_error(request: Request, error: Exception):
 
 
 # ----------------------------------------------------------------------------
-# Weather prefetch: every hour, in the background, the weather of the 29
-# dropdown places and of every station is refreshed in a few batched requests
-# (weather.py), so visitors almost never wait for Open-Meteo.
+# Background job, every 10 minutes: refresh the weather of the 29 dropdown
+# places and every station when it is over 1 hour old (a few batched requests,
+# weather.py), and recompute our air (15-min cache) and pollen (6-h cache)
+# forecasts when they expire, so visitors almost never wait for them.
 # ----------------------------------------------------------------------------
-PREFETCH_EVERY_SECONDS = 60 * 60
+PREFETCH_EVERY_SECONDS = 10 * 60      # the loop wakes every 10 minutes; the weather itself is only refreshed hourly
 
 
 def _prefetch_loop():
@@ -191,6 +192,9 @@ def get_config():
     return {
         "profiles": [{"key": key, "label": p["label"], "short": p["short"]} for key, p in config.PROFILES.items()],
         "doubtful_color": config.DOUBTFUL_COLOR,
+        # the pollen types selected by default (official source in config.py)
+        "pollen_default": config.POLLEN_DEFAULT_TYPES,
+        "pollen_default_source": config.POLLEN_DEFAULT_SOURCE, "pollen_default_url": config.POLLEN_DEFAULT_URL,
         # each pollen type with the forecast model that won the 2025 comparison (MODEL_REPORT.md)
         "pollen_types": [{"key": key, "label": label, "model": chart.model_label(key)}
                          for key, label in config.POLLEN_NAMES.items()],
@@ -275,6 +279,8 @@ def get_risk(lat: float = LAT, lon: float = LON, profile: str = "general",
     return clean({
         "level_index": index,
         "level_label": config.LEVEL_LABELS[index] if index is not None else "Sin datos",
+        "headline": result["headline"] or (config.LEVEL_LABELS[index] if index is not None else "Sin datos"),
+        "cause": result["cause"],
         "profile_label": config.PROFILES[profile]["label"],
         "place_label": risk.place_name(lat, lon, dropdown_places()),   # the same name everywhere
         "reason": result["reason"],

@@ -191,15 +191,21 @@ al polen", word for word.
   the profile note quotes it (`OLDER_NOTE`, `CHILDREN_NOTE` in `config.py`).
 - **Only official texts.** Every recommendation shown (app and assistant) is an
   official text quoted word for word with its source. Where none exists (pollen
-  for someone without the allergy switch, pollen at "bajo", the planner cells)
-  nothing is shown; we never write advice of our own.
-- **Pollen for everyone:** the latest official pollen reading (main types, level,
-  reading date) is always shown as information; only the allergy switch makes
-  pollen count for the result and brings the pollen recommendation.
-- Pollen allergy is a checkbox plus a multi-select of the 10 pollen types with
-  thresholds, not a profile. Rule: medio = Precaución, alto or muy alto = stay
-  in, only for the selected types. Without the checkbox pollen never changes
-  the level (asthma without allergy uses air only).
+  with "Ninguno" or at "bajo", pollen advice per profile, air and pollen
+  combined) nothing is shown; we never write advice of our own.
+- **Pollen types are filters** ("Polen que cuenta para tu resultado", 17 Nov
+  2026; the allergy switch is gone): the 10 types with thresholds as chips plus
+  "Ninguno". Selected by default, for every profile: cupresáceas, plátano de
+  paseo, gramíneas, plantago and olivo, the "principales tipos de polen
+  responsables de alergia y polinosis en nuestra región" according to the
+  Comunidad's page "Polen y alergias" (`POLLEN_DEFAULT_TYPES`). Rule: medio =
+  Precaución, alto or muy alto = stay in, only for the selected types; with
+  "Ninguno" pollen is shown but never changes the level. Pollen readings,
+  estimates and forecasts are shown to everyone (tile, planner panel, chart,
+  map); with "Ninguno" the planner and chart show the five default types as
+  information.
+- **Headline names its cause:** `risk.assess()` returns `headline`, e.g.
+  "Precaución por polen de gramíneas" or "Mejor quédate en casa por el ozono (O3)".
 - Pollen cutoff 10 days. If no station qualifies: "Sin lectura reciente de
   polen" and pollen does not change the level (no outside forecast, data rule).
 - Overall level = the worse of air and pollen; the worse one gives the main

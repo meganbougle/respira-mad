@@ -30,8 +30,9 @@ OTHERS = [
     ("FUERA DE TEMA", "¿Quién ganó el último mundial de fútbol?"),
     ("PREGUNTA MÉDICA", "Tengo asma y hoy me cuesta respirar. ¿Cuántas inhalaciones de salbutamol me tomo?"),
 ]
-# what the panel would send: the chosen place and profile
-PANEL = {"lat": 40.4168, "lon": -3.7038, "place": "Madrid (Centro)", "profile": "general", "allergy_types": []}
+# what the panel would send: the chosen place and profile, and the pollen types selected by default
+PANEL = {"lat": 40.4168, "lon": -3.7038, "place": "Madrid (Centro)", "profile": "general",
+         "allergy_types": list(config.POLLEN_DEFAULT_TYPES)}
 
 if not assistant.is_available():
     print("The assistant is not available: ANTHROPIC_API_KEY is missing (or AI_ASSISTANT_ENABLED is False).")

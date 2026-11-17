@@ -44,8 +44,9 @@ def pollen_chart(lat, lon, allergy_types=(), demo=False):
     result = {"today": today, "demo": demo, "station": None, "series": [], "notes": [],
               "levels": config.POLLEN_LEVELS, "interval": predict.model_choice().get("interval", 0.8),
               "first_day": today - pd.Timedelta(days=OBSERVED_DAYS), "last_day": today + pd.Timedelta(days=5)}
-    if not allergy_types:
-        return result
+    # pollen is shown to everyone: the selected types, or (with "Ninguno") the official main types
+    counted = set(allergy_types)
+    allergy_types = list(allergy_types) or list(config.POLLEN_DEFAULT_TYPES)
 
     # ---- our model at the nearest pollen station WITH RECENT DATA (the same station the planner uses):
     # estimates for the days since its last reading (nowcast) + the forecast from today on
@@ -106,6 +107,7 @@ def pollen_chart(lat, lon, allergy_types=(), demo=False):
             predicted.append(point)
 
         result["series"].append({"key": pollen_type, "name": config.POLLEN_NAMES[pollen_type], "thresholds": thresholds,
+                                 "counts": pollen_type in counted,
                                  "observed": observed, "forecast": predicted,
                                  "model": model_label(pollen_type)})
     if any(not s["forecast"] for s in result["series"]):

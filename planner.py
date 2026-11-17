@@ -104,28 +104,33 @@ def plan(lat, lon, profile="general", allergy_types=(), now=None, demo=False):
     except Exception as error:
         notes.append(data.problem("Sin previsión del tiempo para este punto.", error))
 
-    # ---- our pollen model: the nearest pollen station that has a forecast
+    # ---- POLLEN IS SHOWN TO EVERYONE. The types selected in the panel count for the level;
+    # with "Ninguno" (no type selected) the official main types are shown as information only.
+    shown_types = list(allergy_types) or list(config.POLLEN_DEFAULT_TYPES)
+
+    # ---- our pollen model: the nearest pollen station with recent data
     model_rows, model_station = None, None
-    if allergy_types:
-        try:
-            model_rows, model_station = risk.pollen_forecast_rows(lat, lon, demo)
-        except Exception as error:
-            notes.append(data.problem("Nuestro modelo de polen no está disponible ahora.", error))
+    try:
+        model_rows, model_station = risk.pollen_forecast_rows(lat, lon, demo)
+    except Exception as error:
+        notes.append(data.problem("Nuestro modelo de polen no está disponible ahora.", error))
 
     # ---- today's latest official reading (live mode only): today can never look better than what was measured
     measured = None
-    if allergy_types and not demo:
+    if not demo:
         try:
             measured = risk.pollen_near(lat, lon, data.load_pollen(today=today))
         except Exception:
             pass
 
-    # ---------------- pollen for each CALENDAR day (lead 0 = today), one entry per selected type
+    # ---------------- pollen for each CALENDAR day (lead 0 = today), one entry per shown type;
+    # only the selected types ("counts") make the app level
     def pollen_of(lead):
         date = today + pd.Timedelta(days=lead)
         entries, app_level = [], None
-        for pollen_type in allergy_types:
+        for pollen_type in shown_types:
             entry = risk.pollen_forecast_entry(pollen_type, date, model_rows)
+            entry["counts"] = pollen_type in allergy_types
             # today: the official reading is a floor (same rule as the main card)
             if lead == 0 and measured:
                 reading = next((t for t in measured["types"] if t["pollen_type"] == pollen_type), None)
@@ -133,7 +138,7 @@ def plan(lat, lon, profile="general", allergy_types=(), now=None, demo=False):
                     entry.update(level=reading["level"], level_name=reading["level_name"], kind="measurement", accuracy=None,
                                  source=f"Medición de {measured['station']} del {measured['reading_date']:%d/%m} "
                                         f"(hace {measured['age_days']} días)")
-            if entry["level"] is not None:
+            if entry["level"] is not None and entry["counts"]:
                 level = config.POLLEN_TO_LEVEL[entry["level"]]
                 app_level = level if app_level is None else max(app_level, level)
             entries.append(entry)
@@ -145,7 +150,10 @@ def plan(lat, lon, profile="general", allergy_types=(), now=None, demo=False):
     for lead in range(config.PLANNER_DAYS):
         date = today + pd.Timedelta(days=lead)
         pollen_entries = pollen_by_lead[lead][0]
-        worst_pollen = max((p for p in pollen_entries if p["level"] is not None), key=lambda p: p["level"], default=None)
+        worst_pollen = max((p for p in pollen_entries if p["level"] is not None and p["counts"]),
+                           key=lambda p: p["level"], default=None)
+        # the day's pollen level for display (every shown type, counted or not): beyond the air horizon too
+        shown_pollen = max((p for p in pollen_entries if p["level"] is not None), key=lambda p: p["level"], default=None)
 
         # ---------------- the four parts of the day
         blocks = []
@@ -244,12 +252,17 @@ def plan(lat, lon, profile="general", allergy_types=(), now=None, demo=False):
             blocks.append(block)
 
         gap = int((date - model_station["last_reading"]).days) if model_station else None
-        confidence, confidence_reason = _confidence(lead, pollen_entries, gap)
+        # the confidence describes what the level depends on: only the pollen types that count
+        confidence, confidence_reason = _confidence(lead, [p for p in pollen_entries if p["counts"]], gap)
         days.append({
             "date": date, "lead": lead,
             "label": "Hoy" if lead == 0 and not demo else f"{WEEKDAYS[date.dayofweek]} {date.day}",
             "pollen": pollen_entries,
             "worst_pollen": worst_pollen["name"] if worst_pollen else None,
+            # the highest pollen level of the shown types that day (for display; may not count for the level)
+            "shown_pollen": ({"name": shown_pollen["name"], "level": shown_pollen["level"],
+                              "level_name": shown_pollen["level_name"], "counts": shown_pollen["counts"]}
+                             if shown_pollen else None),
             "confidence": confidence, "confidence_reason": confidence_reason,
             "blocks": blocks,
         })

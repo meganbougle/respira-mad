@@ -194,14 +194,10 @@ select:focus-visible, .btn:focus-visible, .chip:focus-visible, .hour:focus-visib
 .chips-small .chip { padding: 5px 10px; font-size: 12.500px; }
 .chips-small .chip[aria-pressed="true"] { background: var(--brand); border-color: var(--brand); }
 
-.switch-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); cursor: pointer; }
+.types-head { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); margin-bottom: 8px; }
+.chip-none { border-style: dashed; }      /* "Ninguno": pollen shown, but it does not change the result */
 .switch-title { display: block; font-weight: 600; }
 .switch-help { display: block; font-size: 12px; color: var(--ink-faint); }
-.switch-row input { position: absolute; opacity: 0; pointer-events: none; }
-.switch { width: 46px; height: 28px; border-radius: 999px; background: #cdd5d1; position: relative; flex: none; transition: background-color .25s; }
-.switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, .3); transition: transform .25s; }
-.switch-row input:checked + .switch { background: var(--brand); }
-.switch-row input:checked + .switch::after { transform: translateX(18px); }
 
 /* ---------------- result card ---------------- */
 .result {

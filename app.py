@@ -76,15 +76,16 @@ with st.sidebar:
     st.header("Tu perfil")
     profile = st.selectbox("Perfil", list(config.PROFILES),
                            format_func=lambda key: config.PROFILES[key]["label"])
-    allergic = st.checkbox("Tengo alergia al polen")
-    allergy_types = []
-    if allergic:
-        allergy_types = st.multiselect(
-            "¿A qué tipos de polen?", list(config.POLLEN_THRESHOLDS),
-            default=["Gramíneas"], format_func=lambda key: config.POLLEN_NAMES[key],
-            help="Solo aparecen los tipos de polen que tienen umbrales oficiales de la Red Palinocam.")
-        if not allergy_types:
-            st.caption("Elige al menos un tipo de polen para tenerlo en cuenta.")
+    # pollen types as filters: the selected ones count for the result (pollen is shown to everyone anyway).
+    # Default: the types the Comunidad de Madrid names as the main causes of pollen allergy (config.py).
+    allergy_types = st.multiselect(
+        "Polen que cuenta para tu resultado", list(config.POLLEN_THRESHOLDS),
+        default=config.POLLEN_DEFAULT_TYPES, format_func=lambda key: config.POLLEN_NAMES[key],
+        placeholder="Ninguno",
+        help="Marcados de inicio: los tipos que más alergias causan en Madrid, según la Comunidad de Madrid "
+             "(«Polen y alergias»). Solo aparecen los tipos con umbrales oficiales de la Red Palinocam.")
+    if not allergy_types:
+        st.caption("Ninguno: el polen se muestra, pero no cambia tu resultado.")
 
     st.header("Ubicación")
     place = st.selectbox("Municipio", list(places), on_change=use_dropdown_place)
@@ -143,7 +144,7 @@ else:
         <div style="background:{config.LEVEL_COLORS[index]}; color:{config.LEVEL_TEXT_COLORS[index]};
                     border-radius:18px; padding:24px 18px; text-align:center; margin-bottom:12px;">
           <div style="line-height:1.1;">{config.icon_img(config.LEVEL_ICONS[index], config.LEVEL_TEXT_COLORS[index], 44)}</div>
-          <div style="font-size:2rem; font-weight:700; line-height:1.2;">{config.LEVEL_LABELS[index]}</div>
+          <div style="font-size:2rem; font-weight:700; line-height:1.2;">{result["headline"]}</div>
           <div style="font-size:1rem; margin-top:8px;">{config.PROFILES[profile]['label']} · {place_label}</div>
         </div>
         """,
@@ -192,8 +193,8 @@ if pollen:
         "Nivel (Red Palinocam)": t["level_name"],
         "Cuenta para ti": "Sí" if t["pollen_type"] in allergy_types else "No",
     } for t in shown]), hide_index=True, width="stretch")
-    st.caption("Los tipos marcados como «Sí» cuentan para tu resultado." if allergy_types else
-               "Solo informativo: no cambia tu resultado. Para que cuente, marca «Tengo alergia al polen».")
+    st.caption("Los tipos marcados como «Sí» cuentan para tu resultado; el resto es informativo." if allergy_types else
+               "Ninguno: el polen se muestra, pero no cambia tu resultado.")
 else:
     st.caption(f"Sin lectura reciente de polen en ninguna estación (últimos {config.POLLEN_MAX_AGE_DAYS} días).")
 

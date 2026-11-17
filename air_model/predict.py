@@ -104,7 +104,7 @@ def _fetch_weather():
     centres = meta()["zone_centres"]
     days_ahead = min(horizon_hours() // 24 + 2, 16)
     # one request for the 8 zones, retried with backoff if Open-Meteo is busy (weather.py)
-    answer = weather.get_json(FORECAST_URL, {
+    answer = weather.get_json(FORECAST_URL, retries=1, timeout=weather.VISITOR_TIMEOUT, params={
         "latitude": ",".join(str(lat) for lat, _ in centres), "longitude": ",".join(str(lon) for _, lon in centres),
         "hourly": ",".join(HOURLY), "timezone": "Europe/Madrid", "past_days": 3, "forecast_days": days_ahead})
     answer = answer if isinstance(answer, list) else [answer]
