@@ -268,16 +268,32 @@ def pollen_near(lat, lon, pollen):
 
 def pollen_forecast_rows(lat, lon, demo=False):
     """
-    OUR pollen model's forecast at the nearest pollen station that has one.
-    Returns (rows of that station, {"station", "distance_km"}), or (None, None).
+    OUR pollen model's forecast at the nearest pollen station WITH RECENT DATA
+    (a reading in the last config.POLLEN_MAX_AGE_DAYS days; others are skipped).
+    Includes the nowcast rows (estimates for the days since its last reading).
+    Returns (rows of that station, {"station", "distance_km", "last_reading", "skipped"}),
+    or (None, None). "skipped" names the nearer stations left out for having no recent reading.
     """
     table = pollen_predict.forecast(demo)
     if table.empty:
         return None, None
     table = _add_distance(table, lat, lon)
-    nearest = table.iloc[0]
-    rows = table[table["station"] == nearest["station"]]
-    return rows, {"station": nearest["station"], "distance_km": round(float(nearest["distance_km"]), 1)}
+    nowcast = table["nowcast"].fillna(False).astype(bool) if "nowcast" in table else pd.Series(False, index=table.index)
+    issued_today = table[(table["lead"] == 0) & ~nowcast]
+    issue_day = issued_today["issue_date"].max()
+    if "last_reading" in issued_today and issued_today["last_reading"].notna().any():
+        last = issued_today.groupby("station", sort=False)["last_reading"].max()      # the station's real latest reading
+    else:                                                                            # (older tables: from the model's input age)
+        last = issue_day - pd.to_timedelta(issued_today.groupby("station", sort=False)["last_age"].min(), unit="D")
+    usable = last[(issue_day - last).dt.days <= config.POLLEN_MAX_AGE_DAYS]
+    if usable.empty:
+        return None, None
+    order = list(issued_today.drop_duplicates("station")["station"])          # nearest first
+    chosen = next(name for name in order if name in usable.index)
+    skipped = [name for name in order[:order.index(chosen)]]
+    rows = table[table["station"] == chosen]
+    return rows, {"station": chosen, "distance_km": round(float(rows["distance_km"].iloc[0]), 1),
+                  "last_reading": usable[chosen], "skipped": skipped}
 
 
 def pollen_forecast_entry(pollen_type, date, rows):
@@ -491,6 +507,17 @@ def assess(lat, lon, profile="general", allergy_types=(), now=None, demo=False):
     if pollen is None:
         notes.append("Sin lectura reciente de polen "
                      f"(ninguna estación tiene datos de los últimos {config.POLLEN_MAX_AGE_DAYS} días).")
+    elif not demo:
+        # name the nearer pollen stations that were skipped for having no recent reading
+        try:
+            every = _add_distance(data.load_pollen_all(), lat, lon)
+            last_reading = every.groupby("station")["timestamp"].max()          # latest reading of each station
+            distance = every.groupby("station")["distance_km"].min()
+            for station in distance[distance < pollen["distance_km"] - 0.05].sort_values().index:
+                notes.append(f"La estación de polen de {station} no tiene lecturas desde el "
+                             f"{last_reading[station]:%d/%m}; se usa {pollen['station']} (a {_km(pollen['distance_km'])}).")
+        except Exception as error:
+            data.problem("No se pudo comprobar qué estaciones de polen están sin datos.", error)
 
     # the allergy rule: only for the pollen types the person selected
     pollen_app_level, pollen_worst = None, None

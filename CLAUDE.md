@@ -78,6 +78,7 @@ assistant, texts).
 | `check_stations.py` | Raw hourly readings of 3 stations, to compare by hand with the official websites |
 | `warm_backup.py` | Refreshes all backups, including forecasts for the 29 dropdown places |
 | `build_replay.py` | One-off: ranks the pollen history and saves the demo day to `backup/replay/` |
+| `build_demo_nowcast.py` | One-off: adds the nowcast days (22-23 May 2025) to the demo pollen forecast |
 | `backup/*.csv` | Last good copy of each source, used if a live feed fails |
 | `backup/replay/2025-05-28/` | The demo day: pollen, Comunidad hourly air, weather files per place |
 | `backup/replay/air_forecast_*.csv`, `pollen_*_2025-05-24.csv` | Our models' forecasts as they would have been made on the demo days |
@@ -360,6 +361,20 @@ grains/m³. An hour slider (default 10:00) sets the time of day.
 - **24 May 2025 check:** the demo forecast says grass "alto" at
   Madrid-Arganzuela for 24–28 May (median ~105–128 grains/m³); the 28th was
   really "muy alto". Planner, chart and assistant all show "alto".
+- **Nowcast (17 Nov 2026):** the days between a station's last reading and
+  today get the model's same-day estimate as of each day (lead 0, the tested
+  setting; rows with `nowcast=True`, and `last_reading` = the station's real
+  latest reading), so today always has a value. Each day is computed only for
+  the stations that need it. Demo: `build_demo_nowcast.py` adds 22-23 May 2025
+  from `model_data/comparison_rows_2025.csv.gz`. Chart: solid = measured,
+  dashed = estimated or forecast. A day more than `CONFIDENCE_GAP_DAYS` (7)
+  after the last reading gets its confidence label lowered one step.
+- **Station:** `risk.pollen_forecast_rows()` takes the nearest pollen station
+  whose last reading is at most 10 days old (planner, chart, assistant, hours
+  all use it) and names the nearer stations it skipped; the main card also
+  names nearer stations without recent readings.
+- `api.py`'s hourly background job also keeps the air and pollen forecasts
+  warm (the live pollen forecast takes about 20 s to compute).
 - **In the app:** `pollen_model/predict.py` — `forecast(demo)` (cached 6 h,
   backup `backup/pollen_model_forecast.csv`; demo = the stored forecast as of
   24 May 2025, `backup/replay/pollen_forecast_2025-05-24.csv`, written by

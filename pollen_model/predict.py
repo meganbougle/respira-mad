@@ -193,8 +193,9 @@ def _fetch_stations_weather(points):
     return tables
 
 
-def _predict(readings, weather_by_station, stations, issue_day):
-    """Run the models for every station, type and lead, as of `issue_day`."""
+def _predict(readings, weather_by_station, stations, issue_day, leads=None, only=None):
+    """Run the models for every station, type and lead (or only `leads`, only the station codes in `only`), as of `issue_day`."""
+    leads = F.LEADS if leads is None else leads
     station_number = meta()["station_number"]
     all_days = pd.date_range(issue_day - pd.Timedelta(days=420), issue_day + pd.Timedelta(days=max(F.LEADS)), freq="D")
     results = test_results()
@@ -205,7 +206,7 @@ def _predict(readings, weather_by_station, stations, issue_day):
         network = wide.mean(axis=1)
         use_arimax = model_choice()["choice"].get(pollen_type) == "arimax"
         for code in wide.columns:
-            if code not in weather_by_station or code not in station_number:
+            if code not in weather_by_station or code not in station_number or (only is not None and code not in only):
                 continue
             arimax = {}
             if use_arimax:
@@ -213,7 +214,7 @@ def _predict(readings, weather_by_station, stations, issue_day):
                     arimax = _arimax_rows(pollen_type, code, wide[code], weather_by_station[code], issue_day)
                 except Exception:
                     arimax = {}                     # if ARIMAX fails for this station, gradient boosting still answers
-            for lead in F.LEADS:
+            for lead in leads:
                 table = F.station_rows(station_number[code], wide[code], network, weather_by_station[code],
                                        pollen_type, lead, F.READING_DELAY)
                 row = table.loc[[issue_day]]
@@ -255,7 +256,26 @@ def _fetch_live_forecast():
     downloaded = {source: F.weather_features(daily.rename(columns={"timestamp": "date"})).set_index("date")
                   for source, daily in zip(sources, daily_tables)}
     weather_by_station = {code: downloaded[F.WEATHER_FROM.get(code, code)] for code in stations["station_code"]}
-    table = _predict(readings, weather_by_station, stations, data._madrid_now().normalize())
+    today = data._madrid_now().normalize()
+    table = _predict(readings, weather_by_station, stations, today)
+    table["nowcast"] = False
+    # NOWCAST: the days between each station's last reading and today have no reading yet (publication
+    # delay), so each of them gets the model's same-day estimate as of that day (lead 0, the tested setting).
+    # Each day is only computed for the stations that need it (a recent last reading before that day).
+    last_reading = readings.groupby("station_code")["timestamp"].max()
+    recent = last_reading[last_reading >= today - pd.Timedelta(days=config.POLLEN_MAX_AGE_DAYS)]
+    estimates = []
+    if not recent.empty:
+        for day in pd.date_range(recent.min() + pd.Timedelta(days=1), today - pd.Timedelta(days=1), freq="D"):
+            needing = set(recent[recent < day].index)
+            if needing:
+                estimates.append(_predict(readings, weather_by_station, stations, day, leads=[0], only=needing))
+    estimates = [e for e in estimates if not e.empty]
+    if estimates:
+        past = pd.concat(estimates, ignore_index=True)
+        past["nowcast"] = True
+        table = pd.concat([table, past], ignore_index=True)
+    table["last_reading"] = table["station_code"].map(last_reading)     # the station's real latest reading
     table["timestamp"] = table["issue_date"]         # the backup helper expects this column
     return table
 
@@ -264,14 +284,14 @@ def _fetch_live_forecast():
 def _live_forecast(day_text):
     """Cached for 6 hours (and per day), with a backup copy like every other source."""
     return data._with_backup("pollen_model_forecast", _fetch_live_forecast,
-                             date_columns=("timestamp", "issue_date", "target_date"))
+                             date_columns=("timestamp", "issue_date", "target_date", "last_reading"))
 
 
 @st.cache_data(show_spinner=False)
 def _demo_forecast():
     """The forecast as of 24 May 2025, made by compare_models.py with only what was known that day."""
     table = pd.read_csv(data.BACKUP_DIR / "replay" / f"pollen_forecast_{config.PLANNER_DEMO_DATE}.csv",
-                        parse_dates=["issue_date", "target_date"])
+                        parse_dates=["issue_date", "target_date", "last_reading"])
     table.attrs["live"] = False
     table.attrs["fetched_at"] = pd.Timestamp(config.PLANNER_DEMO_DATE)
     return table

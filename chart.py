@@ -47,19 +47,21 @@ def pollen_chart(lat, lon, allergy_types=(), demo=False):
     if not allergy_types:
         return result
 
-    # ---- the forecast of our model at the nearest pollen station (the same station the planner uses)
+    # ---- our model at the nearest pollen station WITH RECENT DATA (the same station the planner uses):
+    # estimates for the days since its last reading (nowcast) + the forecast from today on
     try:
-        forecast = predict.forecast(demo)
+        forecast, station = risk.pollen_forecast_rows(lat, lon, demo)
     except Exception as error:
         result["notes"].append(data.problem("La previsión de polen no está disponible ahora.", error))
         return result
-    if forecast.empty:
-        result["notes"].append("No hay ninguna estación de polen con lecturas recientes para hacer la previsión.")
+    if forecast is None:
+        result["notes"].append(f"Ninguna estación de polen tiene lecturas de los últimos {config.POLLEN_MAX_AGE_DAYS} días.")
         return result
-    forecast = risk._add_distance(forecast, lat, lon)
     nearest = forecast.iloc[0]
-    forecast = forecast[forecast["station_code"] == nearest["station_code"]]
-    result["station"] = {"station": nearest["station"], "distance_km": round(float(nearest["distance_km"]), 1)}
+    result["station"] = {"station": station["station"], "distance_km": station["distance_km"],
+                         "last_reading": station["last_reading"]}
+    if station["skipped"]:
+        result["notes"].append(f"Sin lecturas recientes en {', '.join(station['skipped'])}: se usa {station['station']}.")
 
     # ---- the official readings of the last days at that station
     try:
@@ -83,11 +85,17 @@ def pollen_chart(lat, lon, allergy_types=(), demo=False):
                 observed.append({"date": row["timestamp"], "value": float(row["value"]), "level_name": level_name(row["value"])})
 
         predicted = []
-        rows = forecast[forecast["pollen_type"] == pollen_type].sort_values("lead")
+        rows = forecast[forecast["pollen_type"] == pollen_type].sort_values("target_date")
+        last_reading = station["last_reading"]
         for _, row in rows.iterrows():
             if not has_interval or pd.isna(row["q50"]):
                 continue
+            nowcast = bool(row.get("nowcast", False)) if not pd.isna(row.get("nowcast", False)) else False
             point = {"date": row["target_date"], "lead": int(row["lead"]),
+                     # "estimate" = a day already past with no reading yet; "forecast" = today and later
+                     "kind": "estimate" if nowcast else "forecast",
+                     # days between the last reading and this day: the longer, the less certain
+                     "days_since_reading": int((row["target_date"] - last_reading).days),
                      "value": float(row["q50"]), "low": float(row["q10"]), "high": float(row["q90"]),
                      "level_name": level_name(row["q50"]),
                      # did this type + lead day pass our 2025 test? (the planner only trusts the ones that did)

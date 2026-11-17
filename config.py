@@ -383,6 +383,10 @@ CONFIDENCE_LABELS = ["baja", "media", "alta"]
 CONFIDENCE_ALTA_FROM = 0.75
 CONFIDENCE_MEDIA_FROM = 0.60
 CONFIDENCE_BY_DAYS_AHEAD = ["alta", "alta", "media", "media", "baja"]
+# APP DECISION: pollen readings are published 3-7 days late, and the 2025 test
+# mixed those usual delays. When more days than this separate a day from the
+# station's last reading, its confidence label goes down one step.
+CONFIDENCE_GAP_DAYS = 7
 
 # Extra places for the location dropdown and for test_risk.py. The other
 # municipalities in the dropdown come from the Comunidad air stations.

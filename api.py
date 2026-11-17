@@ -48,6 +48,7 @@ warnings.filterwarnings("ignore", message=".*ScriptRunContext.*")
 
 import assistant  # noqa: E402
 from air_model import predict as air_predict  # noqa: E402
+from pollen_model import predict as pollen_predict  # noqa: E402
 import chart      # noqa: E402
 import config     # noqa: E402
 import data       # noqa: E402
@@ -94,6 +95,13 @@ def _prefetch_loop():
             log.info("Weather prefetch: %d cells asked, %d refreshed", asked, done)
         except Exception:
             log.exception("Weather prefetch failed (the cached copies are still used)")
+        # keep our two forecasts warm too (each is cached; this only recomputes one that has expired),
+        # so a visitor never waits for the pollen model (about 20 s) or the air model
+        for name, warm in (("air", lambda: air_predict.forecast(False, None)), ("pollen", lambda: pollen_predict.forecast(False))):
+            try:
+                warm()
+            except Exception:
+                log.exception("Could not prepare the %s forecast in advance", name)
         time.sleep(PREFETCH_EVERY_SECONDS)
 
 

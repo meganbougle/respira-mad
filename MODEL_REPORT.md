@@ -330,6 +330,19 @@ ninguna previsión de fuera (regla de datos). El gráfico muestra la mediana y
 el intervalo calibrado del modelo elegido, con marcadores huecos donde no es
 FIABLE.
 
+### Los días sin lectura: estimación del modelo (*nowcast*)
+
+El polen se publica con 3 a 7 días de retraso, así que entre la última lectura
+de una estación y hoy hay días sin dato. La aplicación los rellena con la
+estimación del propio modelo **para ese mismo día**, hecha con lo que se sabía
+ese día (antelación 0, la misma configuración que se probó, con su acierto de
+2025). Así siempre hay un valor para hoy. En el gráfico, la línea continua es
+lo medido y la discontinua lo estimado o previsto. Cuantos más días sin
+lectura, menos segura es la estimación: si pasan más de 7 días desde la última
+lectura, la etiqueta de confianza del día baja un nivel (decisión nuestra).
+Se usa la estación de polen más cercana que tenga una lectura de los últimos
+10 días; las que no la tienen se saltan y se nombran.
+
 ## 6. Límites que conviene tener presentes
 
 - **Un año para elegir, un año para probar.** Son pocos: la diferencia entre

@@ -495,7 +495,8 @@ def get_pollen_forecast(lat, lon, pollen_types, context):
         if demo:
             # the demo view is "as of 24 May 2025": the latest reading known that day (not a later one)
             table = risk._add_distance(risk.pollen_predict.forecast(True), lat, lon)
-            rows = table[(table["station"] == table.iloc[0]["station"]) & (table["lead"] == 0) & table["pollen_type"].isin(wanted)]
+            rows = table[(table["station"] == table.iloc[0]["station"]) & (table["lead"] == 0)
+                         & (table["target_date"] == result["today"]) & table["pollen_type"].isin(wanted)]
             reading_day = result["today"] - pd.Timedelta(days=int(rows["last_age"].max()))
             measurement = {
                 "tipo_de_dato": "medición de estación (Red Palinocam): la última publicada el día de la vista",

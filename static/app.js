@@ -843,7 +843,8 @@ function drawPollenChart(data) {
     if (free < 0) break;
     chartSlots[free] = key;
   }
-  if (!chartSlots.includes(chartFocus)) chartFocus = chartSlots.find(Boolean) || null;
+  // (check for null first: the free slots are null, so includes(null) would wrongly say the focus is still shown)
+  if (!chartFocus || !chartSlots.includes(chartFocus)) chartFocus = chartSlots.find(Boolean) || null;
 
   $("chart-series").innerHTML = data.series.map((s) => {
     const slot = chartSlots.indexOf(s.key);
@@ -892,7 +893,7 @@ function drawPollenChart(data) {
   });
   // today: on its left what was measured, on its right the forecast
   svg += `<path d="M${x(todayIndex)} ${f.top - 4}V${f.bottom}" stroke="#14201b" stroke-width="1" stroke-dasharray="2 3"/>`
-    + `<text x="${x(todayIndex) - 6}" y="${f.top - 8}" text-anchor="end">Medido</text>`
+    + `<text x="${x(todayIndex) - 6}" y="${f.top - 8}" text-anchor="end">Medido · estimado</text>`
     + `<text x="${x(todayIndex) + 6}" y="${f.top - 8}">Previsión</text>`;
   for (let i = 0; i < count; i += 1) {
     const day = new Date(firstDay + i * DAY_MS);
@@ -914,10 +915,11 @@ function drawPollenChart(data) {
       const lower = series.forecast.map((p) => [x(dayIndex(p.date)), y(p.low)]).reverse();
       svg += `<path d="${line([...upper, ...lower])}Z" fill="${color}" fill-opacity=".2"/>`;
     }
-    // the days between the last reading and today have no data yet (readings are published about 3 days late)
-    if (observed.length && forecast.length) svg += `<path d="${line([observed[observed.length - 1], forecast[0]])}" stroke="${color}" stroke-width="1.5" stroke-dasharray="1 4" stroke-linecap="round" fill="none" opacity=".7"/>`;
+    // solid = measured; dashed = our model: first the ESTIMATES for the days since the last reading
+    // (readings are published 3-7 days late), then the FORECAST from today on. The dashed line starts at the last reading.
     if (observed.length) svg += `<path d="${line(observed)}" stroke="${color}" stroke-width="2" fill="none" stroke-linejoin="round"/>`;
-    if (forecast.length) svg += `<path d="${line(forecast)}" stroke="${color}" stroke-width="2" stroke-dasharray="5 4" fill="none" stroke-linejoin="round"/>`;
+    const dashed = (observed.length ? [observed[observed.length - 1]] : []).concat(forecast);
+    if (forecast.length) svg += `<path d="${line(dashed)}" stroke="${color}" stroke-width="2" stroke-dasharray="5 4" fill="none" stroke-linejoin="round"/>`;
     observed.forEach((p) => { svg += marker(slot, p[0], p[1], color); });
     series.forecast.forEach((p, i) => {
       svg += marker(slot, forecast[i][0], forecast[i][1], color, !p.reliable);
@@ -943,7 +945,10 @@ function drawPollenChart(data) {
     let text = "sin lectura todavía (se publican con unos 3 días de retraso)";
     if (seen) text = `medido ${num(seen.value)} granos/m³ (${esc(seen.level_name)})`;
     else if (expected) {
-      text = `previsión ${num(expected.value)} granos/m³ (${esc(expected.level_name)}), intervalo del ${num(data.interval * 100)} %: ${num(expected.low)}–${num(expected.high)}`
+      const what = expected.kind === "estimate"
+        ? `estimado por el modelo (sin lectura todavía; ${expected.days_since_reading} ${expected.days_since_reading === 1 ? "día" : "días"} desde la última, ${expected.days_since_reading > 5 ? "poco seguro" : "menos seguro cuantos más días pasan"})`
+        : "previsión";
+      text = `${what}: ${num(expected.value)} granos/m³ (${esc(expected.level_name)}), intervalo del ${num(data.interval * 100)} %: ${num(expected.low)}–${num(expected.high)}`
         + (expected.reliable ? "" : " · poco fiable para este día")
         + (expected.actual != null ? ` · medido después: ${num(expected.actual)}` : "");
     }
@@ -951,7 +956,7 @@ function drawPollenChart(data) {
   });
   $("chart-detail").innerHTML = `<b>${dayText}${chartPick === todayIndex && !data.demo ? " (hoy)" : ""}</b><br>${lines.join("<br>")}`;
 
-  $("chart-legend").innerHTML = `<span>${sample("#4d5c55", null)}Medido</span><span>${sample("#4d5c55", null, true)}Previsión</span>`
+  $("chart-legend").innerHTML = `<span>${sample("#4d5c55", null)}Medido</span><span>${sample("#4d5c55", null, true)}Estimado o previsto (modelo)</span>`
     + `<span><i style="background:#4d5c55;opacity:.3"></i>Intervalo del ${num(data.interval * 100)} %</span>`
     + (anyUnreliable ? `<span><svg viewBox="0 0 22 12" aria-hidden="true">${marker(0, 11, 6, "#4d5c55", true, 3.4)}</svg>Poco fiable</span>` : "")
     + (anyActual ? '<span><svg viewBox="0 0 22 12" aria-hidden="true"><path d="M8 3l6 6M14 3l-6 6" stroke="#14201b" stroke-width="1.8" stroke-linecap="round"/></svg>Medido después</span>' : "");

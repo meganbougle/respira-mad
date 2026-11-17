@@ -35,8 +35,21 @@ from air_model import predict as air_predict
 WEEKDAYS = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"]
 
 
-def _confidence(lead, pollen_entries):
-    """The confidence label of one day (rule explained in config.py). Returns (label, reason)."""
+def _confidence(lead, pollen_entries, days_since_reading=None):
+    """The confidence label of one day (rules explained in config.py). Returns (label, reason)."""
+    label, reason = _confidence_from_test(lead, pollen_entries)
+    used = [p for p in pollen_entries if p["kind"] == "model"]
+    if used and days_since_reading is not None and days_since_reading > config.CONFIDENCE_GAP_DAYS:
+        lower = config.CONFIDENCE_LABELS[max(config.CONFIDENCE_LABELS.index(label) - 1, 0)]
+        if lower != label:
+            reason += (f" Baja un nivel porque han pasado {days_since_reading} días desde la última lectura de polen "
+                       "de la estación: cuantos más días sin lectura, menos segura es la estimación.")
+        label = lower
+    return label, reason
+
+
+def _confidence_from_test(lead, pollen_entries):
+    """The confidence label from the 2025 test accuracy (or the days ahead, without pollen)."""
     used = [p for p in pollen_entries if p["kind"] != "none"]
     if used:
         if any(p["kind"] == "measurement" for p in used) and all(p["kind"] in ("measurement", "model") for p in used):
@@ -230,7 +243,8 @@ def plan(lat, lon, profile="general", allergy_types=(), now=None, demo=False):
                                else "aire" if air_level else None)
             blocks.append(block)
 
-        confidence, confidence_reason = _confidence(lead, pollen_entries)
+        gap = int((date - model_station["last_reading"]).days) if model_station else None
+        confidence, confidence_reason = _confidence(lead, pollen_entries, gap)
         days.append({
             "date": date, "lead": lead,
             "label": "Hoy" if lead == 0 and not demo else f"{WEEKDAYS[date.dayofweek]} {date.day}",
@@ -250,6 +264,9 @@ def plan(lat, lon, profile="general", allergy_types=(), now=None, demo=False):
         notes.append(f"Nuestra previsión de calidad del aire solo se muestra hasta {air_predict.horizon_hours()} horas de "
                      "antelación (hasta donde mejoró claramente a la referencia en las pruebas). No llega a: "
                      + ", ".join(missing_air) + ". En esos tramos solo se usan el polen y el tiempo.")
+    if model_station and model_station["skipped"]:
+        notes.append(f"Sin lecturas de polen recientes en {', '.join(model_station['skipped'])}: "
+                     f"se usa la estación de {model_station['station']}.")
     unreliable = sorted({p["name"] for d in days for p in d["pollen"] if p["kind"] == "none"})
     if unreliable:
         notes.append("Sin previsión fiable de polen para: " + ", ".join(unreliable) + " (en alguno de los días).")
