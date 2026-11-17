@@ -57,11 +57,11 @@ ICA_AVERAGING_HOURS = {"NO2": 1, "O3": 8, "PM10": 24, "PM2.5": 24}
 #   midnight (for example at 10:00 the PM "24-hour" average uses 10 hours).
 #   The table from data.py says how many hours were used (column ica_hours).
 # SIMPLIFICATION 2 (forecast, used for the "best windows"):
-#   The Open-Meteo hourly forecast values are compared directly with the
+#   Our hourly air forecast values are compared directly with the
 #   bands, without the 8-hour / 24-hour averaging, because averaging would
 #   hide the differences between hours that the windows are meant to show.
 # SIMPLIFICATION 3:
-#   The official index fills gaps with corrected CAMS model data. We do not:
+#   The official index fills gaps with corrected model data. We do not:
 #   a station with no data for a pollutant is skipped and the next nearest
 #   station is used.
 
@@ -194,21 +194,11 @@ POLLEN_THRESHOLDS = {
 # (Readings are published several days late; the app always shows their age.)
 POLLEN_MAX_AGE_DAYS = 10
 
-# Open-Meteo forecasts 6 pollen types. Only two of them match a pollen type
-# that has an official threshold above.
-# The forecast is used in two places:
-#   - the "best hours" chart (hour by hour), and
-#   - INSTEAD of a station reading when no pollen station has a reading from
-#     the last POLLEN_MAX_AGE_DAYS days. The app then says "Sin lectura
-#     reciente de polen" and labels the value as a forecast. In that case the
-#     average of today's forecast hours is compared with the thresholds
-#     (they are thresholds for daily averages).
-# SIMPLIFICATION: in the hour-by-hour chart the HOURLY forecast is compared
-# with thresholds that were defined for DAILY averages.
-FORECAST_POLLEN_TO_OFFICIAL = {
-    "grass_pollen": "Gramíneas",
-    "olive_pollen": "Olivo",
-}
+# DATA RULE: there is no outside pollen forecast. If no pollen station has a
+# reading from the last POLLEN_MAX_AGE_DAYS days the app says "Sin lectura
+# reciente de polen" and pollen does not change the level. Forecasts of pollen
+# come only from our own model (trained on the Red Palinocam history); where
+# it is not reliable the app says "Sin previsión fiable".
 
 # APP DECISION: how the four pollen levels become the app's three levels.
 # One number per pollen level (bajo, medio, alto, muy alto):
@@ -327,8 +317,8 @@ AI_PRICE_OUTPUT_PER_MTOK = 0.50
 # The model is trained and tested by train_pollen_model.py; its test results
 # (which pollen types and lead days are RELIABLE) are in pollen_model/meta.json
 # and pollen_model/backtest_report.md. The app uses the model only where it is
-# RELIABLE; otherwise the European forecast (grass and olive only), otherwise
-# "Sin previsión fiable".
+# RELIABLE; otherwise "Sin previsión fiable" (DATA RULE: no other pollen
+# forecast is used).
 PLANNER_DAYS = 5                                   # today + 4 days
 # The parts of the day shown in the planner: (name, first hour, last hour, day offset).
 # The fourth number says which calendar day the block falls on: the
@@ -349,10 +339,10 @@ PLANNER_DEMO_DATE = "2025-05-24"
 #  - If the person selected pollen types: from the share of in-season days the
 #    pollen forecast got right in the 2025 test, for that lead day (the lowest
 #    of the selected types). "Alta" from 75%, "media" from 60%, else "baja".
-#    The European forecast was not tested by us, so it always counts as "baja".
-#  - If no pollen type is selected the level only depends on the air forecast,
-#    which we have NOT tested against measurements. The label then simply
-#    follows how far ahead the day is (the list below: today, +1, +2, +3, +4).
+#  - If no pollen type is selected the level only depends on our air
+#    forecast, whose error grows with the hours ahead (train_air_model.py).
+#    The label then simply follows how far ahead the day is (the list below:
+#    today, +1, +2, +3, +4).
 CONFIDENCE_LABELS = ["baja", "media", "alta"]
 CONFIDENCE_ALTA_FROM = 0.75
 CONFIDENCE_MEDIA_FROM = 0.60

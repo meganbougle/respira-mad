@@ -172,13 +172,9 @@ with st.expander("Mediciones usadas para este resultado"):
                    "(PM10 y PM2.5), calculada solo con las horas del día en curso.")
     pollen = result["pollen"]
     if pollen:
-        if pollen["kind"] == "measurement":
-            age = "de hoy" if pollen["age_days"] == 0 else f"de hace {pollen['age_days']} días"
-            st.markdown(f"**Polen:** estación {pollen['station']} (a {pollen['distance_km']:.1f} km), "
-                        f"lectura del {pollen['reading_date']:%d/%m/%Y}, **{age}**.")
-        else:
-            st.markdown("**Polen:** sin lectura reciente de polen. Valores de la **PREVISIÓN** de Open-Meteo "
-                        "(modelo, no medición), media del día.")
+        age = "de hoy" if pollen["age_days"] == 0 else f"de hace {pollen['age_days']} días"
+        st.markdown(f"**Polen:** estación {pollen['station']} (a {pollen['distance_km']:.1f} km), "
+                    f"lectura del {pollen['reading_date']:%d/%m/%Y}, **{age}**.")
         st.dataframe(pd.DataFrame([{
             "Tipo de polen": t["name"],
             "Granos/m³": round(t["value"]),
@@ -192,7 +188,8 @@ with st.expander("Mediciones usadas para este resultado"):
 
 day_word = "en las próximas 24 horas"
 st.subheader("Mejores horas · próximas 24 horas")
-st.caption("PREVISIÓN (modelo de Open-Meteo), no mediciones oficiales.")
+st.caption("PREVISIÓN de nuestros modelos de aire y de polen, hechos con las mediciones oficiales de la Comunidad "
+           "y del Ayuntamiento de Madrid; no son mediciones. La temperatura y la lluvia son de Open-Meteo.")
 
 hours = result["hours"]
 if hours is None:
@@ -220,8 +217,6 @@ else:
         "Mejor franja": ["Sí" if in_window(t) else "No" for t in hours["timestamp"]],
         "NO2": hours["NO2"].round(0), "O3": hours["O3"].round(0),
         "PM10": hours["PM10"].round(0), "PM2.5": hours["PM2.5"].round(0),
-        "Polen gramíneas": hours["grass_pollen"].round(0),
-        "Polen olivo": hours["olive_pollen"].round(0),
         "Temperatura (°C)": hours["temperature_c"].round(0),
         "Lluvia (mm)": hours["rain_mm"].round(1),
     })
@@ -234,7 +229,7 @@ else:
                         scale=alt.Scale(domain=config.LEVEL_LABELS, range=config.LEVEL_COLORS),
                         legend=None),
         tooltip=["Franja", "Nivel", "Limitado por", "Mejor franja", "NO2", "O3", "PM10", "PM2.5",
-                 "Polen gramíneas", "Polen olivo", "Temperatura (°C)", "Lluvia (mm)"])
+                 "Temperatura (°C)", "Lluvia (mm)"])
     # a dark bar and a star above the hours that belong to a best window
     best = base.transform_filter("datum['Mejor franja'] == 'Sí'")
     bar = best.mark_rect(height=5, yOffset=-31, color="#0b0b0b")
@@ -339,11 +334,11 @@ if pollen_table is not None and not pollen_table.empty:
 if result["forecast"] is not None:
     forecast = result["forecast"]
     rows.append({
-        "Fuente": "Previsión · Open-Meteo (aire, polen y tiempo)",
-        "Último dato": f"{forecast.attrs['fetched_at']:%d/%m %H:%M}",
-        "Antigüedad": ago(forecast.attrs["fetched_at"], real_now),
+        "Fuente": "Previsión de aire · modelo propio (con mediciones oficiales)",
+        "Último dato": f"{(forecast.attrs.get('fetched_at') or real_now):%d/%m %H:%M}",
+        "Antigüedad": "día de demostración" if demo else ago(forecast.attrs.get("fetched_at") or real_now, real_now),
         "Estado": "PREVISIÓN (modelo), no medición",
-        "Origen": "En directo" if forecast.attrs.get("live") else "Copia de seguridad",
+        "Origen": "Día de demostración" if demo else ("En directo" if forecast.attrs.get("live") else "Copia de seguridad"),
     })
 # One line per source (plain text wraps well on a phone, a table does not).
 for row in rows:
@@ -371,8 +366,9 @@ st.caption(
     "[Datos abiertos de la Comunidad de Madrid](https://datos.comunidad.madrid/). "
     "Calidad del aire de la ciudad de Madrid: "
     "[Portal de datos abiertos del Ayuntamiento de Madrid](https://datos.madrid.es/). "
-    "Previsión meteorológica, de calidad del aire y de polen: "
-    "[Open-Meteo.com](https://open-meteo.com/) (licencia CC BY 4.0), con datos del servicio europeo CAMS. "
+    "Previsiones de calidad del aire y de polen: modelos propios, hechos únicamente con esas mediciones oficiales. "
+    "Previsión meteorológica (lo único que no es de la Comunidad ni del Ayuntamiento): "
+    "[Open-Meteo.com](https://open-meteo.com/) (licencia CC BY 4.0). "
     "Categorías y recomendaciones de calidad del aire: Índice Nacional de Calidad del Aire, Resolución de "
     "2 de septiembre de 2020 ([BOE-A-2020-10426](https://www.boe.es/diario_boe/txt.php?id=BOE-A-2020-10426)). "
     "Niveles de polen: umbrales de la Red Palinocam.")

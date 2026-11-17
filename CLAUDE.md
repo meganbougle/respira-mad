@@ -14,6 +14,17 @@ There are two front ends over the same logic:
 
 Repo: https://github.com/meganbougle/respira-mad (public, branch `main`).
 
+## DATA RULE (most important, permanent)
+
+All pollen and air-quality data, **measured AND forecast**, come only from the
+Comunidad de Madrid or the Ayuntamiento de Madrid (their stations and their
+published historical data). Our own models make the forecasts from those data.
+Only the **weather** (Open-Meteo: forecast, historical, issued-forecast
+archive) and **geocoding** (Open-Meteo geocoding, `gazetteer.csv`) may come
+from elsewhere. Never use CAMS / Open-Meteo air-quality or pollen forecasts,
+or any other outside air or pollen source, anywhere (app, planner, chart,
+assistant, texts).
+
 ## How to work on this project
 
 - The author is not an experienced coder: keep code simple and well commented,
@@ -48,9 +59,10 @@ Repo: https://github.com/meganbougle/respira-mad (public, branch `main`).
 | `api.py` | FastAPI server: `/api/config, places, stations, risk, hours, planner, chart, freshness, chat, health`, and serves `static/` at `/` |
 | `planner.py` | The 5-day planner logic |
 | `chart.py` | The numbers behind the forecast line chart (`/api/chart`) |
+| `air_model/`, `train_air_model.py` | Our air-quality forecast (NO2, O3, PM10, PM2.5, hourly): history download, features, live prediction, saved models, comparison tables; and the script that trains and tests it |
 | `pollen_model/`, `train_pollen_model.py` | Our pollen forecast model: features, live prediction, saved models, backtest report; and the script that trains and tests it |
 | `static/index.html`, `app.js`, `style.css` | The web app page (Spanish, mobile first, no build step) |
-| `compare_models.py`, `MODEL_REPORT.md` | Compares seasonal naive, exponential smoothing, ARIMAX and gradient boosting on 2025; the report in Spanish |
+| `compare_models.py`, `MODEL_REPORT.md` | Pollen: compares seasonal naive, exponential smoothing, ARIMAX and gradient boosting (choose and calibrate on 2024, test on 2025) and saves what the app uses; the report in Spanish (pollen and air) |
 | `assistant.py` | The AI assistant: system prompt, four tools, limits, cost log |
 | `test_chat.py`, `test_timestamps.py` | Assistant test questions (needs a key); future-timestamp checks |
 | `gazetteer.csv`, `build_gazetteer.py` | Place names for "Cerca de …" and the one-off script that builds them |
@@ -64,7 +76,8 @@ Repo: https://github.com/meganbougle/respira-mad (public, branch `main`).
 | `warm_backup.py` | Refreshes all backups, including forecasts for the 29 dropdown places |
 | `build_replay.py` | One-off: ranks the pollen history and saves the demo day to `backup/replay/` |
 | `backup/*.csv` | Last good copy of each source, used if a live feed fails |
-| `backup/replay/2025-05-28/` | The demo day: pollen, Comunidad hourly air, weather, Open-Meteo files per place |
+| `backup/replay/2025-05-28/` | The demo day: pollen, Comunidad hourly air, weather files per place |
+| `backup/replay/air_forecast_*.csv`, `pollen_*_2025-05-24.csv` | Our models' forecasts as they would have been made on the demo days |
 | `.streamlit/config.toml` | Light theme (committed). `.streamlit/secrets.toml` is never committed. |
 | `requirements.txt`, `.gitignore` | Libraries; ignores `.venv/` and secrets |
 
@@ -78,15 +91,15 @@ Repo: https://github.com/meganbougle/respira-mad (public, branch `main`).
 | `load_pollen()` | Comunidad CKAN, `mediciones_polen` + `captadores_polen` | Latest reading day per trap, grains/m³. Drops traps whose reading is older than 10 days; keeps `timestamp` and `age_days`. `load_pollen_all()` keeps everything. |
 | `load_weather()` | Comunidad CKAN, `calidad_aire_datos_meteo_mes` | Up to a day old; not used by the app |
 | `load_forecast_weather(lat, lon, day=None)` | Open-Meteo forecast API (archive API for a past `day`) | FORECAST: hourly temperature, rain, wind, humidity |
-| `load_forecast_air(lat, lon, day=None)` | Open-Meteo air quality API (CAMS model) | FORECAST: hourly NO2, O3, PM10, PM2.5 + 6 pollen types |
+| `air_model.predict.forecast(demo, moment)` | OUR model, from both networks' latest hourly readings + Open-Meteo weather forecast | FORECAST: hourly NO2, O3, PM10, PM2.5 per station, up to the tested horizon (96 h) |
 | `load_replay_air(now)`, `load_replay_pollen()` | `backup/replay/2025-05-28/` | The demo day, same columns as the live loaders |
 
 **Measurements vs forecasts.** Station data are official MEASUREMENTS.
-Open-Meteo data are a model FORECAST and are always labelled as such
-(`kind = "FORECAST (model)"`, "PREVISIÓN" in the app). The level comes from
-measurements; the forecast feeds the hourly chart and best windows, and
-replaces pollen only when no station has a recent reading. Open-Meteo data are
-CC BY 4.0: the footer credit is required.
+Forecasts (our air and pollen models; Open-Meteo weather) are always labelled
+as such (`kind = "FORECAST (model)"`, "PREVISIÓN" in the app). The level comes
+from measurements; the forecasts feed the hourly strip, best windows, planner
+and chart, and never replace a measurement. Open-Meteo weather is CC BY 4.0:
+the footer credit is required.
 
 Things worth knowing about the feeds:
 
@@ -155,12 +168,11 @@ al polen", word for word.
   in, only for the selected types. Without the checkbox pollen never changes
   the level (asthma without allergy uses air only).
 - Pollen cutoff 10 days. If no station qualifies: "Sin lectura reciente de
-  polen", and the Open-Meteo grass/olive forecast (average of today's hours) is
-  used, labelled as forecast.
+  polen" and pollen does not change the level (no outside forecast, data rule).
 - Overall level = the worse of air and pollen; the worse one gives the main
   reason and comes first in the recommendations.
-- Location: nearest station with data per pollutant, nearest pollen trap,
-  Open-Meteo for the exact point. No maximum distance; the distance is shown.
+- Location: nearest station with data per pollutant (also for the air
+  forecast), nearest pollen trap, Open-Meteo weather for the exact point. No maximum distance; the distance is shown.
 - Hourly strip and best windows: the next 24 hours starting at the current
   hour, day and night (`HOURS_AHEAD`); 3-hour windows ranked by level, then no
   rain, then lowest pollution, each labelled "hoy" or "mañana". On phones the
@@ -228,85 +240,104 @@ grains/m³. An hour slider (default 10:00) sets the time of day.
 - Render free tier sleeps after 15 minutes without visits; the first visit
   after that takes about a minute. Open the site before a demo.
 
-## Our pollen forecast model (`pollen_model/`, `train_pollen_model.py`)
+## Our air-quality forecast (`air_model/`, `train_air_model.py`)
 
-- **What it is:** one small scikit-learn gradient-boosting classifier per
-  pollen type (the 10 with official thresholds) and per lead day (0 = today …
-  5), 60 in all, stored in `pollen_model/models.joblib` (9.5 MB). It predicts
-  the official level (bajo / medio / alto / muy alto) per pollen station.
+- Hourly NO2, O3, PM10, PM2.5 at each of the 52 stations of both networks,
+  1–120 hours ahead, from each station's latest reading. Data: the official
+  hourly history since 2019 (`air_model/history.py`) + Open-Meteo weather
+  (8 KMeans zones; the forecast as issued is used for testing).
+- Split: train 2019–2023, choose on 2024, test on 2025. Compared "same hour
+  yesterday" (baseline), "what is typical at that station and hour", SARIMAX
+  (24 h season, weather exogenous; 4 stations only, it is slow) and gradient
+  boosting (one model per pollutant, lagged features). Gradient boosting won
+  on 2024 for all four; on 2025 SARIMAX was slightly better for NO2, O3 and
+  PM2.5 on its 4 stations (reported, choice not changed).
+- Horizon rule (ours): per day ahead on 2024, ≥10% lower error than the
+  baseline and ≥5% lower than "typical"; shown up to the last day all four
+  pass = **96 hours** (O3 fails day 5). Limit: on 2025, O3 from day 3 is
+  slightly worse than "typical".
+- In the app: `air_model/predict.py` — `forecast(demo, moment)` (cached
+  15 min, backup `backup/air_forecast.csv`; keeps recent hours in
+  `backup/air_recent.csv` because the Ayuntamiento file only has today) and
+  `at_point(lat, lon, table)` (nearest station with a forecast per pollutant).
+  Demo: stored forecasts in `backup/replay/air_forecast_<day>.csv`.
+- To retrain: `.venv/bin/python train_air_model.py` (about an hour; downloads
+  kept in `model_data/`), then `train_pollen_model.py` and `compare_models.py`
+  (the pollen 2024 test reuses the air model's issued-weather files).
+
+## Our pollen forecast (`pollen_model/`, `train_pollen_model.py`, `compare_models.py`)
+
+- **Split (all models):** train up to 2023, CHOOSE (model per type, RELIABLE
+  flags, interval calibration) on 2024, TEST on 2025, never used to decide.
 - **Golden rule (keep it):** a forecast made on day D uses only what is known
   on day D. Pollen readings are at least 3 days old (publication delay), so
-  lead day 5 is about 8 days after the last reading. Inputs: day of year,
-  warmth accumulated since 1 January, rain over the previous 7/14/30/90 days,
-  the weather forecast for the target day and the days in between, readings
-  ≥3 days old (last value and its age, 7- and 14-day means, trend, network
-  mean) and the same week one year earlier. `pollen_model/features.py` is
-  shared by training and live prediction so both see identical inputs.
-- **Training and test:** trained on 1993–2024, tested on 2025. Training uses
-  the weather that happened as a stand-in for the forecast (old forecasts are
-  not archived); the 2025 test uses the forecasts as issued at the time
-  (Open-Meteo previous-runs archive). Training rows use readings 3 and 6 days
-  old so the model copes with late readings.
-- **Weather:** Open-Meteo historical weather per station. Stations within
-  ~10 km share one series (`WEATHER_FROM` in `features.py`), which also keeps
-  downloads inside Open-Meteo's free limits. A full retrain needs about 10,000
-  "calls": if the service starts refusing, wait an hour and rerun (downloads
-  are kept in `model_data/`, which is not committed).
-- **RELIABLE rule (ours):** per type and lead day, on in-season days of 2025,
-  the model must get the level the app acts on (bajo / medio / alto-or-more)
-  right at least 5 points more often than the baseline (last reading adjusted
-  for the season), with a smaller mean error and ≥200 in-season station-days.
-  The flags and accuracies are in `pollen_model/meta.json`; the full table and
-  chart are in `pollen_model/backtest_report.md`.
-- **Result (15 Nov 2026 run):** 45 of 50 type + lead-day combinations (leads
-  1–5) are RELIABLE. In-season accuracy on the app's three levels averages 70%
-  for the model against 60% for the baseline. Not reliable: Encinas y robles
-  (Quercus) at most leads, Gramíneas at lead 1, Llantenes at leads 0–1, Chopos
-  and Olmos at lead 0. Exact four-level accuracy is lower (about 62%).
-- **24 May 2025 check:** with data up to 21 May, the model put grass at alto
-  or muy alto at all 10 stations for every day 25–29 May (6 of 10 at muy alto
-  for the 28th; all 10 were really muy alto). It flagged a high-pollen week,
-  not the 28th as a distinct peak.
+  lead day 5 is about 8 days after the last reading. Gradient-boosting inputs:
+  day of year, warmth accumulated since 1 January, rain over the previous
+  7/14/30/90 days, the weather forecast for the target day and the days in
+  between, readings ≥3 days old (last value and its age, 7- and 14-day means,
+  trend, network mean) and the same week one year earlier.
+  `pollen_model/features.py` is shared by training and live prediction.
+- **Weather for testing:** the forecast as issued. 2025: per station
+  (Open-Meteo previous-runs archive). 2024: SIMPLIFICATION, the air model's
+  zone forecasts shifted to each station (`pollen_model/issued_weather.py`),
+  so `train_air_model.py` must have run first. Before 19 Jan 2024 no issued
+  forecast exists and the weather that happened stands in.
+- **`train_pollen_model.py`:** downloads, builds the training table, trains the
+  old gradient-boosting CLASSIFIER (`models.joblib`, no longer used by the
+  app, kept to compare with the median) and writes the 2024 and 2025 test
+  rows to `model_data/`. Then run `compare_models.py`.
+- **`compare_models.py` (16 Nov 2026 run):** on `log(1 + grains/m³)`, same
+  rows, lead days 1–5, in season: seasonal naive, exponential smoothing,
+  ARIMAX (Fourier year + weather + ARMA errors, orders by AIC, d = 0 by ADF,
+  fitted per station on 2014–2023) and quantile gradient boosting. 2025
+  accuracy on the official level / log MAE: naive 47% / 1.69, smoothing
+  52% / 1.18, ARIMAX 59% / 0.93, gradient boosting 61% / 0.86.
+- **Model per type** (`pollen_model/model_choice.json`; APP DECISION: chosen on
+  2024 between ARIMAX and gradient boosting only, the models the app can run;
+  best level accuracy, within one point the lower MAE): ARIMAX for Encinas y
+  robles (Quercus), Olivo and Llantenes; gradient boosting for the other
+  seven. Smoothing was best for Llantenes on 2024 but is a reference only.
+  With the 2024 choice, 2025 accuracy is 60% (61% with gradient boosting
+  everywhere; Olivo is the big miss: ARIMAX 53% vs 65%). Reported, not changed.
+- **ONE SOURCE OF TRUTH:** the level everywhere (planner, chart, assistant) is
+  the MEDIAN `q50` read against the official thresholds. Checked on 2025: the
+  median is within ~1 point of the old classifier (61.3% vs 61.7% exact,
+  68.1% vs 69.3% on the app's three levels).
+- **RELIABLE (ours, decided on 2024):** per type and lead day, the chosen
+  model gets the app's level (bajo / medio / alto-or-more) right ≥5 points
+  more often than the baseline (last reading adjusted for the season), with a
+  smaller mean error and ≥200 in-season station-days. 36 of 50 (leads 1–5).
+  Never reliable: Llantenes; Olmos only at lead 5. Where not RELIABLE:
+  "Sin previsión fiable" (no other forecast, data rule).
+- **80% intervals (`q10`, `q90`), calibrated** by split conformal on 2024
+  in-season days (margin per type, model and lead, `margin` in
+  `model_choice.json`). Coverage in 2025 with the models used: 66% before,
+  77% after (gradient boosting 72% → 80%, ARIMAX 54% → 79%); still short for
+  olivo, chopos and ortigas.
+- **Unstable ARIMAX:** a forecast with standard error > 3 on the log scale
+  (`A.MAX_LOG_ERROR`, e.g. Quercus at Las Rozas, a station with gaps) counts
+  as failed and gradient boosting answers, in the app and in the comparison.
+- **Feature importance** (permutation, lead 3, 2024): time of year and
+  accumulated warmth first, then recent readings, then the weather forecast
+  (`pollen_model/plots/feature_importance.png`).
+- **24 May 2025 check:** the demo forecast says grass "alto" at
+  Madrid-Arganzuela for 24–28 May (median ~105–128 grains/m³); the 28th was
+  really "muy alto". Planner, chart and assistant all show "alto".
 - **In the app:** `pollen_model/predict.py` — `forecast(demo)` (cached 6 h,
   backup `backup/pollen_model_forecast.csv`; demo = the stored forecast as of
-  24 May 2025) and `best_source()`: our model where RELIABLE, otherwise the
-  Open-Meteo European forecast (grass and olive only, about 3 days), otherwise
-  "Sin previsión fiable". `scikit-learn`, `joblib` and `numpy` are pinned in
-  `requirements.txt` because the saved model only loads with the version that
-  made it.
-- To retrain: `.venv/bin/python train_pollen_model.py` (needs `matplotlib`
-  for the chart; not in `requirements.txt`), then `compare_models.py`.
-
-## Model comparison and the model per pollen type (`compare_models.py`, `MODEL_REPORT.md`)
-
-- **What it compares (16 Nov 2026 run):** on `log(1 + grains/m³)`, same 2025
-  test rows, same 3-day delay, lead days 1–5: seasonal naive, exponential
-  smoothing (simple won by AIC in 99 of 100 series), ARIMAX (Fourier terms for
-  the year + weather of the day + ARMA errors, orders by AIC, d = 0 from the
-  ADF test, fitted per station on 2015–2024) and gradient boosting. In-season
-  accuracy on the official level / log MAE: naive 47% / 1.69, smoothing
-  53% / 1.18, ARIMAX 60% / 0.92, gradient boosting 62% / 0.86.
-- **Model used per type** (`pollen_model/model_choice.json`; rule: best
-  in-season level accuracy, within one point the lower MAE): ARIMAX for
-  Encinas y robles (Quercus), Pinos and Ortigas; gradient boosting for the
-  other seven. `predict.forecast()` has a `model` column ("gb" / "arimax").
-  ARIMAX types have their own RELIABLE flags in `pollen_model/arimax_params.json`
-  (same rule); Quercus is now RELIABLE at every lead except 1. If ARIMAX fails
-  for a station, gradient boosting answers.
-- **Prediction intervals (80%)**, columns `q10, q50, q90` in grains/m³:
-  ARIMAX natively (`pollen_model/arimax.py`, shared by the comparison and the
-  app); gradient boosting by quantile regression
-  (`pollen_model/quantile_models.joblib`, 15.7 MB: a mean model plus three
-  models for the distance to the mean; quantiles learnt directly stay stuck
-  at zero for types that are zero most of the year). Real coverage in season
-  2025: about 72% for gradient boosting, 55% for ARIMAX (56–68% on its three
-  types). The level the app acts on still comes from the classifier for
-  gradient-boosting types, so it can differ by one level from the median.
-- `statsmodels` and `scipy` are pinned in `requirements.txt` (ARIMAX runs in
-  the app). `predict.recent_readings()` gives the last two weeks of readings
-  (backup `backup/pollen_recent.csv`; demo: `backup/replay/pollen_recent_2025-05-24.csv`).
-- Honest limits (also in the report): the model per type was picked on the
-  same 2025 it is scored on; intervals are too narrow; peaks are smoothed.
+  24 May 2025, `backup/replay/pollen_forecast_2025-05-24.csv`, written by
+  `compare_models.py`), `best_source()` and `recent_readings()` (backup
+  `backup/pollen_recent.csv`; demo `backup/replay/pollen_recent_2025-05-24.csv`).
+  `scikit-learn`, `joblib`, `numpy`, `statsmodels` and `scipy` are pinned in
+  `requirements.txt` because the saved models only load with those versions.
+- Weather downloads: stations within ~10 km share one series
+  (`WEATHER_FROM` in `features.py`). A full retrain needs about 10,000
+  Open-Meteo "calls": if it refuses, wait an hour and rerun (downloads are in
+  `model_data/`, not committed).
+- To retrain: `train_air_model.py` → `train_pollen_model.py` →
+  `compare_models.py` (needs `matplotlib`; not in `requirements.txt`).
+- Honest limits (also in the report): one year to choose and one to test;
+  some intervals still too narrow; peaks are smoothed.
 
 ## 5-day planner (`planner.py`, `/api/planner`)
 
@@ -317,22 +348,23 @@ grains/m³. An hour slider (default 10:00) sets the time of day.
   therefore loads one calendar day more than it shows. Everything is a forecast.
 - Level of a block = the worse of the day's pollen level (only the selected
   allergy types, via `predict.best_source()`) and the block's air forecast
-  (Open-Meteo/CAMS, same ICA bands and profile rules as the main card).
+  (our air model at the nearest stations, same ICA bands and profile rules as
+  the main card).
   Block value: highest hour for NO2, block average for O3 and particles
   (`PLANNER_BLOCK_VALUE`, a documented simplification).
-- Real horizons (checked 16 Nov 2026): the air forecast reaches about 4.5 days,
-  so the last day's evening (and sometimes afternoon) has no air level; those
-  cells use pollen and weather only and the planner says so. Open-Meteo's own
-  pollen forecast reaches about 3 days.
+- Horizon: our air forecast is shown only 96 hours ahead (where it clearly
+  beat "same hour yesterday" in 2024, `air_model/meta.json`), so the last
+  day has no air level; those cells use pollen and weather only and the
+  planner says so.
 - Today's pollen is never better than the latest official reading (same floor
   as the main card).
 - Confidence label per day (`config.py`): with pollen types selected, from the
-  2025 test accuracy for that lead day (alta ≥75%, media ≥60%, else baja;
-  the European fallback always counts as baja). With no pollen type selected
-  it only reflects days ahead, because the air forecast was never tested by us.
+  2025 test accuracy of the chosen model for that lead day (alta ≥75%,
+  media ≥60%, else baja).
+  With no pollen type selected it only reflects days ahead.
 - Demo mode shows the view as of 24 May 2025 (`PLANNER_DEMO_DATE`): pollen is
-  the model's forecast with what was known that day; air and weather are the
-  European model's data for those dates, not the forecast issued then.
+  the model's forecast with what was known that day; air is our air model's
+  forecast made at 07:00 that day (`backup/replay/air_forecast_2025-05-24.csv`).
 - Page: a 5-column grid (day + four blocks) under the main card, which fits
   390px without sideways scrolling; tapping a
   cell opens the shared explanation panel (bottom sheet on phones, popover on
@@ -358,13 +390,13 @@ grains/m³. An hour slider (default 10:00) sets the time of day.
   Up to 3 lines at once (`CHART_MAX_LINES`), each with its own colour and
   marker shape (colours checked for colour-blind separation); tapping a type
   chip shows it and shades its interval.
-- **Aire:** hourly forecast (CAMS via Open-Meteo, same download as the
-  planner) of the pollutant that reaches the worst ICA category, over the
+- **Aire:** our hourly air forecast (same as the planner, up to 96 h) of the
+  pollutant that reaches the worst ICA category, over the
   official bands of that pollutant in the official colours.
 - Hand-drawn SVG, no chart library. Tap (or hover) a day or hour to read its
   values in the box below the chart.
 - The info icon opens "¿Cómo predecimos?" (`chartInfo()`): model per pollen
-  type (from `/api/config`), the data used, the delay, CAMS for air, and a
+  type (from `/api/config`), the data used, the delay, our air model, and a
   link to `MODEL_REPORT.md` on GitHub (`MODEL_REPORT_URL` in `config.py`).
 
 ## AI assistant "Pregúntale a Respira" (`assistant.py`, web app only)
@@ -385,8 +417,7 @@ grains/m³. An hour slider (default 10:00) sets the time of day.
   2025.
 - `get_planner` and `get_pollen_forecast` both call `planner.plan()`, so the
   assistant says exactly what the planner shows: our pollen model where it is
-  RELIABLE, the European forecast otherwise (grass and olive), or "sin
-  previsión fiable", each with the day's confidence label.
+  RELIABLE, otherwise "sin previsión fiable", each with the day's confidence label.
 - The system prompt is in Spanish: answer only from tool results, cite station
   or source and data time, flag provisional and forecast data, at most ~5
   sentences, no diagnoses or medication advice, 112 for emergencies, decline

@@ -8,9 +8,9 @@ chart.py - the numbers behind the forecast line chart (web app, under the planne
         interval, in grains/m3), plus the official level thresholds.
 
     air_chart(lat, lon, demo)
-        The hourly air-quality forecast (European CAMS model, via Open-Meteo)
-        of the pollutant that reaches the worst ICA category, with the
-        official ICA bands of that pollutant.
+        The hourly air-quality forecast of OUR model (made from the official
+        measurements of the nearest station) for the pollutant that reaches
+        the worst ICA category, with the official ICA bands of that pollutant.
 
 No logic of its own: readings and forecasts come from pollen_model/predict.py
 and data.py, thresholds from config.py.
@@ -21,6 +21,7 @@ import pandas as pd
 import config
 import data
 import risk
+from air_model import predict as air_predict
 from pollen_model import predict
 
 OBSERVED_DAYS = 7                    # how many past days of readings the chart shows
@@ -105,17 +106,19 @@ def pollen_chart(lat, lon, allergy_types=(), demo=False):
 
 
 def air_chart(lat, lon, demo=False):
-    """Hourly forecast of the pollutant with the worst ICA category, from the current hour on."""
+    """Hourly forecast of the pollutant with the worst ICA category, from OUR air model, from the current hour on."""
     now = pd.Timestamp(config.PLANNER_DEMO_DATE) + pd.Timedelta(hours=7) if demo else risk.madrid_now()
-    result = {"demo": demo, "pollutant": None, "hours": [], "notes": [],
-              "source": "Previsión del modelo europeo CAMS (Open-Meteo)"}
+    result = {"demo": demo, "pollutant": None, "hours": [], "notes": [], "station": None,
+              "horizon_hours": air_predict.horizon_hours(),
+              "source": "Previsión de nuestro modelo, hecha con las mediciones oficiales de la estación"}
     try:
-        # the same download (and backup file) as the planner
-        forecast = data.load_forecast_air(round(lat, 2), round(lon, 2), config.PLANNER_DEMO_DATE if demo else None,
-                                          config.PLANNER_DAYS + 1)
+        forecast = air_predict.at_point(lat, lon, air_predict.forecast(demo, now))
+        if forecast is None:
+            raise ValueError("ninguna estación cercana tiene lecturas recientes")
     except Exception as error:
         result["notes"].append(f"Sin previsión de calidad del aire para este punto ({error}).")
         return result
+    used = forecast.attrs.get("stations", {})
     forecast = forecast[forecast["timestamp"] >= now.floor("h")]
 
     # the main pollutant: the one that reaches the worst category (ties: the one deepest into its band)
@@ -135,6 +138,9 @@ def air_chart(lat, lon, demo=False):
 
     pollutant = worst[2]
     result["pollutant"] = pollutant
+    if pollutant in used:                                         # the station this forecast is made from
+        result["station"] = {"station": used[pollutant]["station"], "source": used[pollutant]["source"],
+                             "distance_km": used[pollutant]["distance_km"]}
     result["bands"] = config.ICA_BANDS[pollutant]                 # upper limit of each official category, µg/m3
     result["categories"] = [{"name": name, "color": color} for name, color in zip(config.ICA_CATEGORIES, config.ICA_COLORS)]
     for _, row in forecast.dropna(subset=[pollutant]).iterrows():

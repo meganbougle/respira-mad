@@ -8,12 +8,13 @@ One public function per source:
     load_pollen()         -> Comunidad pollen levels (Red Palinocam)
     load_weather()        -> hourly weather from the Comunidad air network
     load_forecast_weather(lat, lon) -> Open-Meteo weather FORECAST (model)
-    load_forecast_air(lat, lon)     -> Open-Meteo air + pollen FORECAST (model)
     load_replay_air(now), load_replay_pollen() -> the demo day (28 May 2025)
 
 MEASUREMENTS (the first five) come from official stations.
-FORECASTS (the last two) come from a computer model. Never mix them up:
-every forecast table has a column kind = "FORECAST (model)".
+The weather forecast comes from a computer model (Open-Meteo): weather is the
+only thing taken from outside the Comunidad and the Ayuntamiento de Madrid.
+Air-quality and pollen FORECASTS are our own, made from the official
+measurements: see air_model/predict.py and pollen_model/predict.py.
 
 Every function:
   * is cached for 15 minutes (so we don't hammer the open-data portals),
@@ -72,9 +73,9 @@ GOOD_FLAGS = ["V", "T"]
 AIR_COLUMNS = ["station", "source", "lat", "lon", "pollutant", "value", "timestamp",
                "ica_value", "ica_hours", "flag"]
 
-# Open-Meteo (free, no key). Data licence: CC BY 4.0 - the app must credit Open-Meteo.
+# Open-Meteo (free, no key): WEATHER ONLY. Data licence: CC BY 4.0 - the app must credit Open-Meteo.
+# DATA RULE: air quality and pollen never come from Open-Meteo, only from the Comunidad and the Ayuntamiento.
 OPEN_METEO_WEATHER_URL = "https://api.open-meteo.com/v1/forecast"
-OPEN_METEO_AIR_URL = "https://air-quality-api.open-meteo.com/v1/air-quality"
 OPEN_METEO_ARCHIVE_URL = "https://archive-api.open-meteo.com/v1/archive"   # past weather (demo day)
 FORECAST_LABEL = "FORECAST (model)"
 
@@ -380,7 +381,7 @@ def load_weather():
 
 
 # ----------------------------------------------------------------------------
-# 5. FORECASTS from Open-Meteo (a computer model, NOT official measurements)
+# 5. WEATHER FORECAST from Open-Meteo (a computer model; weather is the only thing we take from it)
 # ----------------------------------------------------------------------------
 
 def _fetch_open_meteo(url, lat, lon, variables, day=None, days=2):
@@ -435,32 +436,6 @@ def load_forecast_weather(lat, lon, day=None, days=2):
     return _forecast_with_backup(
         "forecast_weather", lat, lon, day, days,
         lambda la, lo: _fetch_open_meteo(url, la, lo, variables, day, days))
-
-
-@st.cache_data(ttl=CACHE_SECONDS, show_spinner=False)
-def load_forecast_air(lat, lon, day=None, days=2):
-    """
-    Hourly air quality and pollen FORECAST for today and tomorrow (or `days`
-    days) at any lat/lon (European CAMS model, served by Open-Meteo).
-    Pollutants in ug/m3, pollen in grains/m3.
-    The air forecast only reaches about 4.5 days ahead and the pollen
-    forecast about 3: later hours come back empty.
-    """
-    variables = {
-        "nitrogen_dioxide": "NO2",
-        "ozone": "O3",
-        "pm10": "PM10",
-        "pm2_5": "PM2.5",
-        "alder_pollen": "alder_pollen",
-        "birch_pollen": "birch_pollen",
-        "grass_pollen": "grass_pollen",
-        "mugwort_pollen": "mugwort_pollen",
-        "olive_pollen": "olive_pollen",
-        "ragweed_pollen": "ragweed_pollen",
-    }
-    return _forecast_with_backup(
-        "forecast_air", lat, lon, day, days,
-        lambda la, lo: _fetch_open_meteo(OPEN_METEO_AIR_URL, la, lo, variables, day, days))
 
 
 # ----------------------------------------------------------------------------

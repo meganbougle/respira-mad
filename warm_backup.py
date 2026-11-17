@@ -5,7 +5,7 @@ live feed fails during the demo.
 Run it shortly before the demo, then commit the backup/ folder:
     .venv/bin/python warm_backup.py
 
-It downloads every live source, and the Open-Meteo forecast for every place
+It downloads every live source, and the Open-Meteo WEATHER forecast for every place
 in the app's dropdown (for today, and for the demo day).
 """
 
@@ -37,6 +37,16 @@ except Exception as error:
     problems += 1
     print(f"Modelo de polen: FAILED ({error})")
 
+# our own air-quality forecast (needs the last days of readings of both networks and the weather)
+try:
+    from air_model import predict as air_predict
+    live = air_predict.forecast().attrs.get("live")
+    problems += 0 if live else 1
+    print(f"Modelo de aire: {'LIVE, backup saved' if live else 'FAILED - kept the old backup'}")
+except Exception as error:
+    problems += 1
+    print(f"Modelo de aire: FAILED ({error})")
+
 places = risk.list_places(data.load_air())
 # (day, number of days): the main view (today, demo day) and the 5-day planner (today, demo planner day)
 planner_days = config.PLANNER_DAYS + 1          # one extra day for the last night's madrugada
@@ -44,11 +54,10 @@ requests_needed = [(None, 2), (config.REPLAY_DATE, 2), (None, planner_days), (co
 for name, (lat, lon) in places.items():
     status = []
     for day, days in requests_needed:
-        for loader in (data.load_forecast_air, data.load_forecast_weather):
-            try:
-                status.append(loader(round(lat, 2), round(lon, 2), day, days).attrs.get("live"))
-            except Exception:
-                status.append(False)
+        try:                                         # weather only: air and pollen forecasts are our own models
+            status.append(data.load_forecast_weather(round(lat, 2), round(lon, 2), day, days).attrs.get("live"))
+        except Exception:
+            status.append(False)
     problems += 0 if all(status) else 1
     print(f"Forecast {name}: {'OK' if all(status) else 'SOME FAILED'}")
 

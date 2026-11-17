@@ -78,9 +78,9 @@ except Exception as error:
     print(f"  FAILED: {error}")
     results.append(False)
 
-# Forecasts (Open-Meteo model) for one test point: central Madrid.
-print("\n=== 5. FORECAST (model) - Open-Meteo, central Madrid ===")
-for title, loader in (("weather", data.load_forecast_weather), ("air + pollen", data.load_forecast_air)):
+# Weather forecast (Open-Meteo: weather only) for one test point: central Madrid.
+print("\n=== 5. WEATHER FORECAST (model) - Open-Meteo, central Madrid ===")
+for title, loader in (("weather", data.load_forecast_weather),):
     try:
         forecast = loader(40.42, -3.70)
         columns = [c for c in forecast.columns if c not in ("timestamp", "lat", "lon", "source", "kind")]

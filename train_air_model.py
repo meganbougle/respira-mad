@@ -29,6 +29,7 @@ import json
 import logging
 import time
 import warnings
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import joblib
@@ -84,7 +85,7 @@ def get_json(url, params, tries=8):
     """Download JSON; if Open-Meteo's free service refuses (hourly limit), wait and try again."""
     for attempt in range(tries):
         try:
-            response = requests.get(url, params=params, timeout=180)
+            response = requests.get(url, params=params, timeout=600)
             if response.status_code == 200:
                 return response.json()
             problem = f"answer {response.status_code}: {response.text[:120]}"
@@ -111,22 +112,18 @@ def zone_weather(zone, lat, lon, end):
     return pd.read_csv(cache, parse_dates=["timestamp"]).drop_duplicates("timestamp").set_index("timestamp")
 
 
-def zone_issued(zone, lat, lon, year):
-    """The weather forecasts AS ISSUED 1 to 5 days before each hour of `year` (Open-Meteo previous runs)."""
-    cache = CACHE / f"air_issued_zone{zone}_{year}.csv"
+def issued_run(zone, lat, lon, year, k):
+    """The weather forecast AS ISSUED k days before each hour of `year`, for one zone (Open-Meteo previous runs)."""
+    cache = CACHE / f"air_issued_zone{zone}_{year}_k{k}.csv"
     if not cache.exists():
-        print(f"  downloading the weather forecasts issued in {year} for zone {zone}...", flush=True)
+        names = {f"{their}_previous_day{k}": ours for their, ours in HOURLY.items()}
         parts = []
-        for k in range(1, 6):
-            names = {f"{their}_previous_day{k}": ours for their, ours in HOURLY.items()}
-            result = get_json(PREVIOUS_RUNS_URL, {"latitude": lat, "longitude": lon, "start_date": f"{year}-01-01",
-                                                  "end_date": f"{year}-12-31", "hourly": ",".join(names), "timezone": "Europe/Madrid"})
-            part = pd.DataFrame(result["hourly"]).rename(columns={"time": "timestamp", **names})
-            part["k"] = k
-            parts.append(part)
+        for start, end in ((f"{year}-01-01", f"{year}-06-30"), (f"{year}-07-01", f"{year}-12-31")):     # the archive is slow: half a year per request
+            result = get_json(PREVIOUS_RUNS_URL, {"latitude": lat, "longitude": lon, "start_date": start, "end_date": end,
+                                                  "hourly": ",".join(names), "timezone": "Europe/Madrid"})
+            parts.append(pd.DataFrame(result["hourly"]).rename(columns={"time": "timestamp", **names}))
         pd.concat(parts).to_csv(cache, index=False)
-    table = pd.read_csv(cache, parse_dates=["timestamp"])
-    return {k: g.drop(columns="k").drop_duplicates("timestamp").set_index("timestamp") for k, g in table.groupby("k")}
+    return pd.read_csv(cache, parse_dates=["timestamp"]).drop_duplicates("timestamp").set_index("timestamp")
 
 
 # ============================================================================
@@ -148,17 +145,35 @@ stations["zone"] = grouping.labels_
 zone = stations["zone"].to_numpy()
 centres = grouping.cluster_centers_
 
-# weather[run, zone, hour, variable]: run 0 = what happened; runs 1-5 = the forecast issued 1-5 days before
+# weather[run, zone, hour, variable]: run 0 = what happened; runs 1-5 = the forecast issued 1-5 days before.
+# SIMPLIFICATION: the archive of issued forecasts is very slow to download, so they are downloaded for the
+# three zones with most stations (Madrid city, south, east: 41 of 52 stations). Each other zone uses its own
+# weather shifted by the forecast ERROR of the nearest of those three (rain: that zone's forecast rain).
 weather = np.full((6, ZONES, len(hours), len(F.WEATHER_PLUS)), np.nan, dtype="float32")
+actual = {}
 for z in range(ZONES):
-    actual = zone_weather(z, centres[z][0], centres[z][1], hours[-1].normalize())
-    actual = actual.reindex(hours).ffill(limit=3)
-    weather[0, z] = F.add_weather_windows(actual).to_numpy()
+    actual[z] = zone_weather(z, centres[z][0], centres[z][1], hours[-1].normalize()).reindex(hours).ffill(limit=3)
+    weather[0, z] = F.add_weather_windows(actual[z]).to_numpy()
+reference_zones = list(stations["zone"].value_counts().index[:3])
+tasks = [(z, year, k) for z in reference_zones for year in (CHOOSE_YEAR, TEST_YEAR) for k in range(1, 6)]
+print(f"  weather forecasts as issued in {CHOOSE_YEAR} and {TEST_YEAR}: {len(tasks)} files (slow the first time)...", flush=True)
+with ThreadPoolExecutor(max_workers=8) as pool:
+    downloaded = list(pool.map(lambda t: issued_run(t[0], centres[t[0]][0], centres[t[0]][1], t[1], t[2]), tasks))
+issued_by = dict(zip(tasks, downloaded))
+for z in range(ZONES):
+    nearest = min(reference_zones, key=lambda r: (centres[r][0] - centres[z][0]) ** 2 + (centres[r][1] - centres[z][1]) ** 2)
     for year in (CHOOSE_YEAR, TEST_YEAR):
-        for k, issued in zone_issued(z, centres[z][0], centres[z][1], year).items():
+        in_year = hours.year == year
+        for k in range(1, 6):
+            issued = issued_by[(nearest, year, k)].reindex(hours)
+            if nearest != z:
+                error = issued - actual[nearest][F.WEATHER]
+                shifted = (actual[z][F.WEATHER] + error).clip(lower=0)
+                shifted["temp"] = actual[z]["temp"] + error["temp"]            # temperature may be below zero
+                shifted["rain"] = issued["rain"]
+                issued = shifted
             # where no archived forecast exists (before 19 January 2024) the weather that happened stands in
-            issued = issued.reindex(hours).combine_first(actual[F.WEATHER].where(hours.year == year))
-            in_year = hours.year == year
+            issued = issued.combine_first(actual[z][F.WEATHER])
             weather[k, z, in_year] = F.add_weather_windows(issued).to_numpy()[in_year]
 weather_start = hours[0]
 

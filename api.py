@@ -15,7 +15,7 @@ Addresses:
     /api/stations     air stations with their ICA category + pollen stations
     /api/risk         level, reason, official recommendation, measurements used
     /api/hours        hour-by-hour levels and best windows (forecast)
-    /api/planner      today + 4 days in three parts of the day (forecast, with our pollen model)
+    /api/planner      today + 4 days in four parts of the day (forecast, with our pollen and air models)
     /api/chart        the forecast line chart: recent readings + pollen forecast with interval, or the air forecast
     /api/freshness    each source, its timestamp, minutes ago, provisional flag
     /api/chat         (POST) the AI assistant "Pregúntale a Respira" (see assistant.py)
@@ -44,6 +44,7 @@ for name in ("streamlit.runtime.caching.cache_data_api",
 warnings.filterwarnings("ignore", message=".*ScriptRunContext.*")
 
 import assistant  # noqa: E402
+from air_model import predict as air_predict  # noqa: E402
 import chart      # noqa: E402
 import config     # noqa: E402
 import data       # noqa: E402
@@ -255,11 +256,12 @@ def get_hours(lat: float = LAT, lon: float = LON, profile: str = "general",
                 "day": "hoy" if moment.normalize() == now.normalize() else "mañana",
                 "best": any(w["start"] <= moment < w["end"] for w in windows),
                 "NO2": row["NO2"], "O3": row["O3"], "PM10": row["PM10"], "PM2.5": row["PM2.5"],
-                "grass_pollen": row["grass_pollen"], "olive_pollen": row["olive_pollen"],
                 "temperature_c": row["temperature_c"], "rain_mm": row["rain_mm"],
             })
     return clean({
-        "kind": "PREVISIÓN (modelo de Open-Meteo), no mediciones oficiales",
+        "kind": "PREVISIÓN de nuestros modelos (hecha con las mediciones oficiales), no mediciones",
+        # which station each pollutant's forecast comes from
+        "air_stations": result["forecast"].attrs.get("stations") if result["forecast"] is not None else None,
         "hours": hours,                              # the next 24 hours, starting at the current hour
         "windows": [{"day": w["day"], "start": w["start"], "end": w["end"], "level_index": w["level_index"],
                      "temperature_c": w["temperature_c"], "rain_mm": w["rain_mm"]} for w in windows],
@@ -348,16 +350,29 @@ def get_freshness(demo: bool = False, hour: int = HOUR,
     except Exception:
         pass
 
+    # our own forecasts (made from the official measurements) and the weather forecast
+    try:
+        forecast = air_predict.forecast(demo, moment)
+        made = forecast.attrs.get("fetched_at") or real_now
+        minutes = minutes_between(made, moment if demo else real_now)
+        sources.append({
+            "source": "Previsión de aire · modelo propio (con mediciones oficiales)", "timestamp": made,
+            "minutes_ago": minutes, "ago": ago_text(minutes), "provisional": False,
+            "status": f"PREVISIÓN (modelo), hasta {air_predict.horizon_hours()} h",
+            "origin": origin(forecast), "live": bool(forecast.attrs.get("live", True)) or demo,
+        })
+    except Exception:
+        pass
     if lat is not None and lon is not None:
         try:
-            forecast = data.load_forecast_air(round(lat, 2), round(lon, 2), config.REPLAY_DATE if demo else None)
-            minutes = minutes_between(forecast.attrs["fetched_at"], real_now)
+            weather = data.load_forecast_weather(round(lat, 2), round(lon, 2), config.REPLAY_DATE if demo else None)
+            minutes = minutes_between(weather.attrs["fetched_at"], real_now)
             sources.append({
-                "source": "Previsión · Open-Meteo (aire, polen y tiempo)", "timestamp": forecast.attrs["fetched_at"],
+                "source": "Previsión del tiempo · Open-Meteo", "timestamp": weather.attrs["fetched_at"],
                 "minutes_ago": minutes, "ago": ago_text(minutes), "provisional": False,
                 "status": "PREVISIÓN (modelo), no medición",
-                "origin": "En directo" if forecast.attrs.get("live") else "Copia de seguridad",
-                "live": bool(forecast.attrs.get("live")),
+                "origin": "Día de demostración" if demo else ("En directo" if weather.attrs.get("live") else "Copia de seguridad"),
+                "live": bool(weather.attrs.get("live")) or demo,
             })
         except Exception:
             pass

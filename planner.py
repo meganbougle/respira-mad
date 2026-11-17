@@ -12,10 +12,15 @@ it shows the early hours of the NEXT calendar day.
 
 Level of a block = the worse of
     - the pollen level of that DAY (only the pollen types the person selected;
-      from our own model where it proved reliable, else the European forecast
-      for grass and olive, else no pollen level), and
-    - the air quality forecast for that BLOCK, with the same official ICA
-      bands and the same profile rules as the main card.
+      from our own model where it proved reliable, else no pollen level), and
+    - the air quality forecast for that BLOCK (our own model, made from the
+      official station measurements; only as far ahead as it proved better
+      than the baseline), with the same official ICA bands and the same
+      profile rules as the main card.
+
+DATA RULE: pollen and air come only from the Comunidad de Madrid and the
+Ayuntamiento de Madrid (measurements, and our forecasts made from them).
+Only the weather comes from Open-Meteo.
 
 Everything here is a FORECAST. All thresholds come from config.py.
 """
@@ -25,7 +30,7 @@ import pandas as pd
 import config
 import data
 import risk
-from pollen_model import predict
+from air_model import predict as air_predict
 
 WEEKDAYS = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"]
 
@@ -34,8 +39,6 @@ def _confidence(lead, pollen_entries):
     """The confidence label of one day (rule explained in config.py). Returns (label, reason)."""
     used = [p for p in pollen_entries if p["kind"] != "none"]
     if used:
-        if any(p["kind"] == "european" for p in used):
-            return "baja", "El polen de este día viene de la previsión europea, que no hemos comprobado con mediciones."
         if any(p["kind"] == "measurement" for p in used) and all(p["kind"] in ("measurement", "model") for p in used):
             accuracies = [p["accuracy"] for p in used if p["accuracy"] is not None]
             if not accuracies:
@@ -48,8 +51,8 @@ def _confidence(lead, pollen_entries):
             return label, (f"En la prueba con 2025, nuestro modelo acertó el nivel de polen el {worst:.0%} de los días "
                            f"de temporada con {lead} día{'s' if lead != 1 else ''} de antelación.")
     label = config.CONFIDENCE_BY_DAYS_AHEAD[min(lead, len(config.CONFIDENCE_BY_DAYS_AHEAD) - 1)]
-    return label, ("Solo depende de la previsión de calidad del aire, que no hemos comprobado con mediciones: "
-                   "la etiqueta refleja únicamente los días de antelación.")
+    return label, ("Solo depende de nuestra previsión de calidad del aire: la etiqueta refleja los días de antelación "
+                   "(cuanto más lejos, menos acierta; véase el informe de modelos).")
 
 
 def plan(lat, lon, profile="general", allergy_types=(), now=None, demo=False):
@@ -67,23 +70,25 @@ def plan(lat, lon, profile="general", allergy_types=(), now=None, demo=False):
     # "madrugada" (00-07) falls on the following calendar day
     calendar_days = config.PLANNER_DAYS + 1
 
-    # ---- forecasts for this exact point (Open-Meteo): air + pollen, and weather
+    # ---- forecasts for this place: OUR air model (nearest stations) and the weather (Open-Meteo)
     air, weather = None, None
+    air_until = None                                        # the last hour our air forecast reaches
     try:
-        air = data.load_forecast_air(round(lat, 2), round(lon, 2), day_text, calendar_days)
+        air = air_predict.at_point(lat, lon, air_predict.forecast(demo, now))
+        if air is not None:
+            air_until = air["timestamp"].max()
+    except Exception as error:
+        notes.append(f"Nuestra previsión de calidad del aire no está disponible ahora ({error}).")
+    try:
         weather = data.load_forecast_weather(round(lat, 2), round(lon, 2), day_text, calendar_days)
     except Exception as error:
-        notes.append(f"Sin previsión de Open-Meteo para este punto ({error}).")
+        notes.append(f"Sin previsión del tiempo para este punto ({error}).")
 
     # ---- our pollen model: the nearest pollen station that has a forecast
     model_rows, model_station = None, None
     if allergy_types:
         try:
-            table = predict.forecast(demo)
-            if not table.empty:
-                table = risk._add_distance(table, lat, lon)
-                model_station = {"station": table.iloc[0]["station"], "distance_km": round(table.iloc[0]["distance_km"], 1)}
-                model_rows = table[table["station"] == model_station["station"]]
+            model_rows, model_station = risk.pollen_forecast_rows(lat, lon, demo)
         except Exception as error:
             notes.append(f"Nuestro modelo de polen no está disponible ahora ({error}).")
 
@@ -100,22 +105,7 @@ def plan(lat, lon, profile="general", allergy_types=(), now=None, demo=False):
         date = today + pd.Timedelta(days=lead)
         entries, app_level = [], None
         for pollen_type in allergy_types:
-            row = None
-            if model_rows is not None:
-                match = model_rows[(model_rows["pollen_type"] == pollen_type) & (model_rows["lead"] == lead)]
-                row = match.iloc[0] if len(match) else None
-            european = None
-            column = {v: k for k, v in config.FORECAST_POLLEN_TO_OFFICIAL.items()}.get(pollen_type)
-            if air is not None and column:
-                values = air[air["timestamp"].dt.normalize() == date][column]
-                if values.notna().sum() >= 12:              # at least half the day forecast
-                    european = risk.pollen_level(pollen_type, values.mean())
-            chosen = predict.best_source(pollen_type, lead, row, european)
-            entry = {"pollen_type": pollen_type, "name": config.POLLEN_NAMES[pollen_type], **chosen,
-                     "level_name": config.POLLEN_LEVELS[chosen["level"]] if chosen["level"] is not None else None}
-            if row is not None:
-                entry["model_level_name"] = config.POLLEN_LEVELS[int(row["predicted_level"])]
-                entry["model_reliable"] = bool(row["reliable"])
+            entry = risk.pollen_forecast_entry(pollen_type, date, model_rows)
             # today: the official reading is a floor (same rule as the main card)
             if lead == 0 and measured:
                 reading = next((t for t in measured["types"] if t["pollen_type"] == pollen_type), None)
@@ -148,6 +138,9 @@ def plan(lat, lon, profile="general", allergy_types=(), now=None, demo=False):
             if air is not None:
                 hours = air[(air["timestamp"].dt.normalize() == block_date)
                             & air["timestamp"].dt.hour.between(first_hour, last_hour - 1)]
+                # a block only gets an air level if the forecast covers at least half of its hours
+                if len(hours) < (last_hour - first_hour) / 2:
+                    hours = hours.iloc[0:0]
                 # One value per pollutant for the block (see config.py, PLANNER_BLOCK_VALUE):
                 # the highest hour for NO2, the average of the block for O3 and particles.
                 values = {}
@@ -183,7 +176,8 @@ def plan(lat, lon, profile="general", allergy_types=(), now=None, demo=False):
             if level is None:
                 block["basis"] = "Sin previsión de aire ni de polen para este tramo."
             elif air_level is None:
-                block["basis"] = "Solo polen: la previsión de calidad del aire no llega hasta este tramo."
+                block["basis"] = ("Solo polen: no mostramos previsión de calidad del aire tan lejos, porque a esa "
+                                  "distancia ya no mejora claramente a la referencia.")
             elif pollen_app_level is None:
                 block["basis"] = "Solo calidad del aire" + (": no hay previsión fiable de polen para tus tipos." if allergy_types else ".")
             else:
@@ -205,19 +199,22 @@ def plan(lat, lon, profile="general", allergy_types=(), now=None, demo=False):
     # ---- honest notes about what is missing
     missing_air = [f"{d['label']} {b['name'].lower()}" for d in days for b in d["blocks"] if b["air"] is None]
     if missing_air and air is not None:
-        notes.append("La previsión de calidad del aire de Open-Meteo no llega a: " + ", ".join(missing_air)
-                     + ". En esos tramos solo se usan el polen y el tiempo.")
+        notes.append(f"Nuestra previsión de calidad del aire solo se muestra hasta {air_predict.horizon_hours()} horas de "
+                     "antelación (hasta donde mejoró claramente a la referencia en las pruebas). No llega a: "
+                     + ", ".join(missing_air) + ". En esos tramos solo se usan el polen y el tiempo.")
     unreliable = sorted({p["name"] for d in days for p in d["pollen"] if p["kind"] == "none"})
     if unreliable:
         notes.append("Sin previsión fiable de polen para: " + ", ".join(unreliable) + " (en alguno de los días).")
     if demo:
-        notes.append("Modo demostración: vista del 24 de mayo de 2025. El polen es la previsión de nuestro modelo con lo "
-                     "que se sabía ese día; el aire y el tiempo son datos del modelo europeo para esas fechas, no la "
-                     "previsión que se emitió entonces.")
+        notes.append("Modo demostración: vista del 24 de mayo de 2025. El polen y el aire son las previsiones de nuestros "
+                     "modelos con lo que se sabía ese día; el tiempo es el que hizo en esas fechas (archivo de Open-Meteo).")
 
     return {
         "today": today, "demo": demo, "profile": profile,
         "kind": "PREVISIÓN: nada de esto son mediciones",
         "pollen_station": model_station,
+        # which stations the air forecast comes from, and how far ahead it is shown
+        "air_stations": air.attrs.get("stations") if air is not None else None,
+        "air_horizon_hours": air_predict.horizon_hours(), "air_until": air_until,
         "days": days, "notes": notes,
     }

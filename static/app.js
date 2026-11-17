@@ -339,7 +339,7 @@ function drawRisk(risk) {
     const age = pollen.age_days === 0 ? "de hoy" : `de hace ${pollen.age_days} días`;
     const head = pollen.kind === "measurement"
       ? `<b>Polen</b> · ${esc(pollen.station)} (${num(pollen.distance_km, 1)} km) · lectura del ${ddmm(pollen.reading_date)}, <b>${age}</b>`
-      : '<b>Polen</b> · sin lectura reciente de polen <span class="tag tag-forecast">Previsión Open-Meteo</span>';
+      : "<b>Polen</b> · sin lectura reciente de polen";
     const shown = pollen.types.filter((t, i) => t.counts_for_you || t.level > 0 || i < 3).slice(0, 6);
     box.innerHTML = `<div class="pollen-head">${head}</div>` + shown.map((t) => `
       <div class="pollen-row ${t.counts_for_you ? "counts" : ""}">
@@ -406,10 +406,9 @@ function drawHourDetail() {
   const h = lastHours && lastHours.hours.find((x) => x.time === state.selectedHour);
   if (!h) { $("hour-detail").textContent = ""; return; }
   const parts = [
-    `NO2 ${num(h.NO2)}`, `O3 ${num(h.O3)}`, `PM10 ${num(h.PM10)}`, `PM2.5 ${num(h["PM2.5"])} µg/m³`,
+    ...["NO2", "O3", "PM10", "PM2.5"].filter((p) => h[p] != null).map((p) => `${p} ${num(h[p])}`), "µg/m³ (previsión)",
     `${num(h.temperature_c)} °C`, h.rain_mm > 0 ? `lluvia ${num(h.rain_mm, 1)} mm` : "sin lluvia",
   ];
-  if (state.allergic) parts.push(`gramíneas ${num(h.grass_pollen)} · olivo ${num(h.olive_pollen)} granos/m³`);
   $("hour-detail").innerHTML = `<b>${esc(h.day)} ${String(h.hour).padStart(2, "0")}:00 · ${esc(h.level_label)}</b>`
     + (h.limited_by ? ` (por ${esc(h.limited_by)})` : "")
     + `<br>${esc(parts.join(" · "))}`;
@@ -531,11 +530,12 @@ const info = {
     "<p>Todo lo que aparece aquí es una <b>previsión</b>, no una medición. Cuanto más lejos está el día, menos segura es.</p>"
     + "<p>Cada día tiene cuatro tramos: mañana (7–13 h), tarde (13–20 h), noche (20–24 h) y madrugada (0–7 h). La madrugada de cada fila es la de la noche que empieza ese día.</p>"
     + "<p>El nivel de cada tramo es lo peor entre:</p><ul><li>el <b>polen</b> previsto para ese día, solo de los tipos que has marcado;</li>"
-    + "<li>la <b>calidad del aire</b> prevista para ese tramo (modelo europeo CAMS, vía Open-Meteo), con los mismos umbrales oficiales del ICA y tu perfil.</li></ul>"
-    + "<p>El polen sale de nuestro propio modelo allí donde demostró ser fiable al probarlo con 2025. Donde no lo fue, se usa la previsión europea (solo gramíneas y olivo) o se indica «Sin previsión fiable».</p>"
+    + "<li>la <b>calidad del aire</b> prevista para ese tramo, con los mismos umbrales oficiales del ICA y tu perfil.</li></ul>"
+    + "<p>Las dos previsiones son de <b>nuestros propios modelos</b>, hechos solo con las mediciones oficiales de la Comunidad de Madrid y del Ayuntamiento de Madrid (y la previsión del tiempo).</p>"
+    + "<p>El polen se muestra donde el modelo demostró ser fiable; donde no, se indica «Sin previsión fiable». La previsión del aire solo se muestra hasta donde mejoró claramente a la referencia «misma hora de ayer»; más allá, la casilla usa solo el polen y lo dice.</p>"
     + "<p>La <b>confianza</b> de cada día (alta, media o baja) resume cuánto acertó la previsión en esa prueba. Toca cualquier casilla para ver el porqué.</p>" },
   hours: { title: "Mejores horas", html:
-    "<p><b>Previsión</b> del modelo europeo (Open-Meteo), no mediciones oficiales.</p>"
+    "<p><b>Previsión</b> de nuestro modelo de calidad del aire, hecho con las mediciones oficiales de las estaciones más cercanas; no son mediciones. La temperatura y la lluvia son de Open-Meteo.</p>"
     + "<p>Cada barra es una hora de las próximas 24, empezando por la actual, de día y de noche. La línea vertical marca la medianoche. La estrella marca las mejores franjas de tres horas. En el móvil, desliza hacia la izquierda para ver más horas.</p>"
     + "<p>Si tienes alergia y la última medición de polen es alta, ninguna hora de hoy aparece mejor que esa medición.</p>" },
   measurements: { title: "Mediciones cerca de ti", html:
@@ -642,6 +642,12 @@ function drawPlanner(data) {
   };
 }
 
+// "Plaza del Carmen y Plaza de España": the stations our air forecast for this place is made from.
+function airStationsText(stations) {
+  const names = [...new Set(Object.values(stations || {}).map((s) => s.station))];
+  return names.length ? names.join(" y ") : "las estaciones más cercanas";
+}
+
 // The "why" behind one planner cell.
 function plannerDetail(day, block) {
   const level = block.level_index == null ? null : config.levels[block.level_index];
@@ -657,13 +663,11 @@ function plannerDetail(day, block) {
   } else {
     html += "<ul>" + block.pollen.map((p) => {
       const chip = p.kind === "model" ? '<span class="source-chip">Nuestro modelo</span>'
-        : p.kind === "european" ? '<span class="source-chip is-european">Previsión europea</span>'
         : p.kind === "measurement" ? '<span class="source-chip is-measured">Medición oficial</span>'
         : '<span class="source-chip is-none">Sin previsión fiable</span>';
       const accuracy = p.kind === "model" && p.accuracy != null ? ` Acertó el ${num(p.accuracy * 100)} % de los días de temporada en la prueba con 2025.` : "";
       const level = p.level_name ? `nivel <b>${esc(p.level_name)}</b>` : "sin nivel";
-      const why = p.kind === "none" ? " Nuestro modelo no superó la prueba para este tipo y antelación, y la previsión europea no lo cubre."
-        : p.kind === "european" ? " Nuestro modelo no superó la prueba para este tipo y antelación; se usa el modelo europeo CAMS (Open-Meteo)."
+      const why = p.kind === "none" ? " Nuestro modelo no superó la prueba para este tipo y antelación."
         : p.kind === "measurement" ? ` ${esc(p.source)}.` : "";
       return `<li><b>${esc(p.name)}</b>: ${level} ${chip}${accuracy}${why}</li>`;
     }).join("") + "</ul>";
@@ -673,10 +677,10 @@ function plannerDetail(day, block) {
   if (block.air) {
     const values = Object.entries(block.air.values).map(([p, v]) => `${esc(p)} ${num(v)}`).join(" · ");
     html += `<p>ICA previsto: <b>${esc(block.air.category_name)}</b> (por ${esc(block.air.pollutant)}, ${num(block.air.value)} µg/m³). `
-      + `<span class="source-chip is-european">Previsión europea</span></p><p>Valores del tramo: ${values} µg/m³ (hora más alta para NO2, media del tramo para el resto). Modelo CAMS, vía Open-Meteo.</p>`
+      + `<span class="source-chip">Nuestro modelo</span></p><p>Valores del tramo: ${values} µg/m³ (hora más alta para NO2, media del tramo para el resto). Modelo propio, hecho con las mediciones oficiales de ${esc(airStationsText(plannerData.air_stations))}.</p>`
       + `<p>Recomendación oficial para esa categoría y tu perfil: «${esc(block.air.official_advice)}»</p>`;
   } else {
-    html += "<p>La previsión de calidad del aire no llega hasta este tramo.</p>";
+    html += `<p>No mostramos previsión de calidad del aire para este tramo: solo se muestra hasta ${num(plannerData.air_horizon_hours)} horas de antelación, que es hasta donde mejoró claramente a la referencia en las pruebas.</p>`;
   }
 
   html += "<h4>Tiempo</h4>";
@@ -685,7 +689,7 @@ function plannerDetail(day, block) {
     : "<p>Sin previsión del tiempo.</p>";
 
   html += `<h4>Confianza del día: ${esc(day.confidence)}</h4><p>${esc(day.confidence_reason)} Las previsiones son menos seguras cuanto más lejos está el día.</p>`;
-  if (plannerData.demo) html += "<p>Vista del 24 de mayo de 2025: el polen es lo que nuestro modelo preveía con lo que se sabía ese día.</p>";
+  if (plannerData.demo) html += "<p>Vista del 24 de mayo de 2025: el polen y el aire son lo que nuestros modelos preveían con lo que se sabía ese día.</p>";
   return html;
 }
 
@@ -919,7 +923,11 @@ function drawPollenChart(data) {
 
 function drawAirChart(data) {
   $("chart-series").innerHTML = "";
-  $("chart-note").textContent = [data.pollutant ? `Contaminante con la categoría más alta prevista: ${data.pollutant}. ${data.source}, para el punto elegido.` : "", ...data.notes].filter(Boolean).join(" ");
+  $("chart-note").textContent = [
+    data.pollutant ? `Contaminante con la categoría más alta prevista: ${data.pollutant}.` : "",
+    data.station ? `${data.source} ${data.station.station} (${data.station.source}, a ${num(data.station.distance_km, 1)} km).` : "",
+    data.pollutant ? `Se muestra hasta ${num(data.horizon_hours)} horas de antelación.` : "",
+    ...data.notes].filter(Boolean).join(" ");
   if (!data.pollutant || data.hours.length < 2) { chartEmpty("No hay previsión de calidad del aire para este punto en este momento."); return; }
 
   const f = chartFrame();
@@ -955,7 +963,7 @@ function drawAirChart(data) {
   const day = new Date(Date.parse(picked.time.slice(0, 10)));
   $("chart-detail").innerHTML = `<b>${WEEKDAYS[day.getUTCDay()]} ${ddmm(picked.time)}, ${hhmm(picked.time)}</b><br>`
     + `${esc(data.pollutant)} previsto: ${num(picked.value)} µg/m³ · ${esc(picked.category_name || "sin categoría")}`;
-  $("chart-legend").innerHTML = `<span>${sample(SERIES_COLORS[0], null, true)}Previsión (modelo europeo CAMS)</span>`;
+  $("chart-legend").innerHTML = `<span>${sample(SERIES_COLORS[0], null, true)}Previsión (modelo propio)</span>`;
 }
 
 // The explanation behind the chart's info icon: "¿Cómo predecimos?"
@@ -971,14 +979,17 @@ function chartInfo() {
     + "<b>ARIMAX</b> es un modelo estadístico clásico: ciclo anual + meteorología + las últimas lecturas.</p>"
     + "<h4>Qué datos usan</h4>"
     + "<ul><li>El historial de polen de la Red Palinocam desde 1993.</li>"
-    + "<li>La meteorología de Open-Meteo: calor acumulado en el año, lluvia de las últimas semanas y la previsión del tiempo.</li>"
+    + "<li>La meteorología (Open-Meteo): calor acumulado en el año, lluvia de las últimas semanas y la previsión del tiempo. Es lo único que no viene de la Comunidad o del Ayuntamiento.</li>"
     + "<li>Las lecturas se publican con unos <b>3 días de retraso</b>: la previsión de «mañana» se hace 4 días después de la última lectura conocida. Por eso hay un hueco entre lo medido y hoy.</li></ul>"
     + "<h4>Cómo leer el gráfico</h4>"
     + "<p>Línea continua: lo medido. Línea discontinua: la previsión (su valor central). La zona sombreada es el <b>intervalo de predicción del 80 %</b>; "
     + "en la prueba con 2025 el valor real cayó dentro algo menos de lo previsto (en torno al 70 % con gradient boosting y al 55–70 % con ARIMAX). "
     + "Las bandas de fondo son los niveles oficiales (bajo, medio, alto, muy alto) de cada tipo.</p>"
     + "<h4>Aire</h4>"
-    + "<p>La previsión de calidad del aire <b>no es nuestra</b>: viene del modelo europeo CAMS (vía Open-Meteo), con las bandas oficiales del Índice Nacional de Calidad del Aire. No la hemos comprobado con mediciones.</p>"
+    + "<p>La previsión de calidad del aire también es <b>nuestra</b>: un modelo de gradient boosting por contaminante (NO2, O3, PM10, PM2.5), entrenado con las mediciones horarias oficiales de las estaciones de la Comunidad y del Ayuntamiento de Madrid desde 2019 y con la meteorología. "
+    + "Lo comparamos con la referencia «misma hora de ayer» y con un modelo SARIMAX, y solo la mostramos hasta donde mejoró claramente a la referencia.</p>"
+    + "<h4>De dónde salen los datos</h4>"
+    + "<p>Todos los datos de polen y de calidad del aire, medidos y previstos, salen únicamente de la Comunidad de Madrid y del Ayuntamiento de Madrid. Solo la meteorología es de Open-Meteo.</p>"
     + `<p><a href="${esc(config.model_report_url)}" target="_blank" rel="noopener">Leer el informe completo de los modelos (MODEL_REPORT.md)</a></p>` };
 }
 

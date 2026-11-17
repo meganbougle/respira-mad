@@ -1,62 +1,62 @@
 station,source,lat,lon,pollutant,value,timestamp,ica_value,ica_hours,flag
-Plaza de España,Ayuntamiento de Madrid,40.4238823,-3.7122567,NO2,16,2026-11-17,16.0,1,V
-Plaza de España,Ayuntamiento de Madrid,40.4238823,-3.7122567,PM10,7,2026-11-17,8.0,24,V
-Plaza de España,Ayuntamiento de Madrid,40.4238823,-3.7122567,PM2.5,5,2026-11-17,4.2,24,V
-Escuelas Aguirre,Ayuntamiento de Madrid,40.4215533,-3.6823158,NO2,21,2026-11-17,21.0,1,V
-Escuelas Aguirre,Ayuntamiento de Madrid,40.4215533,-3.6823158,O3,33,2026-11-17,40.8,8,V
-Escuelas Aguirre,Ayuntamiento de Madrid,40.4215533,-3.6823158,PM10,14,2026-11-17,11.3,24,V
-Escuelas Aguirre,Ayuntamiento de Madrid,40.4215533,-3.6823158,PM2.5,7,2026-11-17,3.8,24,V
-Ramón y Cajal,Ayuntamiento de Madrid,40.4514734,-3.6773491,NO2,21,2026-11-17,21.0,1,V
-Arturo Soria,Ayuntamiento de Madrid,40.4400457,-3.6392422,NO2,23,2026-11-17,23.0,1,V
-Arturo Soria,Ayuntamiento de Madrid,40.4400457,-3.6392422,O3,38,2026-11-17,45.0,8,V
-Villaverde,Ayuntamiento de Madrid,40.347147,-3.7133167,NO2,30,2026-11-17,30.0,1,V
-Villaverde,Ayuntamiento de Madrid,40.347147,-3.7133167,O3,28,2026-11-17,42.2,8,V
-Farolillo,Ayuntamiento de Madrid,40.3947825,-3.7318356,NO2,17,2026-11-17,17.0,1,V
-Farolillo,Ayuntamiento de Madrid,40.3947825,-3.7318356,O3,45,2026-11-17,48.8,8,V
-Farolillo,Ayuntamiento de Madrid,40.3947825,-3.7318356,PM10,20,2026-11-17,22.1,24,V
-Casa de Campo,Ayuntamiento de Madrid,40.4193577,-3.7473445,NO2,9,2026-11-17,9.0,1,V
-Casa de Campo,Ayuntamiento de Madrid,40.4193577,-3.7473445,O3,48,2026-11-17,59.9,8,V
-Casa de Campo,Ayuntamiento de Madrid,40.4193577,-3.7473445,PM10,13,2026-11-17,8.6,24,V
-Casa de Campo,Ayuntamiento de Madrid,40.4193577,-3.7473445,PM2.5,8,2026-11-17,4.9,24,V
-Barajas Pueblo,Ayuntamiento de Madrid,40.4769179,-3.5800258,NO2,35,2026-11-17,35.0,1,V
-Barajas Pueblo,Ayuntamiento de Madrid,40.4769179,-3.5800258,O3,26,2026-11-17,43.5,8,V
-Plaza del Carmen,Ayuntamiento de Madrid,40.4192091,-3.7031662,NO2,25,2026-11-17,25.0,1,V
-Plaza del Carmen,Ayuntamiento de Madrid,40.4192091,-3.7031662,O3,38,2026-11-17,50.8,8,V
-Moratalaz,Ayuntamiento de Madrid,40.4079517,-3.6453104,NO2,24,2026-11-17,24.0,1,V
-Moratalaz,Ayuntamiento de Madrid,40.4079517,-3.6453104,PM10,8,2026-11-17,7.2,24,V
-Cuatro Caminos,Ayuntamiento de Madrid,40.4455439,-3.7071303,NO2,14,2026-11-17,14.0,1,V
-Cuatro Caminos,Ayuntamiento de Madrid,40.4455439,-3.7071303,PM10,15,2026-11-17,15.2,21,V
-Cuatro Caminos,Ayuntamiento de Madrid,40.4455439,-3.7071303,PM2.5,10,2026-11-17,8.4,21,V
-Barrio del Pilar,Ayuntamiento de Madrid,40.4782322,-3.7115364,NO2,15,2026-11-17,15.0,1,V
-Barrio del Pilar,Ayuntamiento de Madrid,40.4782322,-3.7115364,O3,48,2026-11-17,42.5,8,V
-Vallecas,Ayuntamiento de Madrid,40.3881478,-3.6515286,NO2,46,2026-11-17,46.0,1,V
-Vallecas,Ayuntamiento de Madrid,40.3881478,-3.6515286,PM10,15,2026-11-17,10.8,24,V
-Méndez Álvaro,Ayuntamiento de Madrid,40.3980991,-3.6868138,NO2,45,2026-11-17,45.0,1,V
-Méndez Álvaro,Ayuntamiento de Madrid,40.3980991,-3.6868138,PM10,18,2026-11-17,9.4,24,V
-Méndez Álvaro,Ayuntamiento de Madrid,40.3980991,-3.6868138,PM2.5,12,2026-11-17,4.9,24,V
-Castellana,Ayuntamiento de Madrid,40.4398904,-3.6903729,NO2,20,2026-11-17,20.0,1,V
-Castellana,Ayuntamiento de Madrid,40.4398904,-3.6903729,PM10,14,2026-11-17,10.8,24,V
-Castellana,Ayuntamiento de Madrid,40.4398904,-3.6903729,PM2.5,9,2026-11-17,5.5,24,V
-Parque del Retiro,Ayuntamiento de Madrid,40.4144444,-3.6824999,NO2,26,2026-11-17,26.0,1,V
-Parque del Retiro,Ayuntamiento de Madrid,40.4144444,-3.6824999,O3,30,2026-11-17,47.4,8,V
-Plaza Castilla,Ayuntamiento de Madrid,40.4655841,-3.6887449,NO2,20,2026-11-17,20.0,1,V
-Plaza Castilla,Ayuntamiento de Madrid,40.4655841,-3.6887449,PM10,10,2026-11-17,9.3,24,V
-Plaza Castilla,Ayuntamiento de Madrid,40.4655841,-3.6887449,PM2.5,5,2026-11-17,4.5,24,V
-Ensanche de Vallecas,Ayuntamiento de Madrid,40.3730118,-3.6121394,NO2,18,2026-11-17,18.0,1,V
-Ensanche de Vallecas,Ayuntamiento de Madrid,40.3730118,-3.6121394,O3,41,2026-11-17,49.1,8,V
-Ensanche de Vallecas,Ayuntamiento de Madrid,40.3730118,-3.6121394,PM10,13,2026-11-17,12.5,24,V
-Ensanche de Vallecas,Ayuntamiento de Madrid,40.3730118,-3.6121394,PM2.5,7,2026-11-17,5.7,24,V
-Plaza Elíptica,Ayuntamiento de Madrid,40.3850336,-3.7187679,NO2,34,2026-11-17,34.0,1,V
-Plaza Elíptica,Ayuntamiento de Madrid,40.3850336,-3.7187679,PM10,12,2026-11-17,11.5,24,V
-Plaza Elíptica,Ayuntamiento de Madrid,40.3850336,-3.7187679,PM2.5,4,2026-11-17,5.5,24,V
-Sanchinarro,Ayuntamiento de Madrid,40.4942012,-3.6605173,NO2,11,2026-11-17,11.0,1,V
-Sanchinarro,Ayuntamiento de Madrid,40.4942012,-3.6605173,PM10,4,2026-11-17,8.8,24,V
-Sanchinarro,Ayuntamiento de Madrid,40.4942012,-3.6605173,PM2.5,1,2026-11-17,5.0,24,V
-El Pardo,Ayuntamiento de Madrid,40.5180701,-3.7746101,NO2,15,2026-11-17,15.0,1,V
-El Pardo,Ayuntamiento de Madrid,40.5180701,-3.7746101,O3,14,2026-11-17,44.0,8,V
-Juan Carlos I,Ayuntamiento de Madrid,40.465144,-3.609031,NO2,19,2026-11-17,19.0,1,V
-Juan Carlos I,Ayuntamiento de Madrid,40.465144,-3.609031,O3,47,2026-11-17,53.8,8,V
-Tres Olivos,Ayuntamiento de Madrid,40.5005477,-3.6897308,NO2,12,2026-11-17,12.0,1,V
-Tres Olivos,Ayuntamiento de Madrid,40.5005477,-3.6897308,O3,57,2026-11-17,59.5,8,V
-Tres Olivos,Ayuntamiento de Madrid,40.5005477,-3.6897308,PM10,6,2026-11-17,5.9,24,V
-Tres Olivos,Ayuntamiento de Madrid,40.5005477,-3.6897308,PM2.5,4,2026-11-17,2.9,24,V
+Plaza de España,Ayuntamiento de Madrid,40.4238823,-3.7122567,NO2,14,2026-11-17 03:00:00,14.0,1,V
+Plaza de España,Ayuntamiento de Madrid,40.4238823,-3.7122567,PM10,11,2026-11-17 03:00:00,10.0,3,V
+Plaza de España,Ayuntamiento de Madrid,40.4238823,-3.7122567,PM2.5,7,2026-11-17 03:00:00,6.0,3,V
+Escuelas Aguirre,Ayuntamiento de Madrid,40.4215533,-3.6823158,NO2,13,2026-11-17 03:00:00,13.0,1,V
+Escuelas Aguirre,Ayuntamiento de Madrid,40.4215533,-3.6823158,O3,34,2026-11-17 03:00:00,29.7,3,V
+Escuelas Aguirre,Ayuntamiento de Madrid,40.4215533,-3.6823158,PM10,17,2026-11-17 03:00:00,13.0,3,V
+Escuelas Aguirre,Ayuntamiento de Madrid,40.4215533,-3.6823158,PM2.5,10,2026-11-17 03:00:00,6.3,3,V
+Ramón y Cajal,Ayuntamiento de Madrid,40.4514734,-3.6773491,NO2,17,2026-11-17 03:00:00,17.0,1,V
+Arturo Soria,Ayuntamiento de Madrid,40.4400457,-3.6392422,NO2,11,2026-11-17 03:00:00,11.0,1,V
+Arturo Soria,Ayuntamiento de Madrid,40.4400457,-3.6392422,O3,48,2026-11-17 03:00:00,39.7,3,V
+Villaverde,Ayuntamiento de Madrid,40.347147,-3.7133167,NO2,11,2026-11-17 03:00:00,11.0,1,V
+Villaverde,Ayuntamiento de Madrid,40.347147,-3.7133167,O3,49,2026-11-17 03:00:00,37.3,3,V
+Farolillo,Ayuntamiento de Madrid,40.3947825,-3.7318356,NO2,8,2026-11-17 03:00:00,8.0,1,V
+Farolillo,Ayuntamiento de Madrid,40.3947825,-3.7318356,O3,52,2026-11-17 03:00:00,41.7,3,V
+Farolillo,Ayuntamiento de Madrid,40.3947825,-3.7318356,PM10,20,2026-11-17 03:00:00,23.0,3,V
+Casa de Campo,Ayuntamiento de Madrid,40.4193577,-3.7473445,NO2,5,2026-11-17 03:00:00,5.0,1,V
+Casa de Campo,Ayuntamiento de Madrid,40.4193577,-3.7473445,O3,53,2026-11-17 03:00:00,53.7,3,V
+Casa de Campo,Ayuntamiento de Madrid,40.4193577,-3.7473445,PM10,11,2026-11-17 03:00:00,10.7,3,V
+Casa de Campo,Ayuntamiento de Madrid,40.4193577,-3.7473445,PM2.5,8,2026-11-17 03:00:00,7.0,3,V
+Barajas Pueblo,Ayuntamiento de Madrid,40.4769179,-3.5800258,NO2,14,2026-11-17 03:00:00,14.0,1,V
+Barajas Pueblo,Ayuntamiento de Madrid,40.4769179,-3.5800258,O3,42,2026-11-17 03:00:00,39.7,3,V
+Plaza del Carmen,Ayuntamiento de Madrid,40.4192091,-3.7031662,NO2,30,2026-11-17 03:00:00,30.0,1,V
+Plaza del Carmen,Ayuntamiento de Madrid,40.4192091,-3.7031662,O3,24,2026-11-17 03:00:00,27.0,3,V
+Moratalaz,Ayuntamiento de Madrid,40.4079517,-3.6453104,NO2,11,2026-11-17 03:00:00,11.0,1,V
+Moratalaz,Ayuntamiento de Madrid,40.4079517,-3.6453104,PM10,7,2026-11-17 03:00:00,10.0,3,V
+Cuatro Caminos,Ayuntamiento de Madrid,40.4455439,-3.7071303,NO2,9,2026-11-17 03:00:00,9.0,1,V
+Cuatro Caminos,Ayuntamiento de Madrid,40.4455439,-3.7071303,PM10,17,2026-11-17 03:00:00,15.7,3,V
+Cuatro Caminos,Ayuntamiento de Madrid,40.4455439,-3.7071303,PM2.5,13,2026-11-17 03:00:00,11.3,3,V
+Barrio del Pilar,Ayuntamiento de Madrid,40.4782322,-3.7115364,NO2,7,2026-11-17 03:00:00,7.0,1,V
+Barrio del Pilar,Ayuntamiento de Madrid,40.4782322,-3.7115364,O3,54,2026-11-17 03:00:00,52.0,3,V
+Vallecas,Ayuntamiento de Madrid,40.3881478,-3.6515286,NO2,14,2026-11-17 03:00:00,14.0,1,V
+Vallecas,Ayuntamiento de Madrid,40.3881478,-3.6515286,PM10,11,2026-11-17 03:00:00,15.3,3,V
+Méndez Álvaro,Ayuntamiento de Madrid,40.3980991,-3.6868138,NO2,22,2026-11-17 03:00:00,22.0,1,V
+Méndez Álvaro,Ayuntamiento de Madrid,40.3980991,-3.6868138,PM10,16,2026-11-17 03:00:00,16.3,3,V
+Méndez Álvaro,Ayuntamiento de Madrid,40.3980991,-3.6868138,PM2.5,10,2026-11-17 03:00:00,10.3,3,V
+Castellana,Ayuntamiento de Madrid,40.4398904,-3.6903729,NO2,18,2026-11-17 03:00:00,18.0,1,V
+Castellana,Ayuntamiento de Madrid,40.4398904,-3.6903729,PM10,16,2026-11-17 03:00:00,13.3,3,V
+Castellana,Ayuntamiento de Madrid,40.4398904,-3.6903729,PM2.5,11,2026-11-17 03:00:00,9.3,3,V
+Parque del Retiro,Ayuntamiento de Madrid,40.4144444,-3.6824999,NO2,18,2026-11-17 03:00:00,18.0,1,V
+Parque del Retiro,Ayuntamiento de Madrid,40.4144444,-3.6824999,O3,29,2026-11-17 03:00:00,25.3,3,V
+Plaza Castilla,Ayuntamiento de Madrid,40.4655841,-3.6887449,NO2,14,2026-11-17 03:00:00,14.0,1,V
+Plaza Castilla,Ayuntamiento de Madrid,40.4655841,-3.6887449,PM10,10,2026-11-17 03:00:00,10.3,3,V
+Plaza Castilla,Ayuntamiento de Madrid,40.4655841,-3.6887449,PM2.5,6,2026-11-17 03:00:00,6.0,3,V
+Ensanche de Vallecas,Ayuntamiento de Madrid,40.3730118,-3.6121394,NO2,13,2026-11-17 03:00:00,13.0,1,V
+Ensanche de Vallecas,Ayuntamiento de Madrid,40.3730118,-3.6121394,O3,46,2026-11-17 03:00:00,44.3,3,V
+Ensanche de Vallecas,Ayuntamiento de Madrid,40.3730118,-3.6121394,PM10,12,2026-11-17 03:00:00,12.0,3,V
+Ensanche de Vallecas,Ayuntamiento de Madrid,40.3730118,-3.6121394,PM2.5,7,2026-11-17 03:00:00,6.7,3,V
+Plaza Elíptica,Ayuntamiento de Madrid,40.3850336,-3.7187679,NO2,12,2026-11-17 03:00:00,12.0,1,V
+Plaza Elíptica,Ayuntamiento de Madrid,40.3850336,-3.7187679,PM10,10,2026-11-17 03:00:00,13.0,3,V
+Plaza Elíptica,Ayuntamiento de Madrid,40.3850336,-3.7187679,PM2.5,5,2026-11-17 03:00:00,6.3,3,V
+Sanchinarro,Ayuntamiento de Madrid,40.4942012,-3.6605173,NO2,11,2026-11-17 03:00:00,11.0,1,V
+Sanchinarro,Ayuntamiento de Madrid,40.4942012,-3.6605173,PM10,10,2026-11-17 03:00:00,10.7,3,V
+Sanchinarro,Ayuntamiento de Madrid,40.4942012,-3.6605173,PM2.5,6,2026-11-17 03:00:00,7.3,3,V
+El Pardo,Ayuntamiento de Madrid,40.5180701,-3.7746101,NO2,7,2026-11-17 03:00:00,7.0,1,V
+El Pardo,Ayuntamiento de Madrid,40.5180701,-3.7746101,O3,19,2026-11-17 03:00:00,16.3,3,V
+Juan Carlos I,Ayuntamiento de Madrid,40.465144,-3.609031,NO2,12,2026-11-17 03:00:00,12.0,1,V
+Juan Carlos I,Ayuntamiento de Madrid,40.465144,-3.609031,O3,47,2026-11-17 03:00:00,46.0,3,V
+Tres Olivos,Ayuntamiento de Madrid,40.5005477,-3.6897308,NO2,6,2026-11-17 03:00:00,6.0,1,V
+Tres Olivos,Ayuntamiento de Madrid,40.5005477,-3.6897308,O3,62,2026-11-17 03:00:00,60.7,3,V
+Tres Olivos,Ayuntamiento de Madrid,40.5005477,-3.6897308,PM10,6,2026-11-17 03:00:00,5.7,3,V
+Tres Olivos,Ayuntamiento de Madrid,40.5005477,-3.6897308,PM2.5,4,2026-11-17 03:00:00,4.0,3,V
