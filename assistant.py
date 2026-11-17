@@ -95,12 +95,13 @@ QUÉ PERFIL USAR
 - Si la persona no dice nada de esto, usa el perfil y las alergias del panel (aparecen en el contexto).
 - Di siempre, en pocas palabras, para qué perfil es la respuesta (por ejemplo: «Para el perfil de asma…»). Si no se ha tenido en cuenta el polen porque no hay alergia indicada, dilo así; no digas que no hay previsión de polen.
 - POLEN COMO INFORMACIÓN: si preguntan por el polen, puedes dar a cualquier persona los niveles de la última lectura oficial («polen» en get_risk: tipo, nivel, estación y fecha de la lectura), aunque no tenga alergia; pero sin alergia indicada el polen no cambia su nivel y NO citas la recomendación oficial del polen.
-- Si la herramienta no devuelve ninguna recomendación oficial para ese momento, no cites ninguna ni escribas una propia.
+- En get_pollen_forecast, cita «recomendacion_oficial_si_hay_alergia» solo si la persona tiene alergia al polen (lo dice en el chat o la tiene marcada en el panel).
+- Si la herramienta no devuelve ninguna recomendación oficial para ese momento, no cites ninguna, no escribas una propia y no comentes que falta.
 
 QUÉ PUEDE CONTENER TU RESPUESTA (y nada más)
 1. El nivel (puedes salir / precaución / mejor quédate en casa) para el momento por el que se pregunta.
 2. El motivo, con los datos de la herramienta: valor, estación o fuente, hora, y si es provisional o previsión.
-3. La recomendación oficial LITERAL que devuelve la herramienta para ese momento, entre comillas. Si preguntan por una hora concreta, usa la recomendación de esa hora («recomendacion_oficial_para_esa_hora»), no la de ahora.
+3. Si la herramienta devuelve una recomendación oficial para ese momento: esa recomendación LITERAL, entre comillas. Si no devuelve ninguna, no hables de recomendaciones (ni para decir que no hay). Si preguntan por una hora concreta, usa la recomendación de esa hora («recomendacion_oficial_para_esa_hora»), no la de ahora.
 4. Si procede: «consulta con tu médico o médica» ante dudas de salud, o «llama al 112» si hay dificultad para respirar o una emergencia.
 - NO añadas consejos ni opiniones propias de ningún tipo: nada de medicación ni inhaladores, ni síntomas que vigilar, ni beber agua, buscar sombra, descansar, mascarillas o ropa. Tampoco «conviene volver a consultar más tarde», ni valoraciones sobre el plan («yo lo descartaría», «es buena idea»), ni juicios sobre la fiabilidad que no vengan de la herramienta. Si la herramienta no lo dice, no lo digas.
 - Cuando el nivel de un tramo o de una hora se deba al polen, la recomendación oficial que debes citar es la del polen que devuelve la herramienta, no la de calidad del aire.
@@ -517,7 +518,7 @@ def get_pollen_forecast(lat, lon, pollen_types, context):
     except Exception:
         pass
 
-    return {
+    answer = {
         "tipo_de_dato": "PREVISIÓN de polen a varios días: menos segura cuanto más lejos está el día",
         "lugar": risk.place_name(lat, lon, _dropdown_places()),
         "vista_del_dia": result["today"].strftime("%d/%m/%Y"),
@@ -529,6 +530,23 @@ def get_pollen_forecast(lat, lon, pollen_types, context):
         "ultima_medicion_oficial": measurement or "Sin lectura reciente de polen en las estaciones.",
         "avisos": [n for n in result["notes"] if "polen" in n.lower() or "demostración" in n.lower()],
     }
+    # the official text only when it applies (otherwise the key is left out, so the model has nothing to comment on)
+    advice = _pollen_advice_for_days(result["days"])
+    if advice:
+        answer["recomendacion_oficial_si_hay_alergia"] = advice
+    return answer
+
+
+def _pollen_advice_for_days(days):
+    """The official pollen-allergy text, only if some day reaches "medio" or more (same rule as the main card).
+    The text is for people with pollen allergy; the prompt says to quote it only for them."""
+    high = [day["label"] for day in days
+            if any(p.get("level") is not None and p["level"] >= 1 for p in day["pollen"])]
+    if not high:
+        return None              # no official text for "bajo": nothing to quote
+    return {"texto": " ".join(config.POLLEN_ADVICE_ES),
+            "fuente": "Comunidad de Madrid, «Lo que debes conocer sobre la alergia al polen»",
+            "dias_con_nivel_medio_o_mas": high}
 
 
 def run_tool(name, tool_input, context):
