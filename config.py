@@ -65,6 +65,31 @@ ICA_AVERAGING_HOURS = {"NO2": 1, "O3": 8, "PM10": 24, "PM2.5": 24}
 #   a station with no data for a pollutant is skipped and the next nearest
 #   station is used.
 
+# APP DECISION: readings that are too old to describe "now".
+# A station whose latest reading of a pollutant is older than this is not
+# used for the result (the next nearest station is used and the app names
+# the skipped station); it is drawn faded on the map.
+STALE_HOURS = 3
+
+# APP DECISION: "Dato dudoso" (doubtful reading). There is no official rule
+# for this, so it is ours. A station's value (the average the index uses) is
+# doubtful when ALL of these are true:
+#   - it is at least "Desfavorable" (category 3 or worse),
+#   - the typical station (median of all the OTHER stations of both networks,
+#     same pollutant) is only "Buena" or "Razonablemente buena",
+#   - it is more than DOUBTFUL_FACTOR times that typical value.
+# A real region-wide episode (Saharan dust, an ozone episode) raises every
+# station, so it is never marked. Limit: a real but very local event (a fire
+# next to one station) would be marked too; the app says "Dato dudoso", not
+# "error". Doubtful readings are left out of the result and greyed on the map.
+# Found on 17 Nov 2026: Orusco del Tajuña PM10 18, 320, 437, 285, 164, 83, 3
+# µg/m³ (12:00-19:00, provisional, after 12 hours without data) while every
+# other station was "Buena"; the values are in the Comunidad's own file.
+DOUBTFUL_MIN_CATEGORY = 3
+DOUBTFUL_TYPICAL_MAX_CATEGORY = 1
+DOUBTFUL_FACTOR = 4
+DOUBTFUL_COLOR = "#9aa3a0"     # grey for a station whose only reading is doubtful
+
 # Official health recommendations ("Recomendaciones para la salud"), copied
 # word for word from the resolution. One text per category, in the same order
 # as ICA_CATEGORIES.

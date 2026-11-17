@@ -78,11 +78,18 @@ def plan(lat, lon, profile="general", allergy_types=(), now=None, demo=False):
         if air is not None:
             air_until = air["timestamp"].max()
     except Exception as error:
-        notes.append(f"Nuestra previsión de calidad del aire no está disponible ahora ({error}).")
+        data.problem("Nuestra previsión de calidad del aire no está disponible ahora.", error)   # the note is added below
+    # today's MEASURED hours at the nearest usable stations (live mode; the demo view starts at 07:00)
+    measured_air = None
+    if not demo:
+        try:
+            measured_air = air_predict.measured_at_point(lat, lon, now)
+        except Exception as error:
+            data.problem("Sin mediciones de hoy para el planificador.", error)
     try:
-        weather = data.load_forecast_weather(round(lat, 2), round(lon, 2), day_text, calendar_days)
+        weather = data.load_forecast_weather(lat, lon, day_text, calendar_days)
     except Exception as error:
-        notes.append(f"Sin previsión del tiempo para este punto ({error}).")
+        notes.append(data.problem("Sin previsión del tiempo para este punto.", error))
 
     # ---- our pollen model: the nearest pollen station that has a forecast
     model_rows, model_station = None, None
@@ -90,7 +97,7 @@ def plan(lat, lon, profile="general", allergy_types=(), now=None, demo=False):
         try:
             model_rows, model_station = risk.pollen_forecast_rows(lat, lon, demo)
         except Exception as error:
-            notes.append(f"Nuestro modelo de polen no está disponible ahora ({error}).")
+            notes.append(data.problem("Nuestro modelo de polen no está disponible ahora.", error))
 
     # ---- today's latest official reading (live mode only): today can never look better than what was measured
     measured = None
@@ -134,17 +141,44 @@ def plan(lat, lon, profile="general", allergy_types=(), now=None, demo=False):
             block_pollen, pollen_app_level = pollen_by_lead[lead + day_offset]
             block = {"name": name, "hours": f"{first_hour}–{last_hour} h", "date": block_date,
                      "next_day": bool(day_offset), "air": None, "weather": None, "pollen": block_pollen}
+            # ---- AIR for this part of the day, only from data that exists:
+            #   past hours of today   -> what the stations MEASURED
+            #   hours still to come   -> OUR FORECAST (up to its tested horizon)
+            #   the current part      -> measured hours so far + forecast for the rest; if neither
+            #                            covers it yet, the latest measurement (it is never empty)
+            block_start = block_date + pd.Timedelta(hours=first_hour)
+            block_end = block_date + pd.Timedelta(hours=last_hour)
+            block["status"] = "past" if block_end <= now else ("now" if block_start <= now else "future")
+            in_block = lambda table: table[(table["timestamp"].dt.normalize() == block_date)
+                                           & table["timestamp"].dt.hour.between(first_hour, last_hour - 1)]
+            measured_hours = in_block(measured_air) if measured_air is not None else None
+            last_measured = measured_air["timestamp"].max() if measured_air is not None else None
+            parts, kinds = [], []
+            if measured_hours is not None and not measured_hours.empty:
+                parts.append(measured_hours)
+                kinds.append("medida")
+            if air is not None and block["status"] != "past":
+                future = in_block(air)
+                if last_measured is not None:
+                    future = future[future["timestamp"] > last_measured]
+                if not future.empty:
+                    parts.append(future)
+                    kinds.append("prevista")
+            hours = pd.concat(parts, ignore_index=True) if parts else None
+            enough = hours is not None and (block["status"] == "now" or len(hours) >= (last_hour - first_hour) / 2)
+            if not enough and block["status"] == "now" and measured_air is not None:
+                hours, kinds, enough = measured_air.tail(1), ["última medición"], True   # never leave the current part empty
+            if not enough:
+                hours, kinds = None, []
+
             air_level = None
-            if air is not None:
-                hours = air[(air["timestamp"].dt.normalize() == block_date)
-                            & air["timestamp"].dt.hour.between(first_hour, last_hour - 1)]
-                # a block only gets an air level if the forecast covers at least half of its hours
-                if len(hours) < (last_hour - first_hour) / 2:
-                    hours = hours.iloc[0:0]
+            if hours is not None:
                 # One value per pollutant for the block (see config.py, PLANNER_BLOCK_VALUE):
                 # the highest hour for NO2, the average of the block for O3 and particles.
                 values = {}
                 for pollutant in config.ICA_BANDS:
+                    if pollutant not in hours:
+                        continue
                     series = hours[pollutant].dropna()
                     if not series.empty:
                         values[pollutant] = float(series.max() if config.PLANNER_BLOCK_VALUE[pollutant] == "max" else series.mean())
@@ -159,7 +193,8 @@ def plan(lat, lon, profile="general", allergy_types=(), now=None, demo=False):
                     block["air"] = {"category": worst[0], "category_name": config.ICA_CATEGORIES[worst[0]],
                                     "pollutant": worst[2], "value": round(values[worst[2]]),
                                     "values": {p: round(v) for p, v in values.items()},
-                                    # the official advice for that forecast category and this profile
+                                    "kind": " y ".join(kinds),     # "medida", "prevista", "medida y prevista", "última medición"
+                                    # the official advice for that category and this profile
                                     "official_advice": config.ICA_ADVICE_ES[audience][worst[0]]}
             if weather is not None:
                 hours = weather[(weather["timestamp"].dt.normalize() == block_date)
@@ -172,16 +207,25 @@ def plan(lat, lon, profile="general", allergy_types=(), now=None, demo=False):
             level = max(known) if known else None
             block["level_index"] = level
             block["level_label"] = config.LEVEL_LABELS[level] if level is not None else "Sin previsión"
-            # what the level is based on, in words
+            # what the level is based on, in words (only what was really used)
+            air_words = f"la calidad del aire ({block['air']['kind']})" if block["air"] else None
+            if block["air"] is None:
+                if block["status"] == "past":
+                    why_no_air = "no hay mediciones de aire para este tramo"
+                elif air is None:
+                    why_no_air = "la previsión de calidad del aire no está disponible ahora"
+                else:
+                    why_no_air = ("no mostramos previsión de calidad del aire tan lejos, porque a esa distancia ya no "
+                                  "mejora claramente a la referencia")
             if level is None:
-                block["basis"] = "Sin previsión de aire ni de polen para este tramo."
+                block["basis"] = f"Sin nivel: {why_no_air}" + (", y no hay previsión fiable de polen para tus tipos."
+                                                              if allergy_types else ".")
             elif air_level is None:
-                block["basis"] = ("Solo polen: no mostramos previsión de calidad del aire tan lejos, porque a esa "
-                                  "distancia ya no mejora claramente a la referencia.")
+                block["basis"] = f"Solo polen: {why_no_air}."
             elif pollen_app_level is None:
-                block["basis"] = "Solo calidad del aire" + (": no hay previsión fiable de polen para tus tipos." if allergy_types else ".")
+                block["basis"] = (f"Solo {air_words}" + (": no hay previsión fiable de polen para tus tipos." if allergy_types else "."))
             else:
-                block["basis"] = "Lo peor entre el polen del día y la calidad del aire del tramo."
+                block["basis"] = f"Lo peor entre el polen del día y {air_words} del tramo."
             block["driver"] = ("polen" if pollen_app_level is not None and pollen_app_level >= (air_level or 0) and pollen_app_level > 0
                                else "aire" if air_level else None)
             blocks.append(block)
@@ -197,8 +241,12 @@ def plan(lat, lon, profile="general", allergy_types=(), now=None, demo=False):
         })
 
     # ---- honest notes about what is missing
-    missing_air = [f"{d['label']} {b['name'].lower()}" for d in days for b in d["blocks"] if b["air"] is None]
-    if missing_air and air is not None:
+    missing_air = [f"{d['label']} {b['name'].lower()}" for d in days for b in d["blocks"]
+                   if b["air"] is None and b["status"] == "future"]
+    if air is None:
+        notes.append("Nuestra previsión de calidad del aire no está disponible ahora: los tramos que aún no han "
+                     "llegado no tienen nivel de aire.")
+    elif missing_air:
         notes.append(f"Nuestra previsión de calidad del aire solo se muestra hasta {air_predict.horizon_hours()} horas de "
                      "antelación (hasta donde mejoró claramente a la referencia en las pruebas). No llega a: "
                      + ", ".join(missing_air) + ". En esos tramos solo se usan el polen y el tiempo.")
@@ -215,6 +263,7 @@ def plan(lat, lon, profile="general", allergy_types=(), now=None, demo=False):
         "pollen_station": model_station,
         # which stations the air forecast comes from, and how far ahead it is shown
         "air_stations": air.attrs.get("stations") if air is not None else None,
+        "measured_stations": measured_air.attrs.get("stations") if measured_air is not None else None,
         "air_horizon_hours": air_predict.horizon_hours(), "air_until": air_until,
         "days": days, "notes": notes,
     }

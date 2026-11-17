@@ -51,7 +51,7 @@ def pollen_chart(lat, lon, allergy_types=(), demo=False):
     try:
         forecast = predict.forecast(demo)
     except Exception as error:
-        result["notes"].append(f"La previsión de polen no está disponible ahora ({error}).")
+        result["notes"].append(data.problem("La previsión de polen no está disponible ahora.", error))
         return result
     if forecast.empty:
         result["notes"].append("No hay ninguna estación de polen con lecturas recientes para hacer la previsión.")
@@ -68,7 +68,7 @@ def pollen_chart(lat, lon, allergy_types=(), demo=False):
                             & (readings["timestamp"] >= result["first_day"]) & (readings["timestamp"] <= today)]
     except Exception as error:
         readings = None
-        result["notes"].append(f"No se pudieron cargar las lecturas recientes ({error}).")
+        result["notes"].append(data.problem("No se pudieron cargar las lecturas recientes.", error))
 
     has_interval = "q50" in forecast.columns
     for pollen_type in allergy_types:
@@ -116,7 +116,7 @@ def air_chart(lat, lon, demo=False):
         if forecast is None:
             raise ValueError("ninguna estación cercana tiene lecturas recientes")
     except Exception as error:
-        result["notes"].append(f"Sin previsión de calidad del aire para este punto ({error}).")
+        result["notes"].append(data.problem("Sin previsión de calidad del aire para este punto.", error))
         return result
     used = forecast.attrs.get("stations", {})
     forecast = forecast[forecast["timestamp"] >= now.floor("h")]

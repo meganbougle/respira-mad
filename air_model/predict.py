@@ -18,16 +18,17 @@ The model is trained by train_air_model.py and stored in air_model/.
 """
 
 import json
+import time
 from pathlib import Path
 
 import joblib
 import numpy as np
 import pandas as pd
-import requests
 import streamlit as st
 
 import config
 import data
+import weather
 from air_model import features as F
 
 FOLDER = Path(__file__).parent
@@ -102,11 +103,10 @@ def _fetch_weather():
     """Hourly weather of the 8 zones: the last 3 days and the forecast for the coming days (one request)."""
     centres = meta()["zone_centres"]
     days_ahead = min(horizon_hours() // 24 + 2, 16)
-    response = requests.get(FORECAST_URL, timeout=data.TIMEOUT, params={
+    # one request for the 8 zones, retried with backoff if Open-Meteo is busy (weather.py)
+    answer = weather.get_json(FORECAST_URL, {
         "latitude": ",".join(str(lat) for lat, _ in centres), "longitude": ",".join(str(lon) for _, lon in centres),
         "hourly": ",".join(HOURLY), "timezone": "Europe/Madrid", "past_days": 3, "forecast_days": days_ahead})
-    response.raise_for_status()
-    answer = response.json()
     answer = answer if isinstance(answer, list) else [answer]
     tables = []
     for zone, one in enumerate(answer):
@@ -171,12 +171,20 @@ def _predict(recent, weather_table, now):
     return table.merge(stations[["station_code", "station", "source", "lat", "lon"]], on="station_code", how="left")
 
 
+def _zone_weather():
+    """The zones' weather: the saved copy if it is less than 1 hour old, otherwise a new download (with backup)."""
+    saved = data.BACKUP_DIR / "air_weather.csv"
+    if saved.exists() and time.time() - saved.stat().st_mtime < weather.FRESH_SECONDS:
+        return pd.read_csv(saved, parse_dates=["timestamp"])
+    return data._with_backup("air_weather", _fetch_weather)
+
+
 def _fetch_live_forecast():
     if horizon_hours() == 0:
         raise RuntimeError("the air forecast did not beat the baseline, so it is not shown")
     recent = _fetch_recent()
     recent.to_csv(data.BACKUP_DIR / "air_recent.csv", index=False)          # remember these hours for next time
-    weather_table = data._with_backup("air_weather", _fetch_weather)
+    weather_table = _zone_weather()
     return _predict(recent, weather_table, data._madrid_now())
 
 
@@ -204,12 +212,85 @@ def forecast(demo=False, moment=None):
     """
     if not demo:
         table = _live_forecast()
-        return table[table["timestamp"] > data._madrid_now().floor("h") - pd.Timedelta(hours=1)]
+        now = data._madrid_now()
+        table = table[table["timestamp"] > now.floor("h") - pd.Timedelta(hours=1)]
+        return _drop_unusable(table, now)
     table = _demo_forecast(moment.strftime("%Y-%m-%d"))
     issued = table[table["issued"] == moment.floor("h")]
     issued.attrs["live"] = False
     issued.attrs["fetched_at"] = moment
     return issued
+
+
+def _drop_unusable(table, now):
+    """
+    Leave out the forecasts that start from a reading the app does not trust
+    (same rules as the measurements, config.py): a station + pollutant whose
+    latest reading is a "Dato dudoso", or older than config.STALE_HOURS.
+    at_point() then takes the next nearest station.
+    """
+    keep = table["issued"] >= now - pd.Timedelta(hours=config.STALE_HOURS)
+    try:
+        air = data.load_air()
+        doubtful = air[air["doubtful"]]
+        for _, row in doubtful.iterrows():
+            keep &= ~((table["station"] == row["station"]) & (table["source"] == row["source"])
+                      & (table["pollutant"] == row["pollutant"]))
+    except Exception:
+        pass                                         # without the measurements, keep the forecast as it is
+    kept = table[keep]
+    kept.attrs.update(table.attrs)
+    return kept
+
+
+def measured_at_point(lat, lon, now):
+    """
+    The MEASURED hourly values of today (midnight to now) for one place: one
+    row per hour, one column per pollutant, each pollutant from the nearest
+    station that measures it and whose reading is usable (not a "Dato dudoso",
+    not older than config.STALE_HOURS). Used for the planner's past and
+    current parts of today. The hours come from backup/air_recent.csv, which
+    the forecast keeps up to date. `.attrs["stations"]` names the station per
+    pollutant. Returns None if there is nothing.
+    """
+    import risk                                      # (imported here because risk.py also uses this file)
+    stored = data.BACKUP_DIR / "air_recent.csv"
+    if not stored.exists():
+        return None
+    hours = pd.read_csv(stored, parse_dates=["timestamp"], dtype={"station_code": str})
+    hours = hours[(hours["timestamp"] > now.normalize()) & (hours["timestamp"] <= now)]
+    if hours.empty:
+        return None
+    stations = pd.DataFrame(meta()["stations"])
+    stations["station_code"] = stations["station_code"].astype(str)
+    hours = hours.merge(stations[["station_code", "station", "source", "lat", "lon"]], on="station_code")
+    doubtful = set()
+    try:
+        air = data.load_air()
+        doubtful = set(zip(air.loc[air["doubtful"], "station"], air.loc[air["doubtful"], "source"],
+                           air.loc[air["doubtful"], "pollutant"]))
+    except Exception:
+        pass
+    columns, used = {}, {}
+    for pollutant, group in hours.groupby("pollutant"):
+        if pollutant not in config.ICA_BANDS:
+            continue
+        best = None
+        for (code, station, source, la, lo), one in group.groupby(["station_code", "station", "source", "lat", "lon"]):
+            if (station, source, pollutant) in doubtful or risk.is_stale(one["timestamp"].max(), now):
+                continue
+            distance = risk.distance_km(lat, lon, la, lo)
+            if best is None or distance < best[0]:
+                best = (distance, station, source, one)
+        if best is not None:
+            columns[pollutant] = best[3].set_index("timestamp")["value"]
+            used[pollutant] = {"station": best[1], "source": best[2], "distance_km": round(best[0], 1)}
+    if not columns:
+        return None
+    table = pd.DataFrame(columns).sort_index()
+    table = table.reset_index().rename(columns={"index": "timestamp"})
+    table.attrs["stations"] = used
+    return table
 
 
 def at_point(lat, lon, table):

@@ -26,13 +26,16 @@ Addresses:
 import logging
 import math
 import os
+import threading
+import time
 import warnings
 from pathlib import Path
 
 import pandas as pd
 import streamlit  # noqa: F401  (data.py uses its cache; imported first so we can quiet it)
 from fastapi import FastAPI, HTTPException, Query, Request
-from fastapi.responses import FileResponse
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -50,10 +53,53 @@ import config     # noqa: E402
 import data       # noqa: E402
 import planner    # noqa: E402
 import risk       # noqa: E402
+import weather    # noqa: E402
+
+# the server's own log (Render shows it in the dashboard). Users never see these details.
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+log = logging.getLogger("respira.api")
 
 STATIC_DIR = Path(__file__).parent / "static"
 
 app = FastAPI(title="Respira MAD")
+
+
+# ----------------------------------------------------------------------------
+# Errors: visitors only ever get a short Spanish message; details go to the log
+# ----------------------------------------------------------------------------
+@app.exception_handler(RequestValidationError)
+def bad_request(request: Request, error: RequestValidationError):
+    log.warning("Bad request %s: %s", request.url.path, error.errors())
+    return JSONResponse(status_code=400, content={"detail": "La petición no es válida."})
+
+
+@app.exception_handler(Exception)
+def unexpected_error(request: Request, error: Exception):
+    log.exception("Unexpected error in %s", request.url.path)
+    return JSONResponse(status_code=500, content={"detail": "Algo ha fallado. Inténtalo de nuevo en unos minutos."})
+
+
+# ----------------------------------------------------------------------------
+# Weather prefetch: every hour, in the background, the weather of the 29
+# dropdown places and of every station is refreshed in a few batched requests
+# (weather.py), so visitors almost never wait for Open-Meteo.
+# ----------------------------------------------------------------------------
+PREFETCH_EVERY_SECONDS = 60 * 60
+
+
+def _prefetch_loop():
+    while True:
+        try:
+            asked, done = weather.prefetch(risk.weather_points())
+            log.info("Weather prefetch: %d cells asked, %d refreshed", asked, done)
+        except Exception:
+            log.exception("Weather prefetch failed (the cached copies are still used)")
+        time.sleep(PREFETCH_EVERY_SECONDS)
+
+
+@app.on_event("startup")
+def start_prefetch():
+    threading.Thread(target=_prefetch_loop, name="weather-prefetch", daemon=True).start()
 
 
 # ----------------------------------------------------------------------------
@@ -136,6 +182,7 @@ def get_config():
     """Everything the page needs to draw its buttons and colours."""
     return {
         "profiles": [{"key": key, "label": p["label"], "short": p["short"]} for key, p in config.PROFILES.items()],
+        "doubtful_color": config.DOUBTFUL_COLOR,
         # each pollen type with the forecast model that won the 2025 comparison (MODEL_REPORT.md)
         "pollen_types": [{"key": key, "label": label, "model": chart.model_label(key)}
                          for key, label in config.POLLEN_NAMES.items()],
@@ -178,15 +225,19 @@ def get_stations(demo: bool = False, hour: int = HOUR):
 
     air_stations = []
     try:
-        for _, s in risk.station_categories(air_table(demo, moment)).iterrows():
+        for _, s in risk.station_categories(air_table(demo, moment), moment).iterrows():
+            has_category = s["category"] is not None and not pd.isna(s["category"])
             air_stations.append({
                 "station": s["station"], "source": s["source"], "lat": s["lat"], "lon": s["lon"],
-                "category": s["category"], "category_name": s["category_name"],
-                "color": config.ICA_COLORS[s["category"]],
+                "category": int(s["category"]) if has_category else None,
+                "category_name": "Dato dudoso" if s["doubtful"] else s["category_name"],
+                # a station with a doubtful reading is grey on the map (its other pollutants are still listed and used)
+                "color": config.DOUBTFUL_COLOR if s["doubtful"] or not has_category else config.ICA_COLORS[int(s["category"])],
                 "details": s["details"], "timestamp": s["timestamp"],
+                "doubtful": bool(s["doubtful"]), "stale": bool(s["stale"]),
             })
     except Exception as error:
-        notes.append(f"Sin mediciones de calidad del aire ({error}).")
+        notes.append(data.problem("Sin mediciones de calidad del aire.", error))
 
     pollen_stations = []
     try:
@@ -200,7 +251,7 @@ def get_stations(demo: bool = False, hour: int = HOUR):
                           for t in info["types"][:4]],
             })
     except Exception as error:
-        notes.append(f"Sin mediciones de polen ({error}).")
+        notes.append(data.problem("Sin mediciones de polen.", error))
 
     return clean({"air": air_stations, "pollen": pollen_stations, "notes": notes, "time": moment})
 
@@ -365,14 +416,14 @@ def get_freshness(demo: bool = False, hour: int = HOUR,
         pass
     if lat is not None and lon is not None:
         try:
-            weather = data.load_forecast_weather(round(lat, 2), round(lon, 2), config.REPLAY_DATE if demo else None)
-            minutes = minutes_between(weather.attrs["fetched_at"], real_now)
+            forecast_weather = data.load_forecast_weather(lat, lon, config.REPLAY_DATE if demo else None)
+            minutes = minutes_between(forecast_weather.attrs["fetched_at"], real_now)
             sources.append({
-                "source": "Previsión del tiempo · Open-Meteo", "timestamp": weather.attrs["fetched_at"],
+                "source": "Previsión del tiempo · Open-Meteo", "timestamp": forecast_weather.attrs["fetched_at"],
                 "minutes_ago": minutes, "ago": ago_text(minutes), "provisional": False,
                 "status": "PREVISIÓN (modelo), no medición",
-                "origin": "Día de demostración" if demo else ("En directo" if weather.attrs.get("live") else "Copia de seguridad"),
-                "live": bool(weather.attrs.get("live")) or demo,
+                "origin": "Día de demostración" if demo else ("En directo" if forecast_weather.attrs.get("live") else "Copia de seguridad"),
+                "live": bool(forecast_weather.attrs.get("live")) or demo,
             })
         except Exception:
             pass

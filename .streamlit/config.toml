@@ -4,3 +4,7 @@ base = "light"
 
 [browser]
 gatherUsageStats = false
+
+# Never show Python tracebacks to visitors (the details stay in the server log)
+[client]
+showErrorDetails = false

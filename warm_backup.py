@@ -6,7 +6,7 @@ Run it shortly before the demo, then commit the backup/ folder:
     .venv/bin/python warm_backup.py
 
 It downloads every live source, and the Open-Meteo WEATHER forecast for every place
-in the app's dropdown (for today, and for the demo day).
+in the app's dropdown and every station (for today, and for the demo days), in batches.
 """
 
 import logging
@@ -47,18 +47,16 @@ except Exception as error:
     problems += 1
     print(f"Modelo de aire: FAILED ({error})")
 
+# the Open-Meteo WEATHER (weather only: air and pollen forecasts are our own models), in batched
+# requests (weather.py): the dropdown places and every station, for today and for the two demo days
+import weather  # noqa: E402
 places = risk.list_places(data.load_air())
-# (day, number of days): the main view (today, demo day) and the 5-day planner (today, demo planner day)
-planner_days = config.PLANNER_DAYS + 1          # one extra day for the last night's madrugada
-requests_needed = [(None, 2), (config.REPLAY_DATE, 2), (None, planner_days), (config.PLANNER_DEMO_DATE, planner_days)]
-for name, (lat, lon) in places.items():
-    status = []
-    for day, days in requests_needed:
-        try:                                         # weather only: air and pollen forecasts are our own models
-            status.append(data.load_forecast_weather(round(lat, 2), round(lon, 2), day, days).attrs.get("live"))
-        except Exception:
-            status.append(False)
-    problems += 0 if all(status) else 1
-    print(f"Forecast {name}: {'OK' if all(status) else 'SOME FAILED'}")
+points = risk.weather_points()
+for day, label in ((None, "hoy"), (config.REPLAY_DATE, "día de demostración"),
+                   (config.PLANNER_DEMO_DATE, "planificador de demostración")):
+    asked, done = weather.prefetch(points, day, force=day is None)
+    ok = done == asked
+    problems += 0 if ok else 1
+    print(f"Tiempo ({label}): {done} de {asked} celdas descargadas" + ("" if ok else " - SOME FAILED"))
 
 print(f"\n{len(places)} places. " + ("All backups refreshed." if problems == 0 else f"{problems} problems - see above."))

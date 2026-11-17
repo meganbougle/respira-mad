@@ -115,7 +115,12 @@ if demo:
 else:
     now = risk.madrid_now()
 
-result = risk.assess(lat, lon, profile, tuple(allergy_types), now, demo)
+try:
+    result = risk.assess(lat, lon, profile, tuple(allergy_types), now, demo)
+except Exception as error:                     # never show a technical error: a short Spanish message only
+    data.problem("Streamlit: risk.assess failed", error)
+    st.error("No se pueden mostrar los datos en este momento. Inténtalo de nuevo en unos minutos.")
+    st.stop()
 real_now = risk.madrid_now()
 
 st.title("Respira MAD")
@@ -279,11 +284,15 @@ st.markdown(f'<div style="font-size:0.85rem;">Calidad del aire (ICA): {chips}'
 
 station_map = folium.Map(location=[lat, lon], zoom_start=10)      # OpenStreetMap background
 if air_table is not None:
-    for _, s in risk.station_categories(air_table).iterrows():
+    for _, s in risk.station_categories(air_table, now).iterrows():
+        has_category = s["category"] is not None and not pd.isna(s["category"])
+        fill = config.DOUBTFUL_COLOR if s["doubtful"] or not has_category else config.ICA_COLORS[int(s["category"])]
+        label = ("Dato dudoso" if s["doubtful"] else s["category_name"]) + (" · sin datos recientes" if s["stale"] else "")
         folium.CircleMarker(
             [s["lat"], s["lon"]], radius=9, color="#333333", weight=1,
-            fill=True, fill_color=config.ICA_COLORS[s["category"]], fill_opacity=0.95,
-            tooltip=f"{s['station']}: {s['category_name']}",
+            # old readings are drawn faded; a doubtful reading is grey
+            fill=True, fill_color=fill, fill_opacity=0.35 if s["stale"] else 0.95, opacity=0.4 if s["stale"] else 1,
+            tooltip=f"{s['station']}: {label}",
             popup=folium.Popup(
                 f"<b>{s['station']}</b><br>{s['source']}<br>ICA: <b>{s['category_name']}</b><br>"
                 + "<br>".join(s["details"]) + f"<br>{s['timestamp']:%d/%m %H:%M}", max_width=260),

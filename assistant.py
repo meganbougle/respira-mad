@@ -293,7 +293,7 @@ def find_place(name):
                 return {"found": True, "name": result["name"], "lat": round(lat, 4), "lon": round(lon, 4),
                         "near": risk.place_name(lat, lon, _dropdown_places()), "source": "Open-Meteo geocoding (GeoNames)"}
     except Exception as error:
-        return {"found": False, "message": f"No se pudo consultar el buscador de lugares ({error})."}
+        return {"found": False, "message": data.problem("No se pudo consultar el buscador de lugares.", error)}
     return {"found": False, "message": f"No se ha encontrado «{name}» en la Comunidad de Madrid."}
 
 
@@ -570,7 +570,7 @@ def run_tool(name, tool_input, context):
             return f"Herramienta desconocida: {name}", True
         return json.dumps(result, ensure_ascii=False, default=str), False
     except Exception as error:
-        return f"Error al consultar los datos: {error}", True
+        return data.problem("No se pudieron consultar los datos en este momento.", error), True
 
 
 # ----------------------------------------------------------------------------

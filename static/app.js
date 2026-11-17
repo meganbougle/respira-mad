@@ -214,6 +214,8 @@ function buildMap() {
       + config.ica_categories.map((c, i) => `<li><span class="swatch" style="background:${c.color};border-color:${outline(i)}"></span>${esc(c.name)}</li>`).join("")
       + `<li><span class="pollen-marker is-small">${icon("pollen")}</span>Estación de polen</li>`
       + '<li><span class="legend-used"></span>Estación usada en tu resultado</li>'
+      + `<li><span class="swatch swatch-stale"></span>Sin datos recientes (no se usa)</li>`
+      + `<li><span class="swatch" style="background:${config.doubtful_color};border-color:#26332d"></span>Estación con un dato dudoso</li>`
       + "</ul>";
     L.DomEvent.disableClickPropagation(box);
     return box;
@@ -444,15 +446,20 @@ function drawStations(data) {
   stationMarkers = [];
   for (const s of data.air) {
     // air stations: circles in the official ICA colour of their category
-    const marker = L.circleMarker([s.lat, s.lon], { radius: 8, color: outline(s.category), weight: s.category === 0 ? 2.2 : 1.3, fillColor: s.color, fillOpacity: 0.95, bubblingMouseEvents: false });
+    // (a station with only a doubtful reading comes grey from the server; old readings are drawn faded)
+    const marker = L.circleMarker([s.lat, s.lon], { color: outline(s.category), fillColor: s.color, bubblingMouseEvents: false });
+    const warnings = (s.stale ? `<br><span class="popup-warn">Sin datos recientes (última lectura: ${ddmm(s.timestamp)} ${hhmm(s.timestamp)}). No se usa en los resultados.</span>` : "")
+      + (s.doubtful ? '<br><span class="popup-warn">Dato dudoso: un valor muy distinto de todas las demás estaciones. Ese valor no se usa en los resultados.</span>' : "");
     const entry = {
       kind: "air", name: s.station, source: s.source, lat: s.lat, lon: s.lon, marker, category: s.category,
+      stale: s.stale, doubtful: s.doubtful,
       title: s.station,
       html: `<span class="popup-meta">${esc(s.source)} · ${ddmm(s.timestamp)} ${hhmm(s.timestamp)}</span><br>`
         + `<span class="popup-cat"><span class="swatch" style="background:${s.color};border-color:${outline(s.category)}"></span>ICA: ${esc(s.category_name)}</span><br>`
-        + s.details.map(esc).join("<br>"),
+        + s.details.map(esc).join("<br>") + warnings,
     };
-    if (!isPhoneLayout()) marker.bindTooltip(`${esc(s.station)}: ${esc(s.category_name)}`);    // hover labels only where there is a mouse
+    const label = s.stale ? "sin datos recientes" : s.category_name;
+    if (!isPhoneLayout()) marker.bindTooltip(`${esc(s.station)}: ${esc(label)}`);    // hover labels only where there is a mouse
     marker.on("click", () => showStation(entry)).addTo(stationLayer);
     stationMarkers.push(entry);
   }
@@ -472,6 +479,14 @@ function drawStations(data) {
   highlightStations();
 }
 
+// How an air station is drawn: used in the result = bigger with a thick dark border;
+// old readings (not used) = faded with a dashed border; the rest = normal.
+function airStyle(entry, used) {
+  if (used) return { radius: 11, weight: 2.6, opacity: 1, fillOpacity: 1, color: "#14201b", dashArray: null };
+  if (entry.stale) return { radius: 7, weight: 1.2, opacity: 0.55, fillOpacity: 0.25, color: outline(entry.category), dashArray: "3 3" };
+  return { radius: 8, weight: entry.category === 0 ? 2.2 : 1.3, opacity: 0.9, fillOpacity: 0.85, color: outline(entry.category), dashArray: null };
+}
+
 // Make the stations behind the current result stand out: bigger, with a thin line to the
 // chosen point; the other stations are faded. Called whenever the result or the stations change.
 function highlightStations() {
@@ -485,7 +500,7 @@ function highlightStations() {
     entry.usedFor = entry.kind === "air" ? airUse[`${entry.name}|${entry.source}`] : (entry.name === pollenUsed ? ["polen"] : null);
     const used = Boolean(entry.usedFor);
     if (entry.kind === "air") {
-      entry.marker.setStyle({ radius: used ? 11 : 7, weight: used ? 2.6 : 1, opacity: used ? 1 : 0.45, fillOpacity: used ? 1 : 0.35, color: used ? "#14201b" : outline(entry.category) });
+      entry.marker.setStyle(airStyle(entry, used));
       if (used) entry.marker.bringToFront();
     } else {
       entry.marker.setIcon(pollenIcon(used ? "used" : "faded"));
@@ -680,12 +695,26 @@ function plannerDetail(day, block) {
     }).join("") + "</ul>";
   }
 
-  html += "<h4>Calidad del aire (previsión para el tramo)</h4>";
+  // air: say exactly what the level of this part of the day comes from (measured, forecast or both)
+  html += "<h4>Calidad del aire del tramo</h4>";
   if (block.air) {
+    const kind = block.air.kind;
+    const measuredPart = kind.includes("medida") || kind === "última medición";
+    const forecastPart = kind.includes("prevista");
+    const what = kind === "última medición" ? "Última medición" : measuredPart && forecastPart ? "ICA medido y previsto" : measuredPart ? "ICA medido" : "ICA previsto";
+    const chips = (measuredPart ? '<span class="source-chip is-measured">Medición oficial</span> ' : "") + (forecastPart ? '<span class="source-chip">Nuestro modelo</span>' : "");
     const values = Object.entries(block.air.values).map(([p, v]) => `${esc(p)} ${num(v)}`).join(" · ");
-    html += `<p>ICA previsto: <b>${esc(block.air.category_name)}</b> (por ${esc(block.air.pollutant)}, ${num(block.air.value)} µg/m³). `
-      + `<span class="source-chip">Nuestro modelo</span></p><p>Valores del tramo: ${values} µg/m³ (hora más alta para NO2, media del tramo para el resto). Modelo propio, hecho con las mediciones oficiales de ${esc(airStationsText(plannerData.air_stations))}.</p>`
+    const from = [];
+    if (measuredPart) from.push(`medido en ${esc(airStationsText(plannerData.measured_stations))}`);
+    if (forecastPart) from.push(`previsto por nuestro modelo con las mediciones de ${esc(airStationsText(plannerData.air_stations))}`);
+    html += `<p>${what}: <b>${esc(block.air.category_name)}</b> (por ${esc(block.air.pollutant)}, ${num(block.air.value)} µg/m³). ${chips}</p>`
+      + `<p>Valores del tramo: ${values} µg/m³ (hora más alta para NO2, media del tramo para el resto); ${from.join("; ")}.`
+      + (kind === "última medición" ? " Aún no hay horas de este tramo, así que se usa la medición más reciente." : "") + "</p>"
       + `<p>Recomendación oficial para esa categoría y tu perfil: «${esc(block.air.official_advice)}»</p>`;
+  } else if (block.status === "past") {
+    html += "<p>No hay mediciones de calidad del aire para este tramo.</p>";
+  } else if (!plannerData.air_stations) {
+    html += "<p>La previsión de calidad del aire no está disponible ahora, así que este tramo no tiene nivel de aire.</p>";
   } else {
     html += `<p>No mostramos previsión de calidad del aire para este tramo: solo se muestra hasta ${num(plannerData.air_horizon_hours)} horas de antelación, que es hasta donde mejoró claramente a la referencia en las pruebas.</p>`;
   }

@@ -25,6 +25,7 @@ To know whether a table is live or from backup:  df.attrs["live"]  (True/False)
 When it was downloaded:                          df.attrs["fetched_at"]
 """
 
+import logging
 from pathlib import Path
 
 import pandas as pd
@@ -75,8 +76,6 @@ AIR_COLUMNS = ["station", "source", "lat", "lon", "pollutant", "value", "timesta
 
 # Open-Meteo (free, no key): WEATHER ONLY. Data licence: CC BY 4.0 - the app must credit Open-Meteo.
 # DATA RULE: air quality and pollen never come from Open-Meteo, only from the Comunidad and the Ayuntamiento.
-OPEN_METEO_WEATHER_URL = "https://api.open-meteo.com/v1/forecast"
-OPEN_METEO_ARCHIVE_URL = "https://archive-api.open-meteo.com/v1/archive"   # past weather (demo day)
 FORECAST_LABEL = "FORECAST (model)"
 
 
@@ -102,6 +101,16 @@ def _ckan_csv_url(dataset_id):
         if resource["format"].upper() == "CSV":
             return resource["url"]
     raise ValueError(f"No CSV file found in dataset {dataset_id}")
+
+
+def problem(message, error):
+    """
+    A short Spanish message for the user; the technical details (English text,
+    URLs, error type) go only to the server log. Use it for every note shown
+    on screen, so no visitor ever sees a technical error.
+    """
+    logging.getLogger("respira").warning("%s | %s: %s", message, type(error).__name__, error)
+    return message
 
 
 def _madrid_now():
@@ -277,6 +286,45 @@ def load_city_air():
 # Both air networks in one table
 # ----------------------------------------------------------------------------
 
+def _band(pollutant, value):
+    """Position of a value in the official ICA bands (0 = Buena ... 5); None if no value."""
+    if pd.isna(value):
+        return None
+    return next((i for i, top in enumerate(config.ICA_BANDS[pollutant]) if round(value) <= top), None)
+
+
+_doubtful_logged = set()          # (station, pollutant, time) already written to the log
+
+
+def mark_doubtful(table):
+    """
+    Add the column `doubtful`: True for a reading that is far out of line
+    with every other station (the "Dato dudoso" rule in config.py).
+    """
+    table = table.copy()
+    table["doubtful"] = False
+    for pollutant, group in table.groupby("pollutant"):
+        if pollutant not in config.ICA_BANDS or len(group) < 3:
+            continue                                  # too few stations to say what is typical
+        for index, row in group.iterrows():
+            others = group.drop(index)["ica_value"].dropna()
+            typical = others.median()
+            category, typical_category = _band(pollutant, row["ica_value"]), _band(pollutant, typical)
+            if (category is not None and typical_category is not None
+                    and category >= config.DOUBTFUL_MIN_CATEGORY
+                    and typical_category <= config.DOUBTFUL_TYPICAL_MAX_CATEGORY
+                    and row["ica_value"] > config.DOUBTFUL_FACTOR * max(typical, 1)):
+                table.loc[index, "doubtful"] = True
+                key = (row["station"], pollutant, row["timestamp"])
+                if key in _doubtful_logged:
+                    continue                          # already in the log
+                _doubtful_logged.add(key)
+                logging.getLogger("respira").warning(
+                    "Dato dudoso: %s (%s) %s %.0f µg/m3, typical station %.0f", row["station"], row["source"],
+                    pollutant, row["ica_value"], typical)
+    return table
+
+
 def load_air():
     """
     Both air networks merged, with columns:
@@ -293,7 +341,7 @@ def load_air():
             print(f"Warning: {loader.__name__} failed: {error}")
     if not tables:
         raise RuntimeError("No air quality data available (live or backup).")
-    merged = pd.concat(tables, ignore_index=True)
+    merged = mark_doubtful(pd.concat(tables, ignore_index=True))
     merged.attrs["live"] = all(t.attrs.get("live", False) for t in tables) and len(tables) == 2
     merged.attrs["fetched_at"] = min(t.attrs["fetched_at"] for t in tables)
     return merged
@@ -384,58 +432,16 @@ def load_weather():
 # 5. WEATHER FORECAST from Open-Meteo (a computer model; weather is the only thing we take from it)
 # ----------------------------------------------------------------------------
 
-def _fetch_open_meteo(url, lat, lon, variables, day=None, days=2):
-    """
-    Ask Open-Meteo for hourly values at one point.
-    day=None  -> today and the following days (`days` in total; 2 = today and tomorrow)
-    day="2025-05-28" -> that day and the following ones (demo mode)
-    """
-    params = {
-        "latitude": lat,
-        "longitude": lon,
-        "hourly": ",".join(variables),      # variables = {their name: our name}
-        "timezone": "Europe/Madrid",        # so times match the station data
-    }
-    if day is None:
-        params["forecast_days"] = days
-    else:
-        params["start_date"] = day
-        params["end_date"] = str((pd.Timestamp(day) + pd.Timedelta(days=days - 1)).date())
-    response = requests.get(url, params=params, timeout=TIMEOUT)
-    response.raise_for_status()
-    table = pd.DataFrame(response.json()["hourly"])
-    table = table.rename(columns={"time": "timestamp", **variables})
-    table["timestamp"] = pd.to_datetime(table["timestamp"])
-    table["lat"] = lat
-    table["lon"] = lon
-    table["source"] = "Open-Meteo"
-    table["kind"] = FORECAST_LABEL
-    return table
-
-
-def _forecast_with_backup(name, lat, lon, day, days, fetch):
-    """Same backup pattern, with one backup file per (rounded) location."""
-    lat, lon = round(lat, 2), round(lon, 2)          # about 1 km; keeps the cache small
-    folder = f"replay/{day}/" if day else ""         # demo-day files live with the replay data
-    if days != 2:
-        name = f"{name}_{days}days"                  # the 5-day planner keeps its own backup files
-    return _with_backup(f"{folder}{name}_{lat:.2f}_{lon:.2f}", lambda: fetch(lat, lon))
-
-
 @st.cache_data(ttl=CACHE_SECONDS, show_spinner=False)
 def load_forecast_weather(lat, lon, day=None, days=2):
-    """Hourly weather FORECAST for today and tomorrow (or `days` days) at any lat/lon."""
-    variables = {
-        "temperature_2m": "temperature_c",
-        "precipitation": "rain_mm",
-        "wind_speed_10m": "wind_kmh",
-        "relative_humidity_2m": "humidity_pct",
-    }
-    # past days come from Open-Meteo's archive instead of the forecast
-    url = OPEN_METEO_ARCHIVE_URL if day else OPEN_METEO_WEATHER_URL
-    return _forecast_with_backup(
-        "forecast_weather", lat, lon, day, days,
-        lambda la, lo: _fetch_open_meteo(url, la, lo, variables, day, days))
+    """
+    Hourly weather FORECAST for today and tomorrow (or `days` days) at any lat/lon.
+    Everything (0.05 degree grid, 1-hour disk cache, retries, batches,
+    backup copies) is in weather.py. Raises weather.WeatherUnavailable if
+    there is no weather at all for this point.
+    """
+    import weather                                   # here, so data.py does not depend on it when unused
+    return weather.hourly(lat, lon, day, days)
 
 
 # ----------------------------------------------------------------------------
@@ -474,6 +480,7 @@ def load_replay_air(now):
     table = table.merge(places, on="station", how="left")
     table["source"] = "Comunidad de Madrid"
     table = table[AIR_COLUMNS]
+    table = mark_doubtful(table)
     table.attrs["live"] = False
     table.attrs["fetched_at"] = pd.Timestamp(now)
     return table

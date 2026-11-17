@@ -84,7 +84,7 @@ pollen = data.load_pollen_all()
 check(f"pollen: latest reading day {pollen['timestamp'].max():%d/%m/%Y} is not after today",
       pollen["timestamp"].max() <= now.normalize())
 
-stations = risk.station_categories(data.load_air())
+stations = risk.station_categories(data.load_air(), risk.madrid_now())
 check("map popups: no station shows a time in the future", stations["timestamp"].max() <= now)
 
 for place, (lat, lon) in config.PLACES.items():

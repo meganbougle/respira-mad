@@ -39,6 +39,7 @@ import streamlit as st
 
 import config
 import data
+import weather
 from pollen_model import arimax as A
 from pollen_model import features as F
 
@@ -160,29 +161,36 @@ def _fetch_recent_pollen():
     return _last_readings
 
 
-def _fetch_station_weather(lat, lon):
+def _fetch_stations_weather(points):
     """
-    Daily weather at one station up to 6 days ahead (observed, then forecast).
+    Daily weather at several stations up to 6 days ahead (observed, then forecast),
+    in TWO batched requests for all of them (weather.py retries if Open-Meteo is busy).
     It starts on 1 January (the "warmth since 1 January" input needs it) or
     about 4 months ago if that is earlier (the ARIMAX model looks back 120 days).
+    points: list of (lat, lon). Returns one table per point, in the same order.
     """
     today = data._madrid_now().normalize()
-    recent = requests.get(FORECAST_URL, timeout=data.TIMEOUT, params={
-        "latitude": lat, "longitude": lon, "daily": ",".join(DAILY), "timezone": "Europe/Madrid",
+    lats = ",".join(str(lat) for lat, _ in points)
+    lons = ",".join(str(lon) for _, lon in points)
+    recent = weather.get_json(FORECAST_URL, {
+        "latitude": lats, "longitude": lons, "daily": ",".join(DAILY), "timezone": "Europe/Madrid",
         "past_days": 14, "forecast_days": 7})
-    recent.raise_for_status()
-    table = pd.DataFrame(recent.json()["daily"])
+    recent = recent if isinstance(recent, list) else [recent]
     start_of_year = min(pd.Timestamp(year=today.year, month=1, day=1), today - pd.Timedelta(days=A.WINDOW_DAYS + 10))
     older_end = today - pd.Timedelta(days=15)
+    older = [None] * len(points)
     if older_end > start_of_year:                   # the months before: historical weather
-        older = requests.get(ARCHIVE_URL, timeout=data.TIMEOUT, params={
-            "latitude": lat, "longitude": lon, "daily": ",".join(DAILY), "timezone": "Europe/Madrid",
+        older = weather.get_json(ARCHIVE_URL, {
+            "latitude": lats, "longitude": lons, "daily": ",".join(DAILY), "timezone": "Europe/Madrid",
             "start_date": start_of_year.strftime("%Y-%m-%d"), "end_date": older_end.strftime("%Y-%m-%d")})
-        older.raise_for_status()
-        table = pd.concat([pd.DataFrame(older.json()["daily"]), table], ignore_index=True)
-    table = table.rename(columns={"time": "timestamp", **DAILY})
-    table["timestamp"] = pd.to_datetime(table["timestamp"])
-    return table.drop_duplicates("timestamp", keep="last").sort_values("timestamp").reset_index(drop=True)
+        older = older if isinstance(older, list) else [older]
+    tables = []
+    for new_part, old_part in zip(recent, older):
+        parts = ([pd.DataFrame(old_part["daily"])] if old_part else []) + [pd.DataFrame(new_part["daily"])]
+        table = pd.concat(parts, ignore_index=True).rename(columns={"time": "timestamp", **DAILY})
+        table["timestamp"] = pd.to_datetime(table["timestamp"])
+        tables.append(table.drop_duplicates("timestamp", keep="last").sort_values("timestamp").reset_index(drop=True))
+    return tables
 
 
 def _predict(readings, weather_by_station, stations, issue_day):
@@ -241,14 +249,13 @@ def _fetch_live_forecast():
     # the same weather sharing between nearby stations as in training (F.WEATHER_FROM)
     coordinates = pd.DataFrame({"station_code": traps["codigo"], "lat": data._to_number(traps["lat_epsg4258"]),
                                 "lon": data._to_number(traps["long_epsg4258"])}).set_index("station_code")
-    weather, downloaded = {}, {}
-    for code in stations["station_code"]:
-        source = F.WEATHER_FROM.get(code, code)
-        if source not in downloaded:
-            daily = _fetch_station_weather(coordinates.loc[source, "lat"], coordinates.loc[source, "lon"])
-            downloaded[source] = F.weather_features(daily.rename(columns={"timestamp": "date"})).set_index("date")
-        weather[code] = downloaded[source]
-    table = _predict(readings, weather, stations, data._madrid_now().normalize())
+    # every station's weather source (nearby stations share one), all downloaded in one batch
+    sources = list(dict.fromkeys(F.WEATHER_FROM.get(code, code) for code in stations["station_code"]))
+    daily_tables = _fetch_stations_weather([(coordinates.loc[c, "lat"], coordinates.loc[c, "lon"]) for c in sources])
+    downloaded = {source: F.weather_features(daily.rename(columns={"timestamp": "date"})).set_index("date")
+                  for source, daily in zip(sources, daily_tables)}
+    weather_by_station = {code: downloaded[F.WEATHER_FROM.get(code, code)] for code in stations["station_code"]}
+    table = _predict(readings, weather_by_station, stations, data._madrid_now().normalize())
     table["timestamp"] = table["issue_date"]         # the backup helper expects this column
     return table
 

@@ -15,6 +15,7 @@ All thresholds and texts live in config.py. This file contains no numbers
 of its own. Texts for the user are in Spanish (the app is in Spanish).
 """
 
+import logging
 import math
 
 import pandas as pd
@@ -23,6 +24,8 @@ import config
 import data
 from air_model import predict as air_predict
 from pollen_model import predict as pollen_predict
+
+log = logging.getLogger("respira.risk")
 
 
 # ----------------------------------------------------------------------------
@@ -100,6 +103,22 @@ def list_places(air):
     return places
 
 
+def weather_points():
+    """
+    Every point whose weather the app should keep ready (weather.prefetch):
+    the dropdown places, every air station of both networks and every pollen station.
+    """
+    air = data.load_air()
+    points = list(list_places(air).values())
+    points += list(air[["lat", "lon"]].drop_duplicates().itertuples(index=False, name=None))
+    try:
+        pollen = data.load_pollen_all()
+        points += list(pollen[["lat", "lon"]].dropna().drop_duplicates().itertuples(index=False, name=None))
+    except Exception:
+        pass                                        # the places and air stations are enough
+    return points
+
+
 def place_name(lat, lon, places=None):
     """
     A name for any point, the same everywhere in the app.
@@ -124,19 +143,34 @@ def place_name(lat, lon, places=None):
 # Air: nearest station with data for each pollutant (MEASUREMENTS)
 # ----------------------------------------------------------------------------
 
-def air_near(lat, lon, air):
+def is_stale(timestamp, now):
+    """True if a reading is too old to describe "now" (config.STALE_HOURS)."""
+    return now is not None and now - timestamp > pd.Timedelta(hours=config.STALE_HOURS)
+
+
+def air_near(lat, lon, air, now=None):
     """
-    For each pollutant, the reading of the nearest station that measures it.
-    Returns a list of dictionaries, one per pollutant.
+    For each pollutant, the reading of the nearest station that measures it,
+    leaving out doubtful readings ("Dato dudoso") and readings older than
+    config.STALE_HOURS. Returns a list of dictionaries, one per pollutant.
+    Each one lists in "skipped" the nearer stations that were left out, and why.
     """
     readings = []
     air = _add_distance(air, lat, lon)
     for pollutant in config.ICA_BANDS:
         candidates = air[air["pollutant"] == pollutant]
+        skipped = []
         for _, row in candidates.iterrows():            # nearest first
             category = ica_category(pollutant, row["ica_value"])
             if category is None:
                 continue                                # no usable value: try the next station
+            if bool(row.get("doubtful", False)):
+                skipped.append({"station": row["station"], "reason": "dato dudoso"})
+                continue
+            if is_stale(row["timestamp"], now):
+                skipped.append({"station": row["station"],
+                                "reason": f"sin datos desde el {row['timestamp']:%d/%m a las %H:%M}"})
+                continue
             readings.append({
                 "pollutant": pollutant,
                 "station": row["station"],
@@ -149,32 +183,42 @@ def air_near(lat, lon, air):
                 "provisional": row["flag"] == "T",
                 "category": category,
                 "category_name": config.ICA_CATEGORIES[category],
+                "skipped": skipped,
             })
             break
     return readings
 
 
-def station_categories(air):
+def station_categories(air, now=None):
     """
     One row per air station with its ICA category (the worst of its
     pollutants, as the official index does). Used to colour the map.
+    Doubtful readings and old readings do not count for the colour:
+      doubtful = the station has a "Dato dudoso" (drawn grey on the map)
+      stale    = all its readings are older than config.STALE_HOURS (drawn faded)
     """
     rows = []
     for (station, source), group in air.groupby(["station", "source"]):
-        details, worst = [], None
+        details, worst, doubtful = [], None, False
+        stale = all(is_stale(t, now) for t in group["timestamp"])
         for _, row in group.iterrows():
             category = ica_category(row["pollutant"], row["ica_value"])
             if category is None:
                 continue
+            if bool(row.get("doubtful", False)):
+                doubtful = True
+                details.append(f"{row['pollutant']}: {row['ica_value']:.0f} µg/m³ (dato dudoso, no se usa)")
+                continue
             details.append(f"{row['pollutant']}: {row['ica_value']:.0f} µg/m³ ({config.ICA_CATEGORIES[category]})")
             worst = category if worst is None else max(worst, category)
-        if worst is None:
+        if worst is None and not doubtful:
             continue
         rows.append({
             "station": station, "source": source,
             "lat": group["lat"].iloc[0], "lon": group["lon"].iloc[0],
-            "category": worst, "category_name": config.ICA_CATEGORIES[worst],
+            "category": worst, "category_name": config.ICA_CATEGORIES[worst] if worst is not None else "Dato dudoso",
             "details": details, "timestamp": group["timestamp"].max(),
+            "doubtful": doubtful, "stale": stale,
         })
     return pd.DataFrame(rows)
 
@@ -272,8 +316,11 @@ def hourly_levels(forecast_air, forecast_weather, profile, pollen_by_day=None):
     """
     audience = config.PROFILES[profile]["air"]
     pollen_by_day = pollen_by_day or {}
-    table = forecast_air.merge(
-        forecast_weather[["timestamp", "temperature_c", "rain_mm"]], on="timestamp", how="left")
+    if forecast_weather is not None:
+        table = forecast_air.merge(
+            forecast_weather[["timestamp", "temperature_c", "rain_mm"]], on="timestamp", how="left")
+    else:                                               # no weather: the levels do not need it, only the display does
+        table = forecast_air.assign(temperature_c=float("nan"), rain_mm=float("nan"))
     levels, scores, reasons, categories = [], [], [], []
     for _, row in table.iterrows():
         level, score, reason, worst_category = 0, 0.0, "", None
@@ -388,7 +435,12 @@ def assess(lat, lon, profile="general", allergy_types=(), now=None, demo=False):
         forecast_air = air_predict.at_point(lat, lon, air_predict.forecast(demo, now))
         if forecast_air is None:
             raise ValueError("ninguna estación cercana tiene lecturas recientes")
-        forecast_weather = data.load_forecast_weather(round(lat, 2), round(lon, 2), day_text)
+        try:                                            # the weather only adds temperature and rain
+            forecast_weather = data.load_forecast_weather(lat, lon, day_text)
+        except Exception as error:
+            log.warning("No weather for (%s, %s): %s", lat, lon, error)
+            forecast_weather = None
+            notes.append("Sin previsión del tiempo ahora mismo: se muestran los niveles sin temperatura ni lluvia.")
         pollen_by_day = {}
         if allergy_types:
             try:
@@ -400,26 +452,34 @@ def assess(lat, lon, profile="general", allergy_types=(), now=None, demo=False):
                         worst = max(entries, key=lambda e: e["level"])
                         pollen_by_day[date] = (config.POLLEN_TO_LEVEL[worst["level"]], worst["name"])
             except Exception as error:
-                notes.append(f"Sin previsión de polen para las próximas horas ({error}).")
+                notes.append(data.problem("Sin previsión de polen para las próximas horas.", error))
         all_hours = hourly_levels(forecast_air, forecast_weather, profile, pollen_by_day)
     except Exception as error:
-        notes.append(f"Sin previsión de calidad del aire, así que no hay mejores horas ({error}).")
+        notes.append(data.problem("Sin previsión de calidad del aire, así que no hay mejores horas.", error))
 
     # ---- AIR (official station measurements)
     air_level, air_worst, air_readings, air_table = None, None, [], None
     try:
         air_table = data.load_replay_air(now) if demo else data.load_air()
-        air_readings = air_near(lat, lon, air_table)
+        air_readings = air_near(lat, lon, air_table, now)
     except Exception as error:
-        notes.append(f"Sin mediciones de calidad del aire ({error}).")
+        notes.append(data.problem("Sin mediciones de calidad del aire.", error))
     if air_readings:
         # worst category; if several tie, the one closest to its next band
         air_worst = max(air_readings, key=lambda r: (
             r["category"], r["ica_value"] / config.ICA_BANDS[r["pollutant"]][r["category"]]))
         air_level = config.ICA_TO_LEVEL[audience][air_worst["category"]]
-        oldest = min(r["timestamp"] for r in air_readings)
-        if now - oldest > pd.Timedelta(hours=6):
-            notes.append(f"Algunas mediciones de aire son antiguas (del {oldest:%d/%m a las %H:%M}).")
+    # name every nearer station that was left out, and why (once per station)
+    left_out = {}
+    for reading in air_readings:
+        for skip in reading["skipped"]:
+            left_out.setdefault((skip["station"], skip["reason"]), []).append(reading["pollutant"])
+    for (station, reason), pollutants in left_out.items():
+        if reason == "dato dudoso":
+            notes.append(f"{station}: {', '.join(pollutants)} con un dato dudoso (muy distinto de todas las demás "
+                         "estaciones); no se usa y se toma la siguiente estación más cercana.")
+        else:
+            notes.append(f"{station}: {', '.join(pollutants)} {reason}; se usa la siguiente estación más cercana.")
 
     # ---- POLLEN (official station measurement; if no station has a recent reading there is no pollen level)
     pollen, pollen_table = None, None
@@ -427,7 +487,7 @@ def assess(lat, lon, profile="general", allergy_types=(), now=None, demo=False):
         pollen_table = data.load_replay_pollen() if demo else data.load_pollen(today=today)
         pollen = pollen_near(lat, lon, pollen_table)
     except Exception as error:
-        notes.append(f"Sin mediciones de polen ({error}).")
+        notes.append(data.problem("Sin mediciones de polen.", error))
     if pollen is None:
         notes.append("Sin lectura reciente de polen "
                      f"(ninguna estación tiene datos de los últimos {config.POLLEN_MAX_AGE_DAYS} días).")

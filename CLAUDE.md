@@ -71,6 +71,7 @@ assistant, texts).
 | `render.yaml` | Render Blueprint: free web service, `uvicorn api:app`, Python 3.13.1, Frankfurt; keys typed in the dashboard |
 | `app.py` | Streamlit fallback: sidebar, result card, chart, map, freshness, footer |
 | `data.py` | One loader function per data source, cached 15 min, with backup |
+| `weather.py` | All Open-Meteo weather: 0.05° grid, 1-hour disk cache in `backup/weather/`, retry with backoff, batched requests, `prefetch()` (run hourly by `api.py`) |
 | `config.py` | Every threshold, official text and setting, each with its source |
 | `risk.py` | `assess(lat, lon, profile, allergy_types, now, demo)` → level, reason, official recommendations, best windows |
 | `test_data.py`, `test_risk.py` | Print-style tests |
@@ -92,7 +93,7 @@ assistant, texts).
 | `load_air()` | Both merged | Columns: `station, source, lat, lon, pollutant, value, timestamp` plus `ica_value, ica_hours, flag` |
 | `load_pollen()` | Comunidad CKAN, `mediciones_polen` + `captadores_polen` | Latest reading day per trap, grains/m³. Drops traps whose reading is older than 10 days; keeps `timestamp` and `age_days`. `load_pollen_all()` keeps everything. |
 | `load_weather()` | Comunidad CKAN, `calidad_aire_datos_meteo_mes` | Up to a day old; not used by the app |
-| `load_forecast_weather(lat, lon, day=None)` | Open-Meteo forecast API (archive API for a past `day`) | FORECAST: hourly temperature, rain, wind, humidity |
+| `load_forecast_weather(lat, lon, day=None)` | Open-Meteo forecast API (archive API for a past `day`), through `weather.py` | FORECAST: hourly temperature, rain, wind, humidity. Raises `weather.WeatherUnavailable` if there is none; callers carry on without temperature |
 | `air_model.predict.forecast(demo, moment)` | OUR model, from both networks' latest hourly readings + Open-Meteo weather forecast | FORECAST: hourly NO2, O3, PM10, PM2.5 per station, up to the tested horizon (96 h) |
 | `load_replay_air(now)`, `load_replay_pollen()` | `backup/replay/2025-05-28/` | The demo day, same columns as the live loaders |
 
@@ -127,8 +128,15 @@ Things worth knowing about the feeds:
   shows the reading date and its age.
 - Each loaded table has `df.attrs["live"]` (False = from `backup/`) and
   `df.attrs["fetched_at"]`.
-- Forecast backups are per location, rounded to 2 decimals. `warm_backup.py`
-  saves them for every dropdown place; a clicked map point has none.
+- Weather (`weather.py`, after Open-Meteo answered 429 Too Many Requests on
+  17 Nov 2026): points are rounded to a 0.05° grid; each grid cell has one
+  7-day file in `backup/weather/` (demo days in `backup/weather/<day>/`), used
+  as is for 1 hour; requests are batched (up to 50 cells) and retried with
+  backoff (2, 5, 12 s; a visitor's request tries once or twice, then uses the
+  old copy or the nearest cached cell within 0.3°). `api.py` prefetches the
+  29 places and every station every hour. The pollen model's station weather
+  and the air model's 8 zones are also single batched requests. A weather
+  failure never blanks anything: levels come from air and pollen only.
 - Streamlit Cloud's disk is temporary, so `backup/` must be **committed to
   git** for the fallback (and the demo mode) to work in the deployed app.
 - The Ayuntamiento has not published 2025 hourly history, so the demo day has
@@ -149,6 +157,19 @@ personas sensibles", copied word for word in Spanish and shown literally.
   Simplification: the real-time files only hold the current day, so our
   averages use the hours since midnight (`ica_hours`).
 - SO2 is left out. No CAMS gap-filling: the next nearest station is used.
+- **Stale readings:** a reading older than 3 hours (`STALE_HOURS`) is not used
+  for the result; the next station is used, the notice names the skipped
+  station, and the map draws it faded with a dashed border.
+- **"Dato dudoso"** (`DOUBTFUL_*` in `config.py`, APP DECISION): a value at
+  Desfavorable or worse while the median of all other stations is Buena or
+  Razonablemente buena, and more than 4 times it. Left out of the result and
+  of the air forecast's starting point, named in the notice, station grey on
+  the map. Found on 17 Nov 2026: Orusco del Tajuña PM10 up to 437 µg/m³
+  (provisional, after 12 h without data) while all others were Buena; the
+  values are in the Comunidad's own file (parsing checked).
+- **Errors:** visitors only see short Spanish messages. `data.problem()` logs
+  the technical details and returns the Spanish text; `api.py` has Spanish
+  catch-all handlers; Streamlit has `showErrorDetails = false`.
 
 **Pollen — Red Palinocam levels.** Four levels (bajo, medio, alto, muy alto),
 thresholds for 10 pollen types from the Ayuntamiento/UCM report of November
@@ -369,6 +390,12 @@ grains/m³. An hour slider (default 10:00) sets the time of day.
   planner says so.
 - Today's pollen is never better than the latest official reading (same floor
   as the main card).
+- Today's parts of the day use only data that exists: past hours = the
+  stations' MEASURED hourly values (`air_predict.measured_at_point()`, from
+  `backup/air_recent.csv`); the current part = measured hours so far + our
+  forecast for the rest (or the latest measurement, so it is never empty);
+  later parts = our forecast. Each cell's `basis` and the detail panel say
+  which ("medida", "prevista", "medida y prevista") and why air is missing.
 - Confidence label per day (`config.py`): with pollen types selected, from the
   2025 test accuracy of the chosen model for that lead day (alta ≥75%,
   media ≥60%, else baja).
