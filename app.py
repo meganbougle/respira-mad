@@ -170,17 +170,27 @@ with st.expander("Mediciones usadas para este resultado"):
         } for r in result["air"]]), hide_index=True, width="stretch")
         st.caption("Valor ICA: media de la última hora (NO2), de hasta 8 horas (O3) o de hasta 24 horas "
                    "(PM10 y PM2.5), calculada solo con las horas del día en curso.")
-    pollen = result["pollen"]
-    if pollen:
-        age = "de hoy" if pollen["age_days"] == 0 else f"de hace {pollen['age_days']} días"
-        st.markdown(f"**Polen:** estación {pollen['station']} (a {pollen['distance_km']:.1f} km), "
-                    f"lectura del {pollen['reading_date']:%d/%m/%Y}, **{age}**.")
-        st.dataframe(pd.DataFrame([{
-            "Tipo de polen": t["name"],
-            "Granos/m³": round(t["value"]),
-            "Nivel (Red Palinocam)": t["level_name"],
-            "Cuenta para ti": "Sí" if t["pollen_type"] in allergy_types else "No",
-        } for t in pollen["types"]]), hide_index=True, width="stretch")
+# ---- pollen: shown to everyone, as information (latest official reading).
+# Only the allergy checkbox makes pollen count for the result.
+st.subheader("Polen")
+pollen = result["pollen"]
+if pollen:
+    age = "de hoy" if pollen["age_days"] == 0 else f"de hace {pollen['age_days']} días"
+    st.markdown(f"Estación {pollen['station']} (a {pollen['distance_km']:.1f} km), "
+                f"lectura del {pollen['reading_date']:%d/%m/%Y}, **{age}**.")
+    # the main types: the ones that count for this person, any above "bajo", at least the top 3 (worst first)
+    shown = [t for i, t in enumerate(pollen["types"])
+             if t["pollen_type"] in allergy_types or t["level"] > 0 or i < 3][:6]
+    st.dataframe(pd.DataFrame([{
+        "Tipo de polen": t["name"],
+        "Granos/m³": round(t["value"]),
+        "Nivel (Red Palinocam)": t["level_name"],
+        "Cuenta para ti": "Sí" if t["pollen_type"] in allergy_types else "No",
+    } for t in shown]), hide_index=True, width="stretch")
+    st.caption("Los tipos marcados como «Sí» cuentan para tu resultado." if allergy_types else
+               "Solo informativo: no cambia tu resultado. Para que cuente, marca «Tengo alergia al polen».")
+else:
+    st.caption(f"Sin lectura reciente de polen en ninguna estación (últimos {config.POLLEN_MAX_AGE_DAYS} días).")
 
 # ----------------------------------------------------------------------------
 # Best hours (FORECAST)

@@ -331,21 +331,28 @@ function drawRisk(risk) {
       <div class="tile-meta">${esc(a.station)} (${esc(a.source)}) · a ${num(a.distance_km, 1)} km · ${ddmm(a.timestamp)} ${hhmm(a.timestamp)}</div>
     </div>`).join("") || '<p class="hint">Sin mediciones de calidad del aire en este momento.</p>';
 
-  // pollen
+  // pollen: always shown to everyone, as information (the latest official reading).
+  // Only the allergy switch makes pollen count for the person's result.
   const pollen = risk.pollen;
   const box = $("pollen-tile");
-  box.hidden = !pollen;
+  box.hidden = false;
   if (pollen) {
     const age = pollen.age_days === 0 ? "de hoy" : `de hace ${pollen.age_days} días`;
-    const head = pollen.kind === "measurement"
-      ? `<b>Polen</b> · ${esc(pollen.station)} (${num(pollen.distance_km, 1)} km) · lectura del ${ddmm(pollen.reading_date)}, <b>${age}</b>`
-      : "<b>Polen</b> · sin lectura reciente de polen";
+    const head = `<b>Polen</b> · ${esc(pollen.station)} (${num(pollen.distance_km, 1)} km) · lectura del ${ddmm(pollen.reading_date)}, <b>${age}</b>`;
+    // the main types: the ones that count for you, any above "bajo", and at least the top 3 (the list comes worst first)
     const shown = pollen.types.filter((t, i) => t.counts_for_you || t.level > 0 || i < 3).slice(0, 6);
+    const foot = !state.allergic
+      ? "Solo informativo: no cambia tu resultado. Para que cuente, activa «Tengo alergia al polen»."
+      : state.types.size
+        ? "Solo cuentan para tu resultado los tipos que has elegido («cuenta para ti»)."
+        : "Elige arriba tus tipos de polen para que cuenten en tu resultado.";
     box.innerHTML = `<div class="pollen-head">${head}</div>` + shown.map((t) => `
       <div class="pollen-row ${t.counts_for_you ? "counts" : ""}">
-        <span>${esc(t.name)}${t.counts_for_you ? " · cuenta para ti" : ""}</span>
-        <span>${num(t.value)} granos/m³ <span class="lvl lvl-${t.level}">${esc(t.level_name)}</span></span>
-      </div>`).join("");
+        <span>${esc(t.name)}${t.counts_for_you ? '<span class="pollen-you">cuenta para ti</span>' : ""}</span>
+        <span class="pollen-value">${num(t.value)} granos/m³ <span class="lvl lvl-${t.level}">${esc(t.level_name)}</span></span>
+      </div>`).join("") + `<p class="pollen-foot">${foot}</p>`;
+  } else {
+    box.innerHTML = '<div class="pollen-head"><b>Polen</b> · sin lectura reciente de polen en ninguna estación (últimos 10 días)</div>';
   }
 }
 

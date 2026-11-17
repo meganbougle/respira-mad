@@ -161,8 +161,17 @@ al polen", word for word.
   stay in from Muy desfavorable. Sensitive: Precaución at Regular, stay in from
   Desfavorable.
 - Profiles: General, Asma / respiratorio, Persona mayor, Niño/a. The last three
-  get the sensitive-group advice. For older people and children the app shows a
-  note that this is our extension, not the official text.
+  get the sensitive-group advice. Official basis for older people and children:
+  the Comunidad page "Calidad del aire y salud" lists "Niños de 0-6 años" and
+  "Personas mayores de 65 años" among "Grupos de riesgo y personas sensibles";
+  the profile note quotes it (`OLDER_NOTE`, `CHILDREN_NOTE` in `config.py`).
+- **Only official texts.** Every recommendation shown (app and assistant) is an
+  official text quoted word for word with its source. Where none exists (pollen
+  for someone without the allergy switch, pollen at "bajo", the planner cells)
+  nothing is shown; we never write advice of our own.
+- **Pollen for everyone:** the latest official pollen reading (main types, level,
+  reading date) is always shown as information; only the allergy switch makes
+  pollen count for the result and brings the pollen recommendation.
 - Pollen allergy is a checkbox plus a multi-select of the 10 pollen types with
   thresholds, not a profile. Rule: medio = Precaución, alto or muy alto = stay
   in, only for the selected types. Without the checkbox pollen never changes

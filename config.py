@@ -241,26 +241,37 @@ POLLEN_ADVICE_ES = [
 # "air": which column of the official ICA advice the profile gets.
 # "note": shown in the app next to the recommendation (None = no note).
 #
-# APP DECISION: the official ICA text defines sensitive people as "adultos y
-# niños con problemas respiratorios y adultos con afecciones cardiacas". It
-# does not name older people or young children as such. We give both the
-# sensitive-group advice as a precaution, and the app says so (EXTENSION_NOTE).
+# Official basis for the older and children profiles: the Comunidad de Madrid
+# shows the same ICA table on its page "Calidad del aire y salud" and lists,
+# under "Grupos de riesgo y personas sensibles", among others, "Niños de 0-6
+# años" and "Personas mayores de 65 años" (checked 17 Nov 2026):
+#   https://www.comunidad.madrid/servicios/salud/calidad-aire-salud
+# So both profiles get the sensitive-group advice. The note below quotes that
+# list word for word. SIMPLIFICATION: the "Niño/a" profile is for any child;
+# the official group is 0-6 years, and the note says so.
 #
 # Pollen allergy is NOT a profile: it is a separate checkbox, with a list of
 # the pollen types the person is allergic to. Asthma without the allergy
-# checkbox uses air quality only.
-EXTENSION_NOTE = (
-    "Aplicamos a este perfil las recomendaciones oficiales para grupos de riesgo "
-    "y personas sensibles por precaución. Es una extensión nuestra: el texto "
-    "oficial del ICA define como población sensible a las personas con problemas "
-    "respiratorios y a los adultos con afecciones cardiacas."
+# checkbox uses air quality only. Pollen readings are shown to everyone as
+# information; only the checkbox makes pollen count for the result.
+RISK_GROUPS_URL = "https://www.comunidad.madrid/servicios/salud/calidad-aire-salud"
+RISK_GROUPS_SOURCE = "Comunidad de Madrid, «Calidad del aire y salud»"
+OLDER_NOTE = (
+    "Recibe las recomendaciones para grupos de riesgo y personas sensibles. "
+    "La Comunidad de Madrid incluye en ese grupo a las «Personas mayores de 65 años» "
+    "(" + RISK_GROUPS_SOURCE + ")."
+)
+CHILDREN_NOTE = (
+    "Recibe las recomendaciones para grupos de riesgo y personas sensibles. "
+    "La Comunidad de Madrid incluye en ese grupo a los «Niños de 0-6 años» "
+    "(" + RISK_GROUPS_SOURCE + ")."
 )
 PROFILES = {
     # "short" is the label on the small buttons of the web app
     "general":  {"label": "General",             "short": "General",       "air": "general",   "note": None},
     "asthma":   {"label": "Asma / respiratorio", "short": "Asma",          "air": "sensitive", "note": None},
-    "older":    {"label": "Persona mayor",       "short": "Persona mayor", "air": "sensitive", "note": EXTENSION_NOTE},
-    "children": {"label": "Niño/a",              "short": "Niño/a",        "air": "sensitive", "note": EXTENSION_NOTE},
+    "older":    {"label": "Persona mayor",       "short": "Persona mayor", "air": "sensitive", "note": OLDER_NOTE},
+    "children": {"label": "Niño/a",              "short": "Niño/a",        "air": "sensitive", "note": CHILDREN_NOTE},
 }
 
 
