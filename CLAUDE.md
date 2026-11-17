@@ -61,7 +61,7 @@ assistant, texts).
 | `api.py` | FastAPI server: `/api/config, places, stations, risk, hours, planner, chart, freshness, chat, health`, and serves `static/` at `/` |
 | `planner.py` | The 5-day planner logic |
 | `chart.py` | The numbers behind the forecast line chart (`/api/chart`) |
-| `air_model/`, `train_air_model.py` | Our air-quality forecast (NO2, O3, PM10, PM2.5, hourly): history download, features, live prediction, saved models, comparison tables; and the script that trains and tests it |
+| `air_model/`, `train_air_model.py` | Our air-quality forecast (NO2, O3, PM10, PM2.5, hourly): history download, features, live prediction, saved models, comparison tables (`lead_report.py` writes the per-hour table); and the script that trains and tests it |
 | `pollen_model/`, `train_pollen_model.py` | Our pollen forecast model: features, live prediction, saved models, backtest report; and the script that trains and tests it |
 | `static/index.html`, `app.js`, `style.css` | The web app page (Spanish, mobile first, no build step) |
 | `compare_models.py`, `MODEL_REPORT.md` | Pollen: compares seasonal naive, exponential smoothing, ARIMAX and gradient boosting (choose and calibrate on 2024, test on 2025) and saves what the app uses; the report in Spanish (pollen and air) |
@@ -288,6 +288,11 @@ grains/m³. An hour slider (default 10:00) sets the time of day.
   baseline and ≥5% lower than "typical"; shown up to the last day all four
   pass = **96 hours** (O3 fails day 5). Limit: on 2025, O3 from day 3 is
   slightly worse than "typical".
+- Leakage check (17 Nov 2026, in `MODEL_REPORT.md`): tests use the weather
+  forecast as issued (previous-runs archive), for gradient boosting and
+  SARIMAX. Per hour 1-120 (`air_model/lead_report.py` → `comparison_by_hour.md`):
+  the model beats "same hour yesterday" at every hour, all four pollutants,
+  both years (smallest gain 6%, O3 at 22 h in 2025; weakest around 24 h).
 - In the app: `air_model/predict.py` — `forecast(demo, moment)` (cached
   15 min, backup `backup/air_forecast.csv`; keeps recent hours in
   `backup/air_recent.csv` because the Ayuntamiento file only has today) and

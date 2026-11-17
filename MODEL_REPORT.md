@@ -440,6 +440,57 @@ O3 pasa hasta el día 4 (el día 5 solo mejora lo habitual en un 3 %).
 **La previsión del aire se muestra hasta 4 días (96 horas).** Más allá, el
 planificador usa solo el polen y la meteorología, y lo dice.
 
+### Hora a hora, de 1 a 120 horas
+
+Cuánto menor es el error medio del modelo que el de "la misma hora de ayer",
+por contaminante y horas de antelación (tabla completa, las 120 horas y las
+dos referencias, en `air_model/comparison_by_hour.md`, hecha por
+`air_model/lead_report.py`):
+
+| Contaminante | Año | 1 h | 3 h | 6 h | 12 h | 24 h | 36 h | 48 h | 72 h | 96 h | 120 h |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| NO2 | 2024 | 29 % | 22 % | 15 % | 12 % | 9 % | 24 % | 22 % | 26 % | 25 % | 23 % |
+| NO2 | 2025 | 28 % | 22 % | 13 % | 12 % | 9 % | 23 % | 21 % | 21 % | 20 % | 20 % |
+| O3 | 2024 | 27 % | 23 % | 17 % | 13 % | 9 % | 24 % | 21 % | 26 % | 26 % | 23 % |
+| O3 | 2025 | 25 % | 19 % | 10 % | 9 % | 8 % | 19 % | 18 % | 17 % | 16 % | 14 % |
+| PM10 | 2024 | 41 % | 34 % | 26 % | 24 % | 19 % | 31 % | 30 % | 32 % | 34 % | 34 % |
+| PM10 | 2025 | 31 % | 26 % | 17 % | 15 % | 10 % | 22 % | 19 % | 23 % | 23 % | 22 % |
+| PM2,5 | 2024 | 32 % | 24 % | 18 % | 16 % | 14 % | 23 % | 22 % | 25 % | 27 % | 27 % |
+| PM2,5 | 2025 | 26 % | 20 % | 14 % | 12 % | 9 % | 16 % | 14 % | 15 % | 16 % | 15 % |
+
+- En **todas** las horas de 1 a 120, en los cuatro contaminantes y en los dos
+  años, el modelo tiene menos error que "la misma hora de ayer". La menor
+  mejora es del 6 % (O3, 22 horas, 2025).
+- El punto débil está **alrededor de las 24 horas**: ahí "la misma hora de
+  ayer" es justo la última lectura, una referencia muy buena. Con nuestra
+  regla del 10 % aplicada hora a hora, en 2025 no la pasarían algunas horas
+  entre las 9 y las 24 de NO2 y O3. La regla se decidió por días completos y
+  con 2024, y no se cambia después de ver la prueba.
+- Frente a "lo habitual a esa hora", el O3 de 2025 queda peor a partir del día
+  4–5 (hasta un 9 % peor a las 118 horas): es la razón de no pasar de 96 horas.
+
+### Comprobación de fuga de información (meteorología)
+
+Un modelo probado con el tiempo que **realmente hizo** parecería mejor de lo
+que es, porque en la vida real solo se conoce la **previsión**. Por eso:
+
+- En 2024 y 2025 la prueba usa la previsión meteorológica **tal como se emitió**
+  1 a 5 días antes de cada hora (archivo de ejecuciones anteriores de
+  Open-Meteo, `previous-runs-api`), tanto para el gradient boosting como para
+  SARIMAX. Para una antelación de *h* horas se usa la previsión emitida
+  ⌈*h*/24⌉ días antes de la hora prevista.
+- **Límites que quedan:** (1) antes del 19 de enero de 2024 no hay archivo, y en
+  esas tres semanas del año de elección se usa el tiempo que hizo (2025 no
+  tiene este problema); (2) el archivo se descargó para las 3 zonas con más
+  estaciones (41 de 52); las otras 11 estaciones usan su tiempo real más el
+  error de previsión de la zona más cercana; (3) justo a las 24, 48 y 72 horas
+  la previsión usada pudo publicarse unas horas después del momento de la
+  previsión (un poco optimista); en las demás horas se usa una previsión más
+  antigua de lo necesario (un poco pesimista).
+- Por estos límites, el horizonte se eligió de forma **conservadora**: el
+  último día en que pasan los cuatro contaminantes (96 h), aunque NO2, PM10 y
+  PM2,5 pasan los cinco días.
+
 ### Límites
 
 - **O3 a partir del día 3.** En 2025 el gradient boosting sigue mejorando
