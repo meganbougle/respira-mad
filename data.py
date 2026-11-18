@@ -232,6 +232,11 @@ def _with_backup(name, fetch, date_columns=("timestamp",)):
 
 def _fetch_comunidad_air():
     hourly = _hourly_long(_read_csv(_ckan_csv_url("calidad_aire_datos_dia")), POLLUTANTS)
+    if hourly.empty:
+        # Normal for an hour or two after midnight: the new day's file exists
+        # but has no readings yet. Raising here makes the loader use the last
+        # good copy in backup/, with a clear message in the server log.
+        raise ValueError("Comunidad 'today' file has no readings yet (normal just after midnight)")
     readings = _latest_hourly(hourly, config.ICA_AVERAGING_HOURS)
 
     stations = _read_csv(_ckan_csv_url("calidad_aire_estaciones"))

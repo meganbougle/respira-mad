@@ -161,6 +161,8 @@ function buildControls() {
     $("demo-slider").hidden = !state.demo;
     document.body.classList.toggle("has-banner", state.demo);
     if (map) map.invalidateSize();
+    fitNext = true;            // other day, other stations: zoom to the ones used
+    chartSlots = []; chartFocus = null;   // and pick the chart lines again by that day's levels
     refresh({ stations: true });
   });
   slider.addEventListener("input", () => { $("hour-value").textContent = `${slider.value}:00`; });
@@ -257,7 +259,7 @@ function setPoint(lat, lon, name, options = {}) {
   if (!options.fromSelect) $("place").value = CUSTOM_PLACE;
   // a place from the list or "my location": the map zooms to the point and the stations it uses
   // (see highlightStations). A tap on the map keeps the zoom the person chose.
-  if (options.fromSelect || options.recenter) { fitNext = true; map.setView([lat, lon], map.getZoom()); }
+  if (options.fromSelect || options.recenter) { fitNext = true; chartSlots = []; chartFocus = null; map.setView([lat, lon], map.getZoom()); }
   else map.panInside([lat, lon], { padding: [60, 60] });
   refresh();
 }
