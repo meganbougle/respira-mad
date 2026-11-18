@@ -44,6 +44,9 @@ let updatedAt = 0;
 function esc(text) {
   return String(text ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
+// Temperature and rain in words. Without a weather forecast it says so: never a dash next to "°C".
+const weatherText = (temperature, rain) => (temperature == null ? "sin previsión del tiempo"
+  : `${num(temperature)} °C · ${rain > 0 ? `lluvia ${num(rain, 1)} mm` : "sin lluvia"}`);
 const num = (value, digits = 0) => (value == null ? "–" : Number(value).toLocaleString("es-ES", { maximumFractionDigits: digits, minimumFractionDigits: digits }));
 const hhmm = (iso) => iso.slice(11, 16);
 const ddmm = (iso) => `${iso.slice(8, 10)}/${iso.slice(5, 7)}`;
@@ -183,9 +186,12 @@ function buildControls() {
 }
 
 function buildMap() {
-  map = L.map("map", { zoomControl: false, attributionControl: true }).setView([state.lat, state.lon], 10);
+  // The station circles are drawn on a canvas (faster than one SVG element each). "tolerance" makes the
+  // area that reacts to a tap a few pixels bigger than the circle, so they are easy to hit on a phone.
+  map = L.map("map", { zoomControl: false, attributionControl: true, renderer: L.canvas({ padding: 0.5, tolerance: 8 }) })
+    .setView([state.lat, state.lon], 10);
   L.control.zoom({ position: "topright" }).addTo(map);
-  // A muted light basemap, so the official ICA colours stand out.
+  // A basemap that is light grey by design (no CSS filter, which made the map slow), so the official ICA colours stand out.
   const osm = '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors';
   if (config.carto_basemap_key) {
     // CARTO Positron (needs a free key, set as CARTO_BASEMAP_KEY on the server)
@@ -194,9 +200,19 @@ function buildMap() {
     }).addTo(map);
     $("map-credit").innerHTML = ', © <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>';
   } else {
-    // no key: OpenStreetMap tiles, turned light grey by style.css (.muted-tiles)
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 18, attribution: osm, className: "muted-tiles" }).addTo(map);
+    // no key: Esri "World Light Gray Canvas" (free, no key; grey by design), base + place names on top
+    const esri = 'Tiles © <a href="https://www.esri.com/" target="_blank" rel="noopener">Esri</a> — Esri, HERE, Garmin, © OpenStreetMap contributors';
+    const base = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/";
+    L.tileLayer(`${base}World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}`, { maxZoom: 19, maxNativeZoom: 16, attribution: esri }).addTo(map);
+    map.createPane("labels");                        // place names: above the map, below the stations, never catch taps
+    map.getPane("labels").style.zIndex = 350;
+    map.getPane("labels").style.pointerEvents = "none";
+    L.tileLayer(`${base}World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, { maxZoom: 19, maxNativeZoom: 16, pane: "labels" }).addTo(map);
+    $("map-credit").innerHTML = ', © <a href="https://www.esri.com/" target="_blank" rel="noopener">Esri</a>';
   }
+  // while a station's popup is open, hide the hover label (it would sit on top of the popup)
+  map.on("popupopen", () => { map.getContainer().classList.add("popup-is-open"); map.eachLayer((layer) => layer.closeTooltip && layer.closeTooltip()); });
+  map.on("popupclose", () => map.getContainer().classList.remove("popup-is-open"));
   usedLayer = L.layerGroup().addTo(map);            // thin lines from the stations in use to the chosen point
   stationLayer = L.layerGroup().addTo(map);
 
@@ -407,7 +423,7 @@ function drawHours(data) {
     html = `<p class="windows-title">No hay ninguna franja recomendable en las próximas 24 horas: todas las horas previstas están en «${esc(config.levels[2].label)}».</p>`;
   } else if (data.windows.length) {
     html = `<p class="windows-title">${icon("star", "icon-fill")} Mejores franjas de las próximas 24 horas (nivel «${esc(config.levels[data.windows[0].level_index].label)}»)</p><ul class="windows">`
-      + data.windows.map((w) => `<li><b>${esc(w.day)} ${hhmm(w.start)}–${hhmm(w.end)}</b><span>${num(w.temperature_c)} °C · ${w.rain_mm === 0 ? "sin lluvia" : `lluvia ${num(w.rain_mm, 1)} mm`}</span></li>`).join("")
+      + data.windows.map((w) => `<li><b>${esc(w.day)} ${hhmm(w.start)}–${hhmm(w.end)}</b><span>${weatherText(w.temperature_c, w.rain_mm)}</span></li>`).join("")
       + "</ul>";
   } else {
     html = '<p class="windows-title">No hay horas suficientes en la previsión para recomendar una franja.</p>';
@@ -420,7 +436,7 @@ function drawHourDetail() {
   if (!h) { $("hour-detail").textContent = ""; return; }
   const parts = [
     ...["NO2", "O3", "PM10", "PM2.5"].filter((p) => h[p] != null).map((p) => `${p} ${num(h[p])}`), "µg/m³ (previsión)",
-    `${num(h.temperature_c)} °C`, h.rain_mm > 0 ? `lluvia ${num(h.rain_mm, 1)} mm` : "sin lluvia",
+    weatherText(h.temperature_c, h.rain_mm),
   ];
   $("hour-detail").innerHTML = `<b>${esc(h.day)} ${String(h.hour).padStart(2, "0")}:00 · ${esc(h.level_label)}</b>`
     + (h.limited_by ? ` (por ${esc(h.limited_by)})` : "")
@@ -429,7 +445,7 @@ function drawHourDetail() {
 
 // A pollen station: a small diamond with our pollen icon. Bigger when the result uses it, faded when it does not.
 function pollenIcon(state) {
-  const size = state === "used" ? 26 : 20;
+  const size = state === "used" ? 30 : 24;           // big enough to tap on a phone
   return L.divIcon({ className: "", html: `<div class="pollen-marker is-${state}">${icon("pollen")}</div>`, iconSize: [size, size], iconAnchor: [size / 2, size / 2] });
 }
 
@@ -486,9 +502,10 @@ function drawStations(data) {
 // How an air station is drawn: used in the result = bigger with a thick dark border;
 // old readings (not used) = faded with a dashed border; the rest = normal.
 function airStyle(entry, used) {
-  if (used) return { radius: 11, weight: 2.6, opacity: 1, fillOpacity: 1, color: "#14201b", dashArray: null };
-  if (entry.stale) return { radius: 7, weight: 1.2, opacity: 0.55, fillOpacity: 0.25, color: outline(entry.category), dashArray: "3 3" };
-  return { radius: 8, weight: entry.category === 0 ? 2.2 : 1.3, opacity: 0.9, fillOpacity: 0.85, color: outline(entry.category), dashArray: null };
+  // big, opaque dots that are easy to tap; the ones in the result are larger with a thick dark border
+  if (used) return { radius: 13, weight: 3.5, opacity: 1, fillOpacity: 1, color: "#14201b", dashArray: null };
+  if (entry.stale) return { radius: 9, weight: 1.5, opacity: 0.6, fillOpacity: 0.3, color: outline(entry.category), dashArray: "3 3" };
+  return { radius: 10, weight: entry.category === 0 ? 2.2 : 1.5, opacity: 1, fillOpacity: 0.95, color: outline(entry.category), dashArray: null };
 }
 
 // Make the stations behind the current result stand out: bigger, with a thin line to the
@@ -507,7 +524,7 @@ function highlightStations() {
       entry.marker.setStyle(airStyle(entry, used));
       if (used) entry.marker.bringToFront();
     } else {
-      entry.marker.setIcon(pollenIcon(used ? "used" : "faded"));
+      entry.marker.setIcon(pollenIcon(used ? "used" : "normal"));          // the others stay fully visible
       entry.marker.setZIndexOffset(used ? 500 : 0);
     }
     if (used) L.polyline([[entry.lat, entry.lon], [state.lat, state.lon]], { color: "#14201b", weight: 1.5, opacity: 0.75, interactive: false }).addTo(usedLayer);
@@ -555,8 +572,9 @@ const info = {
   planner: { title: "Planificador de 5 días", html:
     "<p>Todo lo que aparece aquí es una <b>previsión</b>, no una medición. Cuanto más lejos está el día, menos segura es.</p>"
     + "<p>Cada día tiene cuatro tramos: mañana (7–13 h), tarde (13–20 h), noche (20–24 h) y madrugada (0–7 h). La madrugada de cada fila es la de la noche que empieza ese día.</p>"
-    + "<p>El nivel de cada tramo es lo peor entre:</p><ul><li>el <b>polen</b> previsto para ese día, solo de los tipos que has marcado;</li>"
-    + "<li>la <b>calidad del aire</b> prevista para ese tramo, con los mismos umbrales oficiales del ICA y tu perfil.</li></ul>"
+    + "<p>El nivel de cada tramo es lo peor entre:</p><ul><li>el <b>polen</b> previsto para ese día, solo de los tipos que cuentan para ti;</li>"
+    + "<li>la <b>calidad del aire</b> del tramo, con los mismos umbrales oficiales del ICA y tu perfil: lo <b>medido</b> en las horas de hoy que ya han pasado y lo <b>previsto</b> en las que faltan.</li></ul>"
+    + `<p>${icon("circle-dashed")} Un círculo discontinuo indica que el tramo no tiene nivel (no hay datos suficientes). La temperatura se muestra aparte, y el nivel de polen del día, si lo hay.</p>`
     + "<p>Las dos previsiones son de <b>nuestros propios modelos</b>, hechos solo con las mediciones oficiales de la Comunidad de Madrid y del Ayuntamiento de Madrid (y la previsión del tiempo).</p>"
     + "<p>El polen se muestra donde el modelo demostró ser fiable; donde no, se indica «Sin previsión fiable». La previsión del aire solo se muestra hasta donde mejoró claramente a la referencia «misma hora de ayer»; más allá, la casilla usa solo el polen y lo dice.</p>"
     + "<p>La <b>confianza</b> de cada día (alta, media o baja) resume cuánto acertó la previsión en esa prueba. Toca cualquier casilla para ver el porqué.</p>" },
@@ -649,12 +667,17 @@ function drawPlanner(data) {
     html += `<div class="planner-day"><b>${esc(day.label)}</b><span class="conf" title="Confianza ${esc(day.confidence)}"><i aria-hidden="true">${dots}</i>${esc(day.confidence)}</span></div>`;
     day.blocks.forEach((block, b) => {
       const level = block.level_index == null ? null : config.levels[block.level_index];
-      const temperature = block.weather ? `${num(block.weather.temperature_c)}°` : "";
+      // the temperature is its own element, never next to a dash (a dash before "9°" reads as minus nine)
+      const temperature = block.weather ? `<span class="pcell-temp">${num(block.weather.temperature_c)}°</span>` : "";
       const rain = block.weather && block.weather.rain_mm >= 0.1 ? icon("droplet", "pcell-rain") : "";
-      const label = `${day.label}, ${block.name.toLowerCase()}: ${block.level_label}${block.weather ? `, ${num(block.weather.temperature_c)} grados` : ""}. Confianza ${day.confidence}.`;
+      // a cell without a level still shows the day's pollen (e.g. beyond the air forecast horizon)
+      const pollen = !level && day.shown_pollen ? `<small class="pcell-pollen">polen ${esc(day.shown_pollen.level_name)}</small>` : "";
+      const label = `${day.label}, ${block.name.toLowerCase()}: ${block.level_label}`
+        + (block.weather ? `, ${num(block.weather.temperature_c)} grados` : "")
+        + (pollen ? `, polen ${day.shown_pollen.level_name}` : "") + `. Confianza ${day.confidence}.`;
       html += level
-        ? `<button class="pcell" type="button" data-day="${d}" data-block="${b}" style="--c:${level.color};--ink-c:${level.text_color}" aria-label="${esc(label)}">${ICONS[block.level_index]}<span>${temperature}</span>${rain}</button>`
-        : `<button class="pcell pcell-none" type="button" data-day="${d}" data-block="${b}" aria-label="${esc(label)}"><span>– ${temperature}</span>${rain}</button>`;
+        ? `<button class="pcell" type="button" data-day="${d}" data-block="${b}" style="--c:${level.color};--ink-c:${level.text_color}" aria-label="${esc(label)}">${ICONS[block.level_index]}${temperature}${rain}</button>`
+        : `<button class="pcell pcell-none" type="button" data-day="${d}" data-block="${b}" aria-label="${esc(label)}">${icon("circle-dashed", "pcell-nolevel")}${temperature}${rain}${pollen}</button>`;
     });
   });
   $("planner").innerHTML = html;
@@ -732,7 +755,18 @@ function plannerDetail(day, block) {
     ? `<p>${num(block.weather.temperature_c)} °C de media, ${block.weather.rain_mm >= 0.1 ? `lluvia prevista: ${num(block.weather.rain_mm, 1)} mm` : "sin lluvia prevista"}. Previsión de Open-Meteo.</p>`
     : "<p>Sin previsión del tiempo.</p>";
 
-  html += `<h4>Confianza del día: ${esc(day.confidence)}</h4><p>${esc(day.confidence_reason)} Las previsiones son menos seguras cuanto más lejos está el día.</p>`;
+  // confidence: only for a part of the day that uses a forecast, describing what it depends on
+  const pollenForecast = block.level_index != null && block.pollen.some((p) => p.counts && p.kind === "model");
+  const airForecast = Boolean(block.air && block.air.kind.includes("prevista"));
+  if (pollenForecast || airForecast) {
+    const airSentence = `La calidad del aire es una previsión de nuestro modelo, que se muestra hasta ${num(plannerData.air_horizon_hours)} horas (donde mejoró claramente a la referencia en las pruebas); con más días de antelación acierta menos.`;
+    // pollen forecast counts: the label comes from the 2025 test of our pollen model; air only: from the days ahead
+    const label = pollenForecast ? day.confidence : day.air_confidence;
+    const parts = pollenForecast ? [day.confidence_reason].concat(airForecast ? [airSentence] : []) : [airSentence];
+    html += `<h4>Confianza: ${esc(label)}</h4><p>${parts.map(esc).join(" ")}</p>`;
+  } else if (block.level_index != null) {
+    html += "<h4>Sin previsión en este tramo</h4><p>Se basa en mediciones oficiales, no en previsiones, así que no lleva etiqueta de confianza.</p>";
+  }
   if (plannerData.demo) html += "<p>Vista del 24 de mayo de 2025: el polen y el aire son lo que nuestros modelos preveían con lo que se sabía ese día.</p>";
   return html;
 }
@@ -845,7 +879,16 @@ function drawPollenChart(data) {
   // keep the colour of the types that are still selected; fill the free colours with the new ones
   const keys = data.series.map((s) => s.key);
   chartSlots = Array.from({ length: CHART_MAX_LINES }, (_, i) => (keys.includes(chartSlots[i]) ? chartSlots[i] : null));
-  for (const key of keys) {
+  // new lines go in the order of today's level: the types highest right now are shown first
+  const todayText = data.today.slice(0, 10);
+  const levelNow = (series) => {
+    const point = series.forecast.find((p) => p.date.slice(0, 10) === todayText) || series.observed[series.observed.length - 1];
+    if (!point) return -1;
+    const k = series.thresholds.filter((t) => point.value >= t).length;          // 0 bajo ... 3 muy alto
+    return k + point.value / series.thresholds[Math.min(k, 2)] / 10;              // within a level, the higher value first
+  };
+  const byLevel = data.series.slice().sort((a, b) => levelNow(b) - levelNow(a)).map((s) => s.key);
+  for (const key of byLevel) {
     if (chartSlots.includes(key)) continue;
     const free = chartSlots.indexOf(null);
     if (free < 0) break;
@@ -876,7 +919,9 @@ function drawPollenChart(data) {
   const count = Math.round((Date.parse(data.last_day.slice(0, 10)) - firstDay) / DAY_MS) + 1;
   const todayIndex = Math.round((today - firstDay) / DAY_MS);
   const dayIndex = (iso) => Math.round((Date.parse(iso.slice(0, 10)) - firstDay) / DAY_MS);
-  const x = (i) => f.left + 14 + i * (f.right - f.left - 28) / (count - 1);
+  // the level names sit in their own column on the left, so no day (and no tapped-day line) runs through them
+  const gutter = 58;
+  const x = (i) => f.left + gutter + i * (f.right - f.left - gutter - 14) / (count - 1);
   if (chartPick == null || chartPick >= count) chartPick = todayIndex;
 
   // The vertical scale is the official LEVEL: each of the four levels gets the same height, and a
@@ -990,11 +1035,12 @@ function drawAirChart(data) {
   const top = data.bands[lastBand];
   const y = (value) => f.bottom - (f.bottom - f.top) * Math.min(value / top, 1);
 
-  let svg = "";
+  let svg = "", bandNames = "";
   for (let k = 0; k <= lastBand; k += 1) {
     const from = k ? data.bands[k - 1] : 0;
-    svg += `<rect x="${f.left}" y="${y(data.bands[k])}" width="${f.right - f.left}" height="${Math.max(y(from) - y(data.bands[k]) - 1, 1)}" rx="3" fill="${data.categories[k].color}" fill-opacity=".3"/>`
-      + `<text class="band-name" x="${f.left + 5}" y="${y(data.bands[k]) + 12}">${esc(data.categories[k].name)} (hasta ${data.bands[k]})</text>`;
+    svg += `<rect x="${f.left}" y="${y(data.bands[k])}" width="${f.right - f.left}" height="${Math.max(y(from) - y(data.bands[k]) - 1, 1)}" rx="3" fill="${data.categories[k].color}" fill-opacity=".3"/>`;
+    // the band names go on the right and are drawn last (on top), away from the first hours where the tapped-hour line starts
+    bandNames += `<text class="band-name" x="${f.right - 5}" y="${y(data.bands[k]) + 12}" text-anchor="end">${esc(data.categories[k].name)} (hasta ${data.bands[k]})</text>`;
   }
   hours.forEach((h, i) => {                      // a tick and the weekday at every midnight
     if (h.time.slice(11, 13) !== "00" || i === 0) return;
@@ -1006,6 +1052,7 @@ function drawAirChart(data) {
   svg += `<path d="${hours.map((h, i) => `${i ? "L" : "M"}${x(i).toFixed(1)} ${y(h.value).toFixed(1)}`).join("")}" stroke="${SERIES_COLORS[0]}" stroke-width="2" stroke-dasharray="5 3" fill="none" stroke-linejoin="round"/>`;
   const picked = hours[chartPick];
   svg += `<path d="M${x(chartPick)} ${f.top}V${f.bottom}" stroke="#14201b" stroke-width="1.2"/>` + marker(0, x(chartPick), y(picked.value), SERIES_COLORS[0], false, 4.5);
+  svg += bandNames;                                 // on top of everything
   $("chart").innerHTML = `<svg viewBox="0 0 ${f.width} ${f.height}" role="img" data-count="${count}" data-first="${x(0)}" data-last="${x(count - 1)}"`
     + ` aria-label="Previsión por horas de ${esc(data.pollutant)} con las bandas del índice de calidad del aire. Toca una hora para ver su valor.">${svg}</svg>`;
 

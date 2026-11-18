@@ -111,8 +111,8 @@ select:focus-visible, .btn:focus-visible, .chip:focus-visible, .hour:focus-visib
 .layout { display: block; }
 .map-area { position: relative; height: 44vh; min-height: 260px; background: #e8ecea; }
 #map { position: absolute; inset: 0; }
-/* OpenStreetMap tiles turned into a muted light-grey basemap (used when there is no CARTO key) */
-.muted-tiles { filter: grayscale(1) brightness(1.09) contrast(.82); }
+/* no hover label while a station's popup is open */
+.popup-is-open .leaflet-tooltip { display: none; }
 .leaflet-container { font-family: inherit; background: #eef0ef; }
 .leaflet-popup-content-wrapper { border-radius: 12px; box-shadow: var(--shadow); }
 .leaflet-popup-content { margin: 12px 14px; font-size: 13px; line-height: 1.45; }
@@ -155,7 +155,7 @@ select:focus-visible, .btn:focus-visible, .chip:focus-visible, .hour:focus-visib
 
 .panel {
   position: relative; z-index: 1000;
-  margin-top: -18px; padding: 8px 14px 28px;
+  margin-top: -18px; padding: 8px 14px 96px;     /* bottom room so the chat button never hides the last content */
   background: var(--page); border-radius: 22px 22px 0 0;
   box-shadow: 0 -8px 24px rgba(20, 32, 27, .12);
 }
@@ -324,7 +324,9 @@ select:focus-visible, .btn:focus-visible, .chip:focus-visible, .hour:focus-visib
 .pcell .pcell-rain { width: 11px; height: 11px; opacity: .9; }
 .pcell:active { transform: scale(.96); }
 .pcell:hover, .pcell:focus-visible, .pcell.is-open { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--ink); outline: none; }
-.pcell-none { background: repeating-linear-gradient(135deg, #eef1ef 0 6px, #e3e8e5 6px 12px); color: var(--ink-faint); font-weight: 600; }
+.pcell-none { background: repeating-linear-gradient(135deg, #eef1ef 0 6px, #e3e8e5 6px 12px); color: var(--ink-soft); font-weight: 600; flex-wrap: wrap; align-content: center; row-gap: 0; }
+.pcell .pcell-nolevel { width: 13px; height: 13px; }                 /* "sin previsión": a dashed circle, never a dash */
+.pcell-pollen { flex-basis: 100%; text-align: center; font-size: 10px; font-weight: 600; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: clip; }
 .planner-skeleton { grid-column: 1 / -1; height: 250px; }
 
 /* ---------------- forecast line chart ---------------- */
@@ -362,6 +364,9 @@ select:focus-visible, .btn:focus-visible, .chip:focus-visible, .hour:focus-visib
 .sheet-close { width: 44px; height: 44px; margin: -6px -10px 0 0; flex: none; border: 0; border-radius: 12px; background: none; cursor: pointer; display: grid; place-items: center; color: var(--ink-soft); }
 .sheet-close:hover { background: #eef1ef; }
 .sheet-close svg { width: 20px; height: 20px; }
+/* close buttons (sheet, chat, map popups): a focus ring only when using the keyboard, not after a tap or click */
+.sheet-close:focus, .chat-close:focus, .leaflet-popup-close-button:focus { outline: none; }
+.sheet-close:focus-visible, .chat-close:focus-visible, .leaflet-popup-close-button:focus-visible { outline: 2.5px solid var(--ink); outline-offset: 2px; }
 .sheet-body { font-size: 13.500px; line-height: 1.5; }
 .sheet-body p { margin: 8px 0; }
 .sheet-body h4 { margin: 14px 0 2px; font-size: 11.500px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-soft); }
@@ -491,6 +496,7 @@ select:focus-visible, .btn:focus-visible, .chip:focus-visible, .hour:focus-visib
     box-shadow: -1px 0 0 var(--line); background: var(--page);
   }
   .sheet-handle { display: none; }
+  .chat-fab { right: calc(460px + 16px); bottom: 34px; }     /* over the map corner: never on top of the panel */
   .result-label { font-size: 25px; }
   .chips-profile .chip { font-size: 13.500px; }
 }

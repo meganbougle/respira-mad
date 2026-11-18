@@ -264,6 +264,8 @@ def plan(lat, lon, profile="general", allergy_types=(), now=None, demo=False):
                               "level_name": shown_pollen["level_name"], "counts": shown_pollen["counts"]}
                              if shown_pollen else None),
             "confidence": confidence, "confidence_reason": confidence_reason,
+            # the label for a part of the day that depends only on our air forecast (by days ahead)
+            "air_confidence": config.CONFIDENCE_BY_DAYS_AHEAD[min(lead, len(config.CONFIDENCE_BY_DAYS_AHEAD) - 1)],
             "blocks": blocks,
         })
 

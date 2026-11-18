@@ -1,14 +1,4 @@
 station_code,pollen_type,value,timestamp,station
-ALCA,Cupresáceas/Taxáceas,1.0,2026-11-03,Alcalá de Henares
-ALCA,Gramíneas,0.0,2026-11-03,Alcalá de Henares
-ALCA,Olivo,0.0,2026-11-03,Alcalá de Henares
-ALCA,Olmos,0.0,2026-11-03,Alcalá de Henares
-ALCA,Pinos,2.0,2026-11-03,Alcalá de Henares
-ALCA,Plantago,0.0,2026-11-03,Alcalá de Henares
-ALCA,Plátano de paseo,1.0,2026-11-03,Alcalá de Henares
-ALCA,Populus,0.0,2026-11-03,Alcalá de Henares
-ALCA,Quercus,0.0,2026-11-03,Alcalá de Henares
-ALCA,Urticaceae (Ortigas),4.0,2026-11-03,Alcalá de Henares
 ALCA,Cupresáceas/Taxáceas,0.0,2026-11-04,Alcalá de Henares
 ALCA,Gramíneas,0.0,2026-11-04,Alcalá de Henares
 ALCA,Olivo,0.0,2026-11-04,Alcalá de Henares
@@ -129,16 +119,6 @@ ALCA,Plátano de paseo,0.0,2026-11-15,Alcalá de Henares
 ALCA,Populus,0.0,2026-11-15,Alcalá de Henares
 ALCA,Quercus,0.0,2026-11-15,Alcalá de Henares
 ALCA,Urticaceae (Ortigas),3.0,2026-11-15,Alcalá de Henares
-ALCO,Cupresáceas/Taxáceas,3.0,2026-11-03,Alcobendas
-ALCO,Gramíneas,1.0,2026-11-03,Alcobendas
-ALCO,Olivo,0.0,2026-11-03,Alcobendas
-ALCO,Olmos,3.0,2026-11-03,Alcobendas
-ALCO,Pinos,4.0,2026-11-03,Alcobendas
-ALCO,Plantago,0.0,2026-11-03,Alcobendas
-ALCO,Plátano de paseo,0.0,2026-11-03,Alcobendas
-ALCO,Populus,0.0,2026-11-03,Alcobendas
-ALCO,Quercus,3.0,2026-11-03,Alcobendas
-ALCO,Urticaceae (Ortigas),0.0,2026-11-03,Alcobendas
 ALCO,Cupresáceas/Taxáceas,3.0,2026-11-04,Alcobendas
 ALCO,Gramíneas,0.0,2026-11-04,Alcobendas
 ALCO,Olivo,0.0,2026-11-04,Alcobendas
@@ -189,16 +169,6 @@ ALCO,Plátano de paseo,0.0,2026-11-08,Alcobendas
 ALCO,Populus,0.0,2026-11-08,Alcobendas
 ALCO,Quercus,1.0,2026-11-08,Alcobendas
 ALCO,Urticaceae (Ortigas),0.0,2026-11-08,Alcobendas
-ALER,Cupresáceas/Taxáceas,1.0,2026-11-03,Madrid-Barrio Salamanca
-ALER,Gramíneas,0.0,2026-11-03,Madrid-Barrio Salamanca
-ALER,Olivo,0.0,2026-11-03,Madrid-Barrio Salamanca
-ALER,Olmos,0.0,2026-11-03,Madrid-Barrio Salamanca
-ALER,Pinos,2.0,2026-11-03,Madrid-Barrio Salamanca
-ALER,Plantago,0.0,2026-11-03,Madrid-Barrio Salamanca
-ALER,Plátano de paseo,0.0,2026-11-03,Madrid-Barrio Salamanca
-ALER,Populus,0.0,2026-11-03,Madrid-Barrio Salamanca
-ALER,Quercus,2.0,2026-11-03,Madrid-Barrio Salamanca
-ALER,Urticaceae (Ortigas),0.0,2026-11-03,Madrid-Barrio Salamanca
 ALER,Cupresáceas/Taxáceas,1.0,2026-11-04,Madrid-Barrio Salamanca
 ALER,Gramíneas,0.0,2026-11-04,Madrid-Barrio Salamanca
 ALER,Olivo,0.0,2026-11-04,Madrid-Barrio Salamanca
@@ -319,16 +289,6 @@ ALER,Plátano de paseo,0.0,2026-11-15,Madrid-Barrio Salamanca
 ALER,Populus,0.0,2026-11-15,Madrid-Barrio Salamanca
 ALER,Quercus,0.0,2026-11-15,Madrid-Barrio Salamanca
 ALER,Urticaceae (Ortigas),0.0,2026-11-15,Madrid-Barrio Salamanca
-AYTM,Cupresáceas/Taxáceas,1.0,2026-11-03,Madrid-Arganzuela
-AYTM,Gramíneas,1.0,2026-11-03,Madrid-Arganzuela
-AYTM,Olivo,0.0,2026-11-03,Madrid-Arganzuela
-AYTM,Olmos,0.0,2026-11-03,Madrid-Arganzuela
-AYTM,Pinos,1.0,2026-11-03,Madrid-Arganzuela
-AYTM,Plantago,0.0,2026-11-03,Madrid-Arganzuela
-AYTM,Plátano de paseo,3.0,2026-11-03,Madrid-Arganzuela
-AYTM,Populus,0.0,2026-11-03,Madrid-Arganzuela
-AYTM,Quercus,1.0,2026-11-03,Madrid-Arganzuela
-AYTM,Urticaceae (Ortigas),0.0,2026-11-03,Madrid-Arganzuela
 AYTM,Cupresáceas/Taxáceas,3.0,2026-11-04,Madrid-Arganzuela
 AYTM,Gramíneas,0.0,2026-11-04,Madrid-Arganzuela
 AYTM,Olivo,0.0,2026-11-04,Madrid-Arganzuela
@@ -449,16 +409,6 @@ AYTM,Plátano de paseo,0.0,2026-11-15,Madrid-Arganzuela
 AYTM,Populus,0.0,2026-11-15,Madrid-Arganzuela
 AYTM,Quercus,0.0,2026-11-15,Madrid-Arganzuela
 AYTM,Urticaceae (Ortigas),0.0,2026-11-15,Madrid-Arganzuela
-COSL,Cupresáceas/Taxáceas,5.0,2026-11-03,Coslada
-COSL,Gramíneas,0.0,2026-11-03,Coslada
-COSL,Olivo,0.0,2026-11-03,Coslada
-COSL,Olmos,0.0,2026-11-03,Coslada
-COSL,Pinos,1.0,2026-11-03,Coslada
-COSL,Plantago,0.0,2026-11-03,Coslada
-COSL,Plátano de paseo,0.0,2026-11-03,Coslada
-COSL,Populus,0.0,2026-11-03,Coslada
-COSL,Quercus,2.0,2026-11-03,Coslada
-COSL,Urticaceae (Ortigas),1.0,2026-11-03,Coslada
 COSL,Cupresáceas/Taxáceas,8.0,2026-11-04,Coslada
 COSL,Gramíneas,0.0,2026-11-04,Coslada
 COSL,Olivo,0.0,2026-11-04,Coslada
@@ -509,16 +459,6 @@ COSL,Plátano de paseo,0.0,2026-11-08,Coslada
 COSL,Populus,0.0,2026-11-08,Coslada
 COSL,Quercus,0.0,2026-11-08,Coslada
 COSL,Urticaceae (Ortigas),0.0,2026-11-08,Coslada
-FACF,Cupresáceas/Taxáceas,0.0,2026-11-03,Madrid-Ciudad Universitaria
-FACF,Gramíneas,1.0,2026-11-03,Madrid-Ciudad Universitaria
-FACF,Olivo,0.0,2026-11-03,Madrid-Ciudad Universitaria
-FACF,Olmos,0.0,2026-11-03,Madrid-Ciudad Universitaria
-FACF,Pinos,1.0,2026-11-03,Madrid-Ciudad Universitaria
-FACF,Plantago,0.0,2026-11-03,Madrid-Ciudad Universitaria
-FACF,Plátano de paseo,0.0,2026-11-03,Madrid-Ciudad Universitaria
-FACF,Populus,0.0,2026-11-03,Madrid-Ciudad Universitaria
-FACF,Quercus,2.0,2026-11-03,Madrid-Ciudad Universitaria
-FACF,Urticaceae (Ortigas),1.0,2026-11-03,Madrid-Ciudad Universitaria
 FACF,Cupresáceas/Taxáceas,2.0,2026-11-04,Madrid-Ciudad Universitaria
 FACF,Gramíneas,0.0,2026-11-04,Madrid-Ciudad Universitaria
 FACF,Olivo,0.0,2026-11-04,Madrid-Ciudad Universitaria
@@ -639,16 +579,6 @@ FACF,Plátano de paseo,0.0,2026-11-15,Madrid-Ciudad Universitaria
 FACF,Populus,0.0,2026-11-15,Madrid-Ciudad Universitaria
 FACF,Quercus,1.0,2026-11-15,Madrid-Ciudad Universitaria
 FACF,Urticaceae (Ortigas),1.0,2026-11-15,Madrid-Ciudad Universitaria
-GETA,Cupresáceas/Taxáceas,3.0,2026-11-03,Getafe
-GETA,Gramíneas,1.0,2026-11-03,Getafe
-GETA,Olivo,0.0,2026-11-03,Getafe
-GETA,Olmos,0.0,2026-11-03,Getafe
-GETA,Pinos,0.0,2026-11-03,Getafe
-GETA,Plantago,0.0,2026-11-03,Getafe
-GETA,Plátano de paseo,15.0,2026-11-03,Getafe
-GETA,Populus,0.0,2026-11-03,Getafe
-GETA,Quercus,1.0,2026-11-03,Getafe
-GETA,Urticaceae (Ortigas),1.0,2026-11-03,Getafe
 GETA,Cupresáceas/Taxáceas,10.0,2026-11-04,Getafe
 GETA,Gramíneas,1.0,2026-11-04,Getafe
 GETA,Olivo,1.0,2026-11-04,Getafe
@@ -699,16 +629,6 @@ GETA,Plátano de paseo,1.0,2026-11-08,Getafe
 GETA,Populus,0.0,2026-11-08,Getafe
 GETA,Quercus,0.0,2026-11-08,Getafe
 GETA,Urticaceae (Ortigas),0.0,2026-11-08,Getafe
-ROZA,Cupresáceas/Taxáceas,1.0,2026-11-03,Las Rozas
-ROZA,Gramíneas,0.0,2026-11-03,Las Rozas
-ROZA,Olivo,0.0,2026-11-03,Las Rozas
-ROZA,Olmos,0.0,2026-11-03,Las Rozas
-ROZA,Pinos,0.0,2026-11-03,Las Rozas
-ROZA,Plantago,0.0,2026-11-03,Las Rozas
-ROZA,Plátano de paseo,0.0,2026-11-03,Las Rozas
-ROZA,Populus,0.0,2026-11-03,Las Rozas
-ROZA,Quercus,0.0,2026-11-03,Las Rozas
-ROZA,Urticaceae (Ortigas),1.0,2026-11-03,Las Rozas
 ROZA,Cupresáceas/Taxáceas,2.0,2026-11-04,Las Rozas
 ROZA,Gramíneas,0.0,2026-11-04,Las Rozas
 ROZA,Olivo,0.0,2026-11-04,Las Rozas
@@ -829,16 +749,6 @@ ROZA,Plátano de paseo,0.0,2026-11-15,Las Rozas
 ROZA,Populus,0.0,2026-11-15,Las Rozas
 ROZA,Quercus,0.0,2026-11-15,Las Rozas
 ROZA,Urticaceae (Ortigas),0.0,2026-11-15,Las Rozas
-VILL,Cupresáceas/Taxáceas,0.0,2026-11-03,Collado Villalba
-VILL,Gramíneas,0.0,2026-11-03,Collado Villalba
-VILL,Olivo,0.0,2026-11-03,Collado Villalba
-VILL,Olmos,0.0,2026-11-03,Collado Villalba
-VILL,Pinos,1.0,2026-11-03,Collado Villalba
-VILL,Plantago,0.0,2026-11-03,Collado Villalba
-VILL,Plátano de paseo,0.0,2026-11-03,Collado Villalba
-VILL,Populus,0.0,2026-11-03,Collado Villalba
-VILL,Quercus,0.0,2026-11-03,Collado Villalba
-VILL,Urticaceae (Ortigas),0.0,2026-11-03,Collado Villalba
 VILL,Cupresáceas/Taxáceas,2.0,2026-11-04,Collado Villalba
 VILL,Gramíneas,1.0,2026-11-04,Collado Villalba
 VILL,Olivo,0.0,2026-11-04,Collado Villalba

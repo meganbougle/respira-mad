@@ -252,13 +252,15 @@ grains/m³. An hour slider (default 10:00) sets the time of day.
   nothing reloads. It refreshes every 5 minutes (the server cache is 15).
 - Map: CARTO Positron if the environment variable `CARTO_BASEMAP_KEY` is set
   (CARTO tiles need a free key since autumn 2026; without one they are
-  watermarked). Otherwise OpenStreetMap tiles turned light grey with a CSS
-  filter. Attribution on the map and in the footer either way.
+  watermarked). Otherwise Esri's free "World Light Gray" tiles, grey by
+  default (no CSS filter). Attribution on the map and in the footer either
+  way. Markers use Leaflet's canvas renderer (faster, bigger tap area); the
+  hover label is hidden while a popup is open.
 - Map markers: air stations are circles in the official ICA colours; pollen
   stations are small diamonds with our pollen icon. The stations behind the
   current result (`highlightStations()` in `app.js`: one per pollutant from
   `/api/risk`, plus the pollen station when allergy is on) are bigger, with a
-  thin line to the chosen point, and the rest are faded. Choosing a place from
+  thin line to the chosen point and a thicker border; the others stay opaque. Choosing a place from
   the list (or "my location") zooms the map to the point and those stations;
   a tap on the map keeps the zoom.
 - Tapping a station opens the shared bottom sheet on phones (below 900px)
@@ -416,6 +418,11 @@ grains/m³. An hour slider (default 10:00) sets the time of day.
   planner says so.
 - Today's pollen is never better than the latest official reading (same floor
   as the main card).
+- A cell without a level shows a dashed-circle "sin previsión" icon, the
+  temperature as its own element (never a dash next to it) and the day's
+  pollen level. The detail panel always lists the day's pollen and shows a
+  confidence label only for slots with a forecast, describing what that slot
+  depends on (air, pollen or both).
 - Today's parts of the day use only data that exists: past hours = the
   stations' MEASURED hourly values (`air_predict.measured_at_point()`, from
   `backup/air_recent.csv`); the current part = measured hours so far + our
