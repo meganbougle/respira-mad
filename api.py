@@ -202,6 +202,43 @@ def health():
     return {"status": "ok"}
 
 
+STARTED = time.time()                 # when this server process started (for /api/memory)
+
+
+def _read_number(path):
+    """A number from a Linux system file, or None (e.g. on a Mac)."""
+    try:
+        text = Path(path).read_text().strip()
+        return None if text == "max" else int(text)
+    except (OSError, ValueError):
+        return None
+
+
+@app.get("/api/memory")
+def memory():
+    """
+    Memory in MB, to watch the Render free plan's 512 MB limit (Linux only):
+    this process now and at its peak (/proc/self/status), and the whole
+    container now, at its peak and its limit (cgroup files). Read-only.
+    """
+    status = {}
+    try:
+        for line in Path("/proc/self/status").read_text().splitlines():
+            if line.startswith(("VmRSS:", "VmHWM:")):
+                status[line.split(":")[0]] = round(int(line.split()[1]) / 1024)
+    except OSError:
+        pass
+    to_mb = lambda value: None if value is None else round(value / 1048576)
+    return {
+        "process_now_mb": status.get("VmRSS"),
+        "process_peak_mb": status.get("VmHWM"),
+        "container_now_mb": to_mb(_read_number("/sys/fs/cgroup/memory.current") or _read_number("/sys/fs/cgroup/memory/memory.usage_in_bytes")),
+        "container_peak_mb": to_mb(_read_number("/sys/fs/cgroup/memory.peak") or _read_number("/sys/fs/cgroup/memory/memory.max_usage_in_bytes")),
+        "container_limit_mb": to_mb(_read_number("/sys/fs/cgroup/memory.max") or _read_number("/sys/fs/cgroup/memory/memory.limit_in_bytes")),
+        "hours_since_start": round((time.time() - STARTED) / 3600, 2),
+    }
+
+
 @app.get("/api/config")
 def get_config():
     """Everything the page needs to draw its buttons and colours."""
