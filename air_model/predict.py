@@ -80,7 +80,13 @@ def _fetch_recent():
     """
     now = data._madrid_now()
     parts = []
-    for fetch in (lambda: data._read_csv(data._ckan_csv_url("calidad_aire_datos_mes")),      # Comunidad: month so far
+
+    def last_days(table):
+        """MEMORY: the month file grows all month; keep only the days within RECENT_HOURS."""
+        day = pd.to_datetime(table["ano"] + "-" + table["mes"] + "-" + table["dia"], errors="coerce")
+        return table[day >= (now - pd.Timedelta(hours=RECENT_HOURS)).normalize()]
+
+    for fetch in (lambda: last_days(data._read_csv(data._ckan_csv_url("calidad_aire_datos_mes"))),  # Comunidad: month so far
                   lambda: data._read_csv(data._ckan_csv_url("calidad_aire_datos_dia")),      # Comunidad: today (newest hours)
                   lambda: data._read_csv(data.CITY_AIR_URL)):                                # Ayuntamiento: today
         try:

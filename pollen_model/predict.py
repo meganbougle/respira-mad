@@ -29,6 +29,8 @@ no longer used by the app: it is kept only for the comparison in the report.)
 """
 
 import json
+import re
+import unicodedata
 from pathlib import Path
 
 import joblib
@@ -54,21 +56,29 @@ OUR_MODEL = "Modelo propio de Respira MAD"
 
 RECENT_DAYS = 14                    # how many days of readings recent_readings() keeps
 
-_quantile_models = None
 _last_readings = None               # the readings downloaded for the latest forecast (reused by recent_readings)
 
+# MEMORY (18 Nov 2026, Render free plan = 512 MB): all 240 quantile models at
+# once take about 260 MB in memory, one pollen type's 24 take about 27 MB. So
+# compare_models.py saves one file per pollen type, and the forecast loads a
+# type's file, uses it and lets it go before the next type.
+QUANTILE_FOLDER = FOLDER / "quantile_models"
 
-def quantile_models():
+
+def type_file(pollen_type):
+    """The file with one pollen type's quantile models, e.g. quantile_models/olivo.joblib."""
+    slug = unicodedata.normalize("NFKD", pollen_type).encode("ascii", "ignore").decode().lower()
+    slug = re.sub(r"[^a-z0-9]+", "_", slug).strip("_")
+    return QUANTILE_FOLDER / f"{slug}.joblib"
+
+
+def type_models(pollen_type):
     """
-    The quantile models made by compare_models.py, loaded once:
-    {(pollen type, lead): {"q10": model, "q50": model, "q90": model}} (see
-    features.predict_quantiles). Returns {} if the file is missing (no intervals then).
+    One pollen type's quantile models, made by compare_models.py:
+    {lead: {"mean": model, "q10": model, "q50": model, "q90": model}} (see
+    features.predict_quantiles). Not kept: the caller drops it when done.
     """
-    global _quantile_models
-    if _quantile_models is None:
-        file = FOLDER / "quantile_models.joblib"
-        _quantile_models = joblib.load(file) if file.exists() else {}
-    return _quantile_models
+    return joblib.load(type_file(pollen_type))
 
 
 @st.cache_data(show_spinner=False)
@@ -140,13 +150,15 @@ def _arimax_rows(pollen_type, code, readings, weather, issue_day):
 
 def _fetch_recent_pollen():
     """Readings of this year and last year for the 10 pollen types with thresholds."""
-    tables = [data._read_csv(data._ckan_csv_url("mediciones_polen"))]
+    # only the columns used below (MEMORY: these files are large)
+    columns = {"captador", "tipo_polinico", "granos_de_polen_x_metro_cubico", "fecha_lectura"}
+    tables = [data._read_csv(data._ckan_csv_url("mediciones_polen"), columns=columns)]
     try:                                            # last year, for the "same day last year" input
         listing = requests.get(data.CKAN_API + "package_show", params={"id": "mediciones_polen_historico"},
                                timeout=data.TIMEOUT).json()["result"]["resources"]
         last_year = str(data._madrid_now().year - 1)
         url = next(r["url"] for r in listing if r["name"] == last_year and r["format"].upper() == "CSV")
-        tables.append(data._read_csv(url))
+        tables.append(data._read_csv(url, columns=columns))
     except Exception:
         pass                                        # the model copes without it
     readings = pd.concat(tables, ignore_index=True)
@@ -201,6 +213,7 @@ def _predict(readings, weather_by_station, stations, issue_day, leads=None, only
     results = test_results()
     rows = []
     for pollen_type in F.POLLEN_TYPES:
+        models = None                       # this type's models, loaded only if gradient boosting is needed
         one = readings[readings["pollen_type"] == pollen_type]
         wide = one.pivot(index="timestamp", columns="station_code", values="value").reindex(all_days)
         network = wide.mean(axis=1)
@@ -224,7 +237,9 @@ def _predict(readings, weather_by_station, stations, issue_day, leads=None, only
                     prediction = {**arimax[lead], "model": "arimax"}
                 else:                               # gradient boosting: the median and the calibrated 80% interval
                     margin = results.get((pollen_type, lead, "gb"), {}).get("margin", 0.0)
-                    prediction = {"model": "gb", **F.predict_quantiles(quantile_models()[(pollen_type, lead)], row[F.FEATURES],
+                    if models is None:
+                        models = type_models(pollen_type)
+                    prediction = {"model": "gb", **F.predict_quantiles(models[lead], row[F.FEATURES],
                                                                         widen=margin).iloc[0].to_dict()}
                 # ONE SOURCE OF TRUTH: the level is the median forecast read against the official thresholds
                 prediction["predicted_level"] = int(F.level_of(pollen_type, [prediction["q50"]])[0])

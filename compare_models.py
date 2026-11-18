@@ -60,6 +60,7 @@ import config  # noqa: E402
 from pollen_model import arimax as A  # noqa: E402
 from pollen_model import features as F  # noqa: E402
 from pollen_model import issued_weather  # noqa: E402
+from pollen_model import predict as P  # noqa: E402
 
 ROOT = Path(__file__).parent
 CACHE = ROOT / "model_data"
@@ -466,8 +467,13 @@ if __name__ == "__main__":
     gb = pd.concat([d[2] for d in done], ignore_index=True)
     demo_quantiles = pd.concat([d[3] for d in done], ignore_index=True)
     importances = {d[0][0]: d[4] for d in done if d[4] is not None}        # {pollen type: {feature: importance}}
-    joblib.dump(quantile_models, OUT / "quantile_models.joblib", compress=3)
-    print(f"  saved quantile_models.joblib ({(OUT / 'quantile_models.joblib').stat().st_size / 1e6:.1f} MB)")
+    # one file per pollen type, so the server only holds one type's models at a time (memory, see predict.py)
+    P.QUANTILE_FOLDER.mkdir(exist_ok=True)
+    for pollen_type in F.POLLEN_TYPES:
+        joblib.dump({lead: quantile_models[(pollen_type, lead)] for lead in F.LEADS if (pollen_type, lead) in quantile_models},
+                    P.type_file(pollen_type), compress=3)
+    size = sum(f.stat().st_size for f in P.QUANTILE_FOLDER.glob("*.joblib")) / 1e6
+    print(f"  saved {P.QUANTILE_FOLDER.name}/ (one file per pollen type, {size:.1f} MB)")
 
     # ------------------------------------------------------------------------
     # 5. THE COMPARISON: same rows, same lead days, same metrics for everyone

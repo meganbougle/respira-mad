@@ -23,6 +23,8 @@ Addresses:
     /api/health       "ok" (used by the hosting service to check the app is up)
 """
 
+import ctypes
+import gc
 import logging
 import math
 import os
@@ -89,6 +91,19 @@ def unexpected_error(request: Request, error: Exception):
 PREFETCH_EVERY_SECONDS = 10 * 60      # the loop wakes every 10 minutes; the weather itself is only refreshed hourly
 
 
+def release_memory():
+    """
+    MEMORY (Render free plan, 512 MB): after a big job, collect Python's
+    garbage and, on Linux, hand the freed memory back to the system
+    (malloc_trim). Without the second step the process keeps its peak size.
+    """
+    gc.collect()
+    try:
+        ctypes.CDLL("libc.so.6").malloc_trim(0)
+    except OSError:
+        pass                                  # not Linux (e.g. a Mac): nothing more to do
+
+
 def _prefetch_loop():
     while True:
         try:
@@ -103,6 +118,7 @@ def _prefetch_loop():
                 warm()
             except Exception:
                 log.exception("Could not prepare the %s forecast in advance", name)
+            release_memory()
         time.sleep(PREFETCH_EVERY_SECONDS)
 
 

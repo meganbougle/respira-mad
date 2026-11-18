@@ -24,7 +24,6 @@ import unicodedata
 from collections import deque
 from pathlib import Path
 
-import anthropic
 import pandas as pd
 import requests
 
@@ -675,6 +674,8 @@ def answer(messages, context, visitor="anon"):
     if not _allowed(visitor):
         return {"ok": False, "available": True, "reply": TOO_MANY.format(limit=config.AI_MAX_MESSAGES_PER_HOUR)}
 
+    # imported here, not at the top: the library takes ~65 MB and is only needed once someone chats (memory)
+    import anthropic
     client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"], timeout=40.0, max_retries=1)
     system = [{"type": "text", "text": SYSTEM_PROMPT}, {"type": "text", "text": _context_text(context)}]
     input_tokens = output_tokens = tool_calls = 0

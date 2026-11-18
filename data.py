@@ -25,6 +25,7 @@ To know whether a table is live or from backup:  df.attrs["live"]  (True/False)
 When it was downloaded:                          df.attrs["fetched_at"]
 """
 
+import io
 import logging
 from pathlib import Path
 
@@ -83,12 +84,22 @@ FORECAST_LABEL = "FORECAST (model)"
 # Small helpers (names start with _ because the app won't call them directly)
 # ----------------------------------------------------------------------------
 
-def _read_csv(url, encoding="utf-8-sig"):
-    """Download a semicolon-separated CSV and return it as a table of text."""
+def _read_csv(url, encoding="utf-8-sig", columns=None):
+    """
+    Download a semicolon-separated CSV and return it as a table of text.
+    `columns` (lower-case names): keep only these, to save memory on big files.
+    MEMORY: reads straight from the downloaded bytes (no extra text copies).
+    """
     response = requests.get(url, timeout=TIMEOUT, headers={"User-Agent": "Mozilla/5.0"})
     response.raise_for_status()                     # stop here if the download failed
-    response.encoding = encoding
-    table = pd.read_csv(pd.io.common.StringIO(response.text), sep=";", dtype=str)
+    wanted = None if columns is None else (lambda name: name.strip().lower() in columns)
+    try:
+        table = pd.read_csv(io.BytesIO(response.content), sep=";", dtype=str, encoding=encoding, usecols=wanted)
+    except UnicodeDecodeError:
+        # Some Comunidad files are Latin-1, not UTF-8 (e.g. the 2025 pollen history,
+        # found 18 Nov 2026: read as UTF-8 it lost "Gramíneas", "Plátano de paseo"...).
+        table = pd.read_csv(io.BytesIO(response.content), sep=";", dtype=str, encoding="latin-1", usecols=wanted)
+    del response                                    # the raw download is no longer needed
     table.columns = table.columns.str.strip().str.lower()   # tidy column names
     return table
 

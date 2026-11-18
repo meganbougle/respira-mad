@@ -62,7 +62,7 @@ assistant, texts).
 | `planner.py` | The 5-day planner logic |
 | `chart.py` | The numbers behind the forecast line chart (`/api/chart`) |
 | `air_model/`, `train_air_model.py` | Our air-quality forecast (NO2, O3, PM10, PM2.5, hourly): history download, features, live prediction, saved models, comparison tables (`lead_report.py` writes the per-hour table); and the script that trains and tests it |
-| `pollen_model/`, `train_pollen_model.py` | Our pollen forecast model: features, live prediction, saved models, backtest report; and the script that trains and tests it |
+| `pollen_model/`, `train_pollen_model.py` | Our pollen forecast model: features, live prediction, saved models (`quantile_models/`, one file per type), backtest report; and the script that trains and tests it |
 | `static/index.html`, `app.js`, `style.css` | The web app page (Spanish, mobile first, no build step) |
 | `compare_models.py`, `MODEL_REPORT.md` | Pollen: compares seasonal naive, exponential smoothing, ARIMAX and gradient boosting (choose and calibrate on 2024, test on 2025) and saves what the app uses; the report in Spanish (pollen and air) |
 | `assistant.py` | The AI assistant: system prompt, four tools, limits, cost log |
@@ -280,6 +280,20 @@ grains/m³. An hour slider (default 10:00) sets the time of day.
   outside a rough box around the Comunidad de Madrid.
 - Render free tier sleeps after 15 minutes without visits; the first visit
   after that takes about a minute. Open the site before a demo.
+- **Memory (free plan = 512 MB; Render restarted the app for exceeding it,
+  18 Nov 2026).** Measured locally (macOS footprint): peak 507 MB before,
+  286 MB after the fixes for one visitor, 366 MB with 6 visitors + 2 chats.
+  The fixes: pollen quantile models stored one file per type
+  (`pollen_model/quantile_models/<type>.joblib`) and loaded only while that
+  type is forecast (all 240 at once took ~260 MB, one type ~27 MB); the
+  `anthropic` library imported on the first chat only; `data._read_csv`
+  reads from the downloaded bytes and can keep only some columns; the air
+  forecast keeps only the last 3 days of the month file; `api.release_memory()`
+  (garbage collection + `malloc_trim` on Linux) after the hourly forecasts;
+  one uvicorn worker. Biggest remaining parts: pandas (~80 MB), scikit-learn
+  (~65 MB), statsmodels for ARIMAX (~60 MB), streamlit (~35 MB).
+- `data._read_csv` falls back to Latin-1 when a file is not UTF-8 (the 2025
+  pollen history is Latin-1; before 18 Nov 2026 its accented types were lost).
 
 ## Our air-quality forecast (`air_model/`, `train_air_model.py`)
 
