@@ -48,7 +48,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.13.1"
+          python-version: "3.13"          # newest 3.13.x on the runner (3.13.1 is not prebuilt for its Ubuntu)
           cache: pip
           cache-dependency-path: requirements-precompute.txt
 
