@@ -13,6 +13,10 @@ services:
     envVars:
       - key: PYTHON_VERSION           # the version the app was tested with
         value: 3.13.1
+      # Memory (free plan = 512 MB): limit glibc to 2 memory pools instead of one per
+      # thread, so memory freed by one request can be reused by the next one.
+      - key: MALLOC_ARENA_MAX
+        value: "2"
       # Optional: free key for the CARTO Positron basemap (carto.com/basemaps/apikey).
       # "sync: false" means the value is typed in Render's dashboard, never stored in git.
       - key: CARTO_BASEMAP_KEY

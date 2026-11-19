@@ -10,6 +10,7 @@ in the app's dropdown and every station (for today, and for the demo days), in b
 """
 
 import logging
+import sys
 
 import streamlit  # noqa: F401
 
@@ -26,26 +27,19 @@ for name, loader in (("Aire (ambas redes)", data.load_air), ("Polen", data.load_
     problems += 0 if live else 1
     print(f"{name}: {'LIVE, backup saved' if live else 'FAILED - kept the old backup'}")
 
-# our own pollen model's forecast (needs recent readings and each station's weather)
-try:
-    from pollen_model import predict
-    live = predict.forecast().attrs.get("live")
-    live = live and predict.recent_readings().attrs.get("live")      # the last two weeks of readings, for the chart
-    problems += 0 if live else 1
-    print(f"Modelo de polen: {'LIVE, backup saved' if live else 'FAILED - kept the old backup'}")
-except Exception as error:
-    problems += 1
-    print(f"Modelo de polen: FAILED ({error})")
-
-# our own air-quality forecast (needs the last days of readings of both networks and the weather)
-try:
-    from air_model import predict as air_predict
-    live = air_predict.forecast().attrs.get("live")
-    problems += 0 if live else 1
-    print(f"Modelo de aire: {'LIVE, backup saved' if live else 'FAILED - kept the old backup'}")
-except Exception as error:
-    problems += 1
-    print(f"Modelo de aire: FAILED ({error})")
+# our own pollen and air forecasts: computed exactly as GitHub Actions does (precompute.py),
+# then copied into backup/ (with backup/results_status.json), the copies committed on main
+# that the server uses if it cannot reach the results branch. Needs requirements-precompute.txt.
+import subprocess  # noqa: E402
+import tempfile    # noqa: E402
+with tempfile.TemporaryDirectory() as folder:
+    run = subprocess.run([sys.executable, "precompute.py", "all", "--out", folder, "--also-backup"],
+                         capture_output=True, text=True)
+    for line in run.stdout.splitlines():
+        print(f"Modelos: {line}")
+    if run.returncode != 0:
+        problems += 1
+        print("Modelos: FAILED - kept the old backup for the part that failed")
 
 # the Open-Meteo WEATHER (weather only: air and pollen forecasts are our own models), in batched
 # requests (weather.py): the dropdown places and every station, for today and for the two demo days

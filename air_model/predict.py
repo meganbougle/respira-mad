@@ -21,13 +21,13 @@ import json
 import time
 from pathlib import Path
 
-import joblib
 import numpy as np
 import pandas as pd
 import streamlit as st
 
 import config
 import data
+import results
 import weather
 from air_model import features as F
 
@@ -46,6 +46,7 @@ def models():
     """The trained models, loaded once: {pollutant: model}."""
     global _models
     if _models is None:
+        import joblib          # only where the forecast is computed (precompute.py), never on the server
         _models = joblib.load(FOLDER / "models.joblib")
     return _models
 
@@ -194,10 +195,12 @@ def _fetch_live_forecast():
     return _predict(recent, weather_table, data._madrid_now())
 
 
-@st.cache_data(ttl=data.CACHE_SECONDS, show_spinner=False)
 def _live_forecast():
-    """Cached for 15 minutes, with a backup copy like every other source."""
-    return data._with_backup("air_forecast", _fetch_live_forecast, date_columns=("timestamp", "issued"))
+    """
+    The latest forecast computed by precompute.py (GitHub Actions, every hour),
+    read by results.py. The server never runs the model (memory, see config.py).
+    """
+    return results.read("air_forecast")
 
 
 @st.cache_data(show_spinner=False)

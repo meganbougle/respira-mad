@@ -416,3 +416,15 @@ PLACES = {
 # ----------------------------------------------------------------------------
 # Where the page links to the model report (the info icon "¿Cómo predecimos?").
 MODEL_REPORT_URL = "https://github.com/meganbougle/respira-mad/blob/main/MODEL_REPORT.md"
+
+# ----------------------------------------------------------------------------
+# Precomputed forecasts (18-19 Nov 2026: the Render free plan has 512 MB and the
+# models alone took ~260-400 MB). GitHub Actions runs precompute.py (air every
+# hour, pollen once a day) and saves the results on the "results" branch; the
+# server only downloads and reads them (results.py) and never loads a model.
+# ----------------------------------------------------------------------------
+RESULTS_URL = "https://raw.githubusercontent.com/meganbougle/respira-mad/results/"   # + file name
+RESULTS_REFRESH_SECONDS = 10 * 60     # how often the server looks for new results
+# APP DECISION: after this many hours without a successful run, a forecast is
+# labelled "desactualizada" (it is still shown, with the time it was computed).
+RESULTS_STALE_HOURS = {"air": 3, "pollen": 30}

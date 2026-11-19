@@ -1,0 +1,9 @@
+# What GitHub Actions installs to COMPUTE the forecasts (precompute.py).
+# The server (Render, Streamlit Cloud) installs only requirements.txt: it reads
+# the precomputed results and never loads a model (memory, see config.py).
+-r requirements.txt
+# The saved models only load with these exact versions:
+scikit-learn==1.9.1
+joblib==1.6.0
+statsmodels==0.15.0
+scipy==1.18.1

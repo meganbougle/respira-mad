@@ -42,7 +42,11 @@ assistant, texts).
   - `.venv/bin/python test_timestamps.py` — checks no reading is ever stamped in the future
   - `.venv/bin/python warm_backup.py` — refreshes every backup (run before the demo, then commit `backup/`)
 - Dependencies go in `requirements.txt` with pinned versions (Streamlit Cloud
-  installs from it). Local Python is 3.13.
+  and Render install from it). The model libraries (scikit-learn, joblib,
+  statsmodels, scipy) are NOT on the server: they are in
+  `requirements-precompute.txt` (GitHub Actions and local work). Local Python is 3.13.
+- `.venv/bin/python precompute.py all --out /tmp/res --also-backup` — computes both
+  forecasts locally and refreshes the copies in `backup/` (warm_backup.py does this too)
 
 ## Status
 
@@ -58,6 +62,11 @@ assistant, texts).
 
 | File | What it is |
 |---|---|
+| `results.py` | Server side of the precomputed forecasts: downloads the results branch's files every 10 min into `backup/`, reads them, keeps the last good copy |
+| `precompute.py` | Runs the air and/or pollen model and writes the results (`--out`, `--also-backup`); keeps a part's last good files if it fails |
+| `.github/workflows/precompute.yml` | GitHub Actions: air every hour, pollen daily (04:40 UTC), or by hand; pushes the `results` branch (one commit, replaced each time) |
+| `requirements-precompute.txt`, `requirements-dev.txt` | Model libraries for Actions / Jupyter and matplotlib for the author; the server installs only `requirements.txt` |
+| `data_audit.py`, `DATA_AUDIT.md`, `notebooks/` | Data audit of 19 Nov 2026 (raw-file checks, Spanish report, exploration notebook built by `notebooks/build_notebook.py`) |
 | `api.py` | FastAPI server: `/api/config, places, stations, risk, hours, planner, chart, freshness, chat, health`, and serves `static/` at `/` |
 | `planner.py` | The 5-day planner logic |
 | `chart.py` | The numbers behind the forecast line chart (`/api/chart`) |
@@ -289,11 +298,39 @@ grains/m³. An hour slider (default 10:00) sets the time of day.
   `anthropic` library imported on the first chat only; `data._read_csv`
   reads from the downloaded bytes and can keep only some columns; the air
   forecast keeps only the last 3 days of the month file; `api.release_memory()`
-  (garbage collection + `malloc_trim` on Linux) after the hourly forecasts;
-  one uvicorn worker. Biggest remaining parts: pandas (~80 MB), scikit-learn
-  (~65 MB), statsmodels for ARIMAX (~60 MB), streamlit (~35 MB).
+  (garbage collection + `malloc_trim` on Linux) after the hourly job;
+  one uvicorn worker. On Render this was still not enough with several
+  visitors (container hit 512 MB), so on 19 Nov 2026 the forecasts moved to
+  GitHub Actions (see "Precomputed forecasts"): the server no longer has
+  scikit-learn, statsmodels or scipy at all.
 - `data._read_csv` falls back to Latin-1 when a file is not UTF-8 (the 2025
   pollen history is Latin-1; before 18 Nov 2026 its accented types were lost).
+
+## Precomputed forecasts (`precompute.py`, `results.py`, GitHub Actions; 19 Nov 2026)
+
+- **Why:** the Render free plan has 512 MB; with the models loaded the server hit the limit
+  and restarted. Now the server never loads a model.
+- **GitHub Actions** (`.github/workflows/precompute.yml`) runs `precompute.py`: air every
+  hour (:10 UTC), pollen once a day (04:40 UTC), or by hand (Actions tab, "Run workflow",
+  part all/air/pollen). It pushes the **`results` branch**: `status.json`,
+  `air_forecast.csv.gz`, `air_recent.csv.gz`, `pollen_model_forecast.csv.gz`,
+  `pollen_recent.csv.gz` (about 125 KB). One commit, replaced each time (no history growth);
+  Render deploys only main. Commits are by "respira-mad-bot", no attribution.
+- **Last good results:** a part that fails keeps its old files; `status.json` keeps
+  `computed_at` (last good run) and records `last_attempt` / `last_error`; the run turns red.
+- **Server** (`results.py`): downloads newer files (checked every 10 min by `api.py`'s
+  background job and on read) from `config.RESULTS_URL` into `backup/<name>.csv` +
+  `backup/results_status.json`; the copies committed on main are the fallback. The freshness
+  box shows when each forecast was computed; older than `RESULTS_STALE_HOURS`
+  (air 3 h, pollen 30 h) = "Desactualizada: es el último cálculo correcto".
+- `air_model/predict.forecast(False)` and `pollen_model/predict.forecast(False)` /
+  `recent_readings(False)` read the results; risk, planner, chart and the assistant's tools
+  use them unchanged. A clicked point is worked out from the station forecasts (cheap
+  pandas), so it stays exact (no grid). Demo mode reads the stored files in `backup/replay/`
+  (never computed on the server).
+- `joblib` is imported only inside the computing functions (`models()`, `type_models()`).
+- Render: `MALLOC_ARENA_MAX=2` (render.yaml) limits glibc's per-thread memory pools;
+  `/api/memory` shows process and container memory (now and peak) and that setting.
 
 ## Our air-quality forecast (`air_model/`, `train_air_model.py`)
 
@@ -395,8 +432,8 @@ grains/m³. An hour slider (default 10:00) sets the time of day.
   whose last reading is at most 10 days old (planner, chart, assistant, hours
   all use it) and names the nearer stations it skipped; the main card also
   names nearer stations without recent readings.
-- `api.py`'s hourly background job also keeps the air and pollen forecasts
-  warm (the live pollen forecast takes about 20 s to compute).
+- The live forecast is computed by GitHub Actions (see "Precomputed forecasts"), not by
+  the server.
 - **In the app:** `pollen_model/predict.py` — `forecast(demo)` (cached 6 h,
   backup `backup/pollen_model_forecast.csv`; demo = the stored forecast as of
   24 May 2025, `backup/replay/pollen_forecast_2025-05-24.csv`, written by

@@ -55,6 +55,7 @@ import chart      # noqa: E402
 import config     # noqa: E402
 import data       # noqa: E402
 import planner    # noqa: E402
+import results    # noqa: E402
 import risk       # noqa: E402
 import weather    # noqa: E402
 
@@ -106,19 +107,18 @@ def release_memory():
 
 def _prefetch_loop():
     while True:
+        # our forecasts are computed by GitHub Actions (precompute.py); here we only
+        # download new results when there are any (the old copies stay if it fails)
+        try:
+            results.refresh(force=True)
+        except Exception:
+            log.exception("Results refresh failed (the last good copies are still used)")
         try:
             asked, done = weather.prefetch(risk.weather_points())
             log.info("Weather prefetch: %d cells asked, %d refreshed", asked, done)
         except Exception:
             log.exception("Weather prefetch failed (the cached copies are still used)")
-        # keep our two forecasts warm too (each is cached; this only recomputes one that has expired),
-        # so a visitor never waits for the pollen model (about 20 s) or the air model
-        for name, warm in (("air", lambda: air_predict.forecast(False, None)), ("pollen", lambda: pollen_predict.forecast(False))):
-            try:
-                warm()
-            except Exception:
-                log.exception("Could not prepare the %s forecast in advance", name)
-            release_memory()
+        release_memory()
         time.sleep(PREFETCH_EVERY_SECONDS)
 
 
@@ -236,6 +236,7 @@ def memory():
         "container_peak_mb": to_mb(_read_number("/sys/fs/cgroup/memory.peak") or _read_number("/sys/fs/cgroup/memory/memory.max_usage_in_bytes")),
         "container_limit_mb": to_mb(_read_number("/sys/fs/cgroup/memory.max") or _read_number("/sys/fs/cgroup/memory/memory.limit_in_bytes")),
         "hours_since_start": round((time.time() - STARTED) / 3600, 2),
+        "malloc_arena_max": os.environ.get("MALLOC_ARENA_MAX"),     # set on Render (render.yaml) to limit memory per thread
     }
 
 
@@ -468,7 +469,15 @@ def get_freshness(demo: bool = False, hour: int = HOUR,
     except Exception:
         pass
 
-    # our own forecasts (made from the official measurements) and the weather forecast
+    # our own forecasts (made from the official measurements; computed by GitHub Actions,
+    # air every hour and pollen once a day) and the weather forecast
+    def forecast_origin(table):
+        if demo:
+            return "Día de demostración"
+        if table.attrs.get("stale"):
+            return "Desactualizada: es el último cálculo correcto"
+        return "Calculada automáticamente"
+
     try:
         forecast = air_predict.forecast(demo, moment)
         made = forecast.attrs.get("fetched_at") or real_now
@@ -476,11 +485,24 @@ def get_freshness(demo: bool = False, hour: int = HOUR,
         sources.append({
             "source": "Previsión de aire · modelo propio (con mediciones oficiales)", "timestamp": made,
             "minutes_ago": minutes, "ago": ago_text(minutes), "provisional": False,
-            "status": f"PREVISIÓN (modelo), hasta {air_predict.horizon_hours()} h",
-            "origin": origin(forecast), "live": bool(forecast.attrs.get("live", True)) or demo,
+            "status": f"PREVISIÓN (modelo), hasta {air_predict.horizon_hours()} h, se calcula cada hora",
+            "origin": forecast_origin(forecast), "live": bool(forecast.attrs.get("live", True)) or demo,
         })
     except Exception:
         pass
+    if not demo:
+        try:
+            pollen_forecast = pollen_predict.forecast(False)
+            made = pollen_forecast.attrs.get("fetched_at") or real_now
+            minutes = minutes_between(made, real_now)
+            sources.append({
+                "source": "Previsión de polen · modelo propio (con mediciones oficiales)", "timestamp": made,
+                "minutes_ago": minutes, "ago": ago_text(minutes), "provisional": False,
+                "status": "PREVISIÓN (modelo), 5 días, se calcula cada día",
+                "origin": forecast_origin(pollen_forecast), "live": bool(pollen_forecast.attrs.get("live", True)),
+            })
+        except Exception:
+            pass
     if lat is not None and lon is not None:
         try:
             forecast_weather = data.load_forecast_weather(lat, lon, config.REPLAY_DATE if demo else None)

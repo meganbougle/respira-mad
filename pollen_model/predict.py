@@ -33,7 +33,6 @@ import re
 import unicodedata
 from pathlib import Path
 
-import joblib
 import numpy as np
 import pandas as pd
 import requests
@@ -41,6 +40,7 @@ import streamlit as st
 
 import config
 import data
+import results
 import weather
 from pollen_model import arimax as A
 from pollen_model import features as F
@@ -78,6 +78,7 @@ def type_models(pollen_type):
     {lead: {"mean": model, "q10": model, "q50": model, "q90": model}} (see
     features.predict_quantiles). Not kept: the caller drops it when done.
     """
+    import joblib              # only where the forecast is computed (precompute.py), never on the server
     return joblib.load(type_file(pollen_type))
 
 
@@ -295,11 +296,12 @@ def _fetch_live_forecast():
     return table
 
 
-@st.cache_data(ttl=SIX_HOURS, show_spinner=False)
 def _live_forecast(day_text):
-    """Cached for 6 hours (and per day), with a backup copy like every other source."""
-    return data._with_backup("pollen_model_forecast", _fetch_live_forecast,
-                             date_columns=("timestamp", "issue_date", "target_date", "last_reading"))
+    """
+    The latest forecast computed by precompute.py (GitHub Actions, once a day),
+    read by results.py. The server never runs the model (memory, see config.py).
+    """
+    return results.read("pollen_model_forecast")
 
 
 @st.cache_data(show_spinner=False)
@@ -321,9 +323,9 @@ def _fetch_recent_readings():
     return readings.merge(names, on="station_code", how="left").reset_index(drop=True)
 
 
-@st.cache_data(ttl=SIX_HOURS, show_spinner=False)
 def _live_recent_readings(day_text):
-    return data._with_backup("pollen_recent", _fetch_recent_readings)
+    """The readings saved by precompute.py with the forecast (read by results.py)."""
+    return results.read("pollen_recent")
 
 
 def recent_readings(demo=False):
