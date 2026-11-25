@@ -286,13 +286,17 @@ st.markdown(f'<div style="font-size:0.85rem;">Calidad del aire (ICA): {chips}'
 station_map = folium.Map(location=[lat, lon], zoom_start=10)      # OpenStreetMap background
 if air_table is not None:
     for _, s in risk.station_categories(air_table, now).iterrows():
+        # a station whose readings are ALL older than 3 hours ("stale") is not drawn: it is never
+        # used in a result, and the result notice already names it when a nearer station is skipped
+        if s["stale"]:
+            continue
         has_category = s["category"] is not None and not pd.isna(s["category"])
         fill = config.DOUBTFUL_COLOR if s["doubtful"] or not has_category else config.ICA_COLORS[int(s["category"])]
-        label = ("Dato dudoso" if s["doubtful"] else s["category_name"]) + (" · sin datos recientes" if s["stale"] else "")
+        label = "Dato dudoso" if s["doubtful"] else s["category_name"]
         folium.CircleMarker(
             [s["lat"], s["lon"]], radius=9, color="#333333", weight=1,
-            # old readings are drawn faded; a doubtful reading is grey
-            fill=True, fill_color=fill, fill_opacity=0.35 if s["stale"] else 0.95, opacity=0.4 if s["stale"] else 1,
+            # a doubtful reading is grey
+            fill=True, fill_color=fill, fill_opacity=0.95, opacity=1,
             tooltip=f"{s['station']}: {label}",
             popup=folium.Popup(
                 f"<b>{s['station']}</b><br>{s['source']}<br>ICA: <b>{s['category_name']}</b><br>"
