@@ -128,13 +128,36 @@ def main():
     status_file.write_text(json.dumps(status, ensure_ascii=False, indent=1))
 
     if args.also_backup:
-        for name in ("air_forecast", "air_recent", "pollen_model_forecast", "pollen_recent"):
-            source = out / f"{name}.csv.gz"
-            if source.exists():
-                (data.BACKUP_DIR / f"{name}.csv").write_bytes(gzip.decompress(source.read_bytes()))
-        shutil.copy(status_file, data.BACKUP_DIR / "results_status.json")
+        copy_to_backup(out, status)
 
     sys.exit(1 if failed else 0)                       # a failed part turns the GitHub run red
+
+
+def copy_to_backup(out, status):
+    """
+    Copy the results into backup/, PART BY PART, keeping the last good results there too.
+
+    A part with good results in --out (it has a computed_at) replaces its backup files and its
+    status. A part without (it failed, and --out is a new folder with no older results, as with
+    warm_backup.py) leaves its backup files alone AND keeps their computed_at: only the failed
+    attempt is recorded. (Before 26 Nov 2026 the whole status file was copied, so a failed part
+    lost the date of the backup files that were kept.)
+    """
+    backup_status_file = data.BACKUP_DIR / "results_status.json"
+    backup_status = json.loads(backup_status_file.read_text()) if backup_status_file.exists() else {}
+    files = {"air": ("air_forecast", "air_recent"), "pollen": ("pollen_model_forecast", "pollen_recent")}
+    for part, record in status.items():
+        if record.get("computed_at"):                  # good results for this part: copy them
+            for name in files[part]:
+                source = out / f"{name}.csv.gz"
+                if source.exists():
+                    (data.BACKUP_DIR / f"{name}.csv").write_bytes(gzip.decompress(source.read_bytes()))
+            backup_status[part] = dict(record)
+        else:                                          # no good results: keep the backup's files and date
+            kept = backup_status.setdefault(part, {})
+            kept["last_attempt"] = record.get("last_attempt")
+            kept["last_error"] = record.get("last_error")
+    backup_status_file.write_text(json.dumps(backup_status, ensure_ascii=False, indent=1))
 
 
 if __name__ == "__main__":

@@ -1,12 +1,12 @@
 {
  "air": {
-  "last_attempt": "2026-11-19T15:04:46",
-  "computed_at": "2026-11-19T15:04:46",
+  "last_attempt": "2026-11-25T23:25:57",
+  "computed_at": "2026-11-26T00:13:12",
   "last_error": null
  },
  "pollen": {
-  "last_attempt": "2026-11-19T15:04:58",
-  "computed_at": "2026-11-19T15:04:58",
+  "last_attempt": "2026-11-25T15:53:02",
+  "computed_at": "2026-11-25T15:53:02",
   "last_error": null
  }
 }
