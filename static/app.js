@@ -238,7 +238,6 @@ function buildMap() {
       + config.ica_categories.map((c, i) => `<li><span class="swatch" style="background:${c.color};border-color:${outline(i)}"></span>${esc(c.name)}</li>`).join("")
       + `<li><span class="pollen-marker is-small">${icon("pollen")}</span>Estación de polen</li>`
       + '<li><span class="legend-used"></span>Estación usada en tu resultado</li>'
-      + `<li><span class="swatch swatch-stale"></span>Sin datos recientes (no se usa)</li>`
       + `<li><span class="swatch" style="background:${config.doubtful_color};border-color:#26332d"></span>Estación con un dato dudoso</li>`
       + "</ul>";
     L.DomEvent.disableClickPropagation(box);
@@ -467,21 +466,22 @@ function drawStations(data) {
   stationLayer.clearLayers();
   stationMarkers = [];
   for (const s of data.air) {
+    // A station whose readings are ALL older than 3 hours ("stale") is not drawn: it is never
+    // used in a result, and the result card already names it when a nearer station is skipped.
+    if (s.stale) continue;
     // air stations: circles in the official ICA colour of their category
-    // (a station with only a doubtful reading comes grey from the server; old readings are drawn faded)
+    // (a station with only a doubtful reading comes grey from the server)
     const marker = L.circleMarker([s.lat, s.lon], { color: outline(s.category), fillColor: s.color, bubblingMouseEvents: false });
-    const warnings = (s.stale ? `<br><span class="popup-warn">Sin datos recientes (última lectura: ${ddmm(s.timestamp)} ${hhmm(s.timestamp)}). No se usa en los resultados.</span>` : "")
-      + (s.doubtful ? '<br><span class="popup-warn">Dato dudoso: un valor muy distinto de todas las demás estaciones. Ese valor no se usa en los resultados.</span>' : "");
+    const warnings = s.doubtful ? '<br><span class="popup-warn">Dato dudoso: un valor muy distinto de todas las demás estaciones. Ese valor no se usa en los resultados.</span>' : "";
     const entry = {
       kind: "air", name: s.station, source: s.source, lat: s.lat, lon: s.lon, marker, category: s.category,
-      stale: s.stale, doubtful: s.doubtful,
+      doubtful: s.doubtful,
       title: s.station,
       html: `<span class="popup-meta">${esc(s.source)} · ${ddmm(s.timestamp)} ${hhmm(s.timestamp)}</span><br>`
         + `<span class="popup-cat"><span class="swatch" style="background:${s.color};border-color:${outline(s.category)}"></span>ICA: ${esc(s.category_name)}</span><br>`
         + s.details.map(esc).join("<br>") + warnings,
     };
-    const label = s.stale ? "sin datos recientes" : s.category_name;
-    if (!isPhoneLayout()) marker.bindTooltip(`${esc(s.station)}: ${esc(label)}`);    // hover labels only where there is a mouse
+    if (!isPhoneLayout()) marker.bindTooltip(`${esc(s.station)}: ${esc(s.category_name)}`);    // hover labels only where there is a mouse
     marker.on("click", () => showStation(entry)).addTo(stationLayer);
     stationMarkers.push(entry);
   }
@@ -501,12 +501,11 @@ function drawStations(data) {
   highlightStations();
 }
 
-// How an air station is drawn: used in the result = bigger with a thick dark border;
-// old readings (not used) = faded with a dashed border; the rest = normal.
+// How an air station is drawn: used in the result = bigger with a thick dark border; the rest = normal.
+// (Stations with only old readings are not drawn at all, see drawStations.)
 function airStyle(entry, used) {
   // big, opaque dots that are easy to tap; the ones in the result are larger with a thick dark border
   if (used) return { radius: 13, weight: 3.5, opacity: 1, fillOpacity: 1, color: "#14201b", dashArray: null };
-  if (entry.stale) return { radius: 9, weight: 1.5, opacity: 0.6, fillOpacity: 0.3, color: outline(entry.category), dashArray: "3 3" };
   return { radius: 10, weight: entry.category === 0 ? 2.2 : 1.5, opacity: 1, fillOpacity: 0.95, color: outline(entry.category), dashArray: null };
 }
 

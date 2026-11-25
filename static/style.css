@@ -119,7 +119,6 @@ select:focus-visible, .btn:focus-visible, .chip:focus-visible, .hour:focus-visib
 .leaflet-popup-content b { font-weight: 700; }
 .popup-cat { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; margin: 3px 0; }
 .popup-meta { color: var(--ink-faint); font-size: 12px; }
-.swatch-stale { background: transparent !important; border: 1.5px dashed #26332d !important; opacity: 0.6; }
 .popup-warn { display: inline-block; margin-top: 4px; color: var(--ink-soft); font-size: 12px; font-style: italic; }
 
 .swatch { width: 12px; height: 12px; border-radius: 50%; border: 1.500px solid #26332d; display: inline-block; flex: none; }
