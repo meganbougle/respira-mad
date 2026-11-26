@@ -335,6 +335,11 @@ grains/m³. An hour slider (default 10:00) sets the time of day.
   older than the run's newest `issued` (before, a late run blanked every air forecast), and the
   planner's measured hours of today also come from the live files (`data.load_air_today_hourly()`),
   not only from `air_recent.csv`. A planner day where no slot has a level shows no confidence label.
+- **Outside trigger (cron-job.org):** two jobs POST to
+  `https://api.github.com/repos/meganbougle/respira-mad/actions/workflows/precompute.yml/dispatches`
+  with `{"ref":"main","inputs":{"part":"air"}}` every hour at :10 and `"part":"pollen"` daily at 04:40 UTC.
+  The token (fine-grained, this repo only, Actions read and write) lives only in cron-job.org.
+  GitHub's own schedule stays as a backup. Runs started this way show "workflow_dispatch" in the Actions tab.
 - Render: `MALLOC_ARENA_MAX=2` (render.yaml) limits glibc's per-thread memory pools;
   `/api/memory` shows process and container memory (now and peak) and that setting.
 

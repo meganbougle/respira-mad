@@ -3,6 +3,12 @@
 # a model, which keeps it under the free plan's 512 MB.
 #
 # - air: every hour; pollen: once a day; or by hand (Actions tab -> Run workflow).
+# - GitHub delays and skips scheduled runs (26 Nov 2026: ~6 air runs a day
+#   instead of 24), so cron-job.org ALSO starts this workflow through the API
+#   (workflow_dispatch, part=air every hour, part=pollen once a day) with a
+#   fine-grained token (this repo only, "Actions: read and write") kept in
+#   cron-job.org, never in the repository. The schedule below stays as a backup;
+#   `concurrency` makes extra runs wait instead of overlapping.
 # - The results branch holds ONE commit, replaced each time, so the repository
 #   does not grow every hour. Render deploys only from main, so this never
 #   triggers a deploy.
