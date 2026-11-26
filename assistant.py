@@ -80,7 +80,9 @@ SYSTEM_PROMPT = """Eres «Respira», el asistente de Respira MAD, una aplicació
 
 DE DÓNDE SALEN TUS DATOS
 - Responde ÚNICAMENTE con lo que devuelvan las herramientas. No inventes nunca cifras, niveles, horas ni nombres de estaciones, y no uses lo que recuerdes de otras fuentes. Si las herramientas no dan un dato, di que no lo tienes.
-- Antes de responder sobre un lugar, usa find_place para localizarlo (salvo que la pregunta sea sobre la ubicación ya elegida en la aplicación, que aparece en el contexto). Después usa la herramienta que corresponda: get_risk para «¿puedo salir?» ahora o a una hora concreta (cualquier hora del día o de la noche, de hoy o de mañana: pasa la hora en «hour»), get_best_hours para «¿a qué hora?» en las próximas 24 horas, get_planner para comparar días («¿qué día de esta semana es mejor?») y get_pollen_forecast para la evolución del polen en los próximos días.
+- Antes de responder sobre un lugar, usa find_place para localizarlo (salvo que la pregunta sea sobre la ubicación ya elegida en la aplicación, que aparece en el contexto). Después usa la herramienta que corresponda: get_risk para «¿puedo salir?» ahora o a una hora concreta (cualquier hora del día o de la noche, SOLO de hoy o de mañana: pasa la hora en «hour»), get_best_hours para «¿a qué hora?» en las próximas 24 horas, get_planner para comparar días («¿qué día de esta semana es mejor?») y get_pollen_forecast para la evolución del polen en los próximos días.
+- OTROS DÍAS: si preguntan por un día que NO es hoy ni mañana («pasado mañana», un día de la semana como «el sábado», o una fecha), usa get_planner (no get_risk) y responde con el tramo o los tramos de ESE día tal como los da el planificador (mañana 7-13 h, tarde 13-20 h, noche 20-24 h, madrugada 0-7 h), con la confianza de ese día. Para saber qué fecha es, usa la fecha y el día de la semana de hoy que da el contexto y el campo «fecha» de cada día del planificador. No respondas nunca sobre un día distinto del que te han preguntado. Si el día está más allá de los 5 días del planificador, dilo y no des datos de otro día.
+- Cuando respondas con un tramo del planificador, di que el tramo resume varias horas (para el NO2 cuenta la peor hora; para el ozono y las partículas, la media del tramo), así que puede no coincidir con lo que ocurra en una hora concreta.
 - Menciona siempre la estación o la fuente del dato y la hora o fecha del dato. Di expresamente cuándo un dato es provisional (pendiente de validar) y cuándo es una previsión de un modelo y no una medición.
 - Todos los datos de aire y de polen son oficiales: mediciones de las estaciones de la Comunidad de Madrid y del Ayuntamiento de Madrid, y previsiones de los modelos propios de Respira MAD hechas a partir de esas mediciones. Solo la previsión del tiempo (temperatura, lluvia) es de Open-Meteo. No menciones nunca otros modelos ni otras fuentes.
 - La previsión de calidad del aire solo llega hasta donde indique la herramienta; si te preguntan por más adelante, di que para entonces no mostramos previsión de aire.
@@ -139,7 +141,9 @@ TOOLS = [
                         "casa). Sin «hour»: el nivel de AHORA, con el motivo, la recomendación oficial literal y las "
                         "mediciones oficiales usadas (estación, hora, si es provisional). Con «hour»: añade la "
                         "PREVISIÓN para esa hora, de día o de noche, con su propia recomendación oficial. Sirve para "
-                        "cualquier hora de hoy y de mañana, también de madrugada (por ejemplo hour=1 para «la 1 AM»)."),
+                        "cualquier hora de hoy y de mañana, también de madrugada (por ejemplo hour=1 para «la 1 AM»). "
+                        "SOLO cubre hoy y mañana: para cualquier otro día (pasado mañana, «el sábado», una fecha) "
+                        "usa get_planner."),
         "input_schema": {
             "type": "object",
             "properties": {
@@ -632,7 +636,13 @@ def usage_totals():
 def _context_text(context):
     """What the app already knows (profile, place, demo mode), given to the model as context."""
     now = _moment(context)
-    lines = [f"CONTEXTO DE LA APLICACIÓN (hora de Madrid: {_time(now)})."]
+    # the date with its weekday, in Spanish, so the model can map «el sábado» to the right date
+    # (written by hand: the server's locale may not be Spanish)
+    weekdays = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"]
+    months = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto",
+              "septiembre", "octubre", "noviembre", "diciembre"]
+    today_text = f"{weekdays[now.dayofweek]} {now.day} de {months[now.month - 1]} de {now.year}"
+    lines = [f"CONTEXTO DE LA APLICACIÓN (hora de Madrid: {_time(now)}; hoy es {today_text})."]
     if context.get("demo"):
         lines.append("El MODO DEMOSTRACIÓN está activado: todas las herramientas devuelven datos del 28 de mayo de 2025, no de hoy.")
     if context.get("lat") is not None and context.get("lon") is not None:
