@@ -235,10 +235,21 @@ def _drop_unusable(table, now):
     """
     Leave out the forecasts that start from a reading the app does not trust
     (same rules as the measurements, config.py): a station + pollutant whose
-    latest reading is a "Dato dudoso", or older than config.STALE_HOURS.
-    at_point() then takes the next nearest station.
+    latest reading is a "Dato dudoso", or more than config.STALE_HOURS older
+    than the newest reading the forecast run had (a station that was already
+    lagging when the forecast was made). at_point() then takes the next
+    nearest station.
+
+    The comparison is with the run's newest reading, NOT with now: GitHub
+    Actions often runs hours late (26 Nov 2026: last run at 05:56, nothing
+    until after 09:30), and comparing with now threw away the WHOLE forecast.
+    A forecast issued at 04:00 is still our tested forecast for 12:00 (8 hours
+    ahead, inside the 96-hour horizon); the freshness box says when it was computed.
     """
-    keep = table["issued"] >= now - pd.Timedelta(hours=config.STALE_HOURS)
+    if table.empty:
+        return table
+    newest = table["issued"].max()
+    keep = table["issued"] >= newest - pd.Timedelta(hours=config.STALE_HOURS)
     try:
         air = data.load_air()
         doubtful = air[air["doubtful"]]
@@ -259,14 +270,25 @@ def measured_at_point(lat, lon, now):
     station that measures it and whose reading is usable (not a "Dato dudoso",
     not older than config.STALE_HOURS). Used for the planner's past and
     current parts of today. The hours come from backup/air_recent.csv, which
-    the forecast keeps up to date. `.attrs["stations"]` names the station per
-    pollutant. Returns None if there is nothing.
+    the forecast keeps up to date (GitHub Actions) plus today's live hourly
+    files (data.load_air_today_hourly), so they are current even when Actions
+    runs late. `.attrs["stations"]` names the station per pollutant.
+    Returns None if there is nothing.
     """
     import risk                                      # (imported here because risk.py also uses this file)
+    parts = []
     stored = data.BACKUP_DIR / "air_recent.csv"
-    if not stored.exists():
+    if stored.exists():
+        parts.append(pd.read_csv(stored, parse_dates=["timestamp"], dtype={"station_code": str}))
+    try:
+        parts.append(data.load_air_today_hourly().astype({"station_code": str}))
+    except Exception as error:
+        data.problem("Sin mediciones horarias de hoy.", error)
+    if not parts:
         return None
-    hours = pd.read_csv(stored, parse_dates=["timestamp"], dtype={"station_code": str})
+    hours = pd.concat([p[["station_code", "pollutant", "value", "timestamp"]] for p in parts], ignore_index=True)
+    # the live file comes last, so keep="last" prefers it if the same hour is in both
+    hours = hours.drop_duplicates(["station_code", "pollutant", "timestamp"], keep="last")
     hours = hours[(hours["timestamp"] > now.normalize()) & (hours["timestamp"] <= now)]
     if hours.empty:
         return None
