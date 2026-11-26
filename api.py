@@ -520,7 +520,10 @@ def get_freshness(demo: bool = False, hour: int = HOUR,
     return clean({
         "demo": demo, "time": moment,
         "updated_minutes": updated_minutes,          # how long ago the app downloaded the air data
-        "all_live": bool(sources) and all(s["live"] for s in sources),
+        # the header's "En directo" is about the air and pollen data and our forecasts. The weather
+        # is left out: when Open-Meteo is busy a copy of a few hours ago is used (and labelled
+        # "Copia de seguridad" in this list), which made the whole header say "Copia" (26 Nov 2026).
+        "all_live": bool(sources) and all(s["live"] for s in sources if "Open-Meteo" not in s["source"]),
         "sources": sources,
     })
 
