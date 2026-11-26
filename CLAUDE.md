@@ -329,6 +329,12 @@ grains/m³. An hour slider (default 10:00) sets the time of day.
   pandas), so it stays exact (no grid). Demo mode reads the stored files in `backup/replay/`
   (never computed on the server).
 - `joblib` is imported only inside the computing functions (`models()`, `type_models()`).
+- **Actions runs late (26 Nov 2026):** the hourly schedule ran only ~6 times a day (gaps of 2-7 h;
+  GitHub delays and skips scheduled runs). So the server never compares a forecast with *now*:
+  `air_predict._drop_unusable()` drops a station only if its `issued` is more than `STALE_HOURS`
+  older than the run's newest `issued` (before, a late run blanked every air forecast), and the
+  planner's measured hours of today also come from the live files (`data.load_air_today_hourly()`),
+  not only from `air_recent.csv`. A planner day where no slot has a level shows no confidence label.
 - Render: `MALLOC_ARENA_MAX=2` (render.yaml) limits glibc's per-thread memory pools;
   `/api/memory` shows process and container memory (now and peak) and that setting.
 

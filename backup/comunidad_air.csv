@@ -1,90 +1,90 @@
 station,source,lat,lon,pollutant,value,timestamp,ica_value,ica_hours,flag
-Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,NO2,48.0,2026-11-25 22:00:00,48.0,1,T
-Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,O3,7.0,2026-11-25 22:00:00,34.9,8,T
-Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM10,9.0,2026-11-25 22:00:00,6.5,21,T
-Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM2.5,3.0,2026-11-25 22:00:00,2.4,21,T
-Alcobendas,Comunidad de Madrid,40.540351,-3.645253,NO2,3.0,2026-11-25 22:00:00,3.0,1,T
-Alcobendas,Comunidad de Madrid,40.540351,-3.645253,O3,65.0,2026-11-25 22:00:00,59.9,8,T
-Alcobendas,Comunidad de Madrid,40.540351,-3.645253,PM10,7.0,2026-11-25 22:00:00,3.5,22,T
-Alcorcón,Comunidad de Madrid,40.341909,-3.835735,NO2,12.0,2026-11-25 22:00:00,12.0,1,T
-Alcorcón,Comunidad de Madrid,40.341909,-3.835735,O3,56.0,2026-11-25 22:00:00,57.4,8,T
-Alcorcón,Comunidad de Madrid,40.341909,-3.835735,PM2.5,2.0,2026-11-25 22:00:00,1.5,22,T
-Algete,Comunidad de Madrid,40.599819444,-3.503286111,NO2,8.0,2026-11-25 22:00:00,8.0,1,T
-Algete,Comunidad de Madrid,40.599819444,-3.503286111,O3,63.0,2026-11-25 22:00:00,63.8,8,T
-Algete,Comunidad de Madrid,40.599819444,-3.503286111,PM2.5,2.0,2026-11-25 22:00:00,2.8,22,T
-Aranjuez,Comunidad de Madrid,40.033272,-3.591411,NO2,18.0,2026-11-25 22:00:00,18.0,1,T
-Aranjuez,Comunidad de Madrid,40.033272,-3.591411,O3,39.0,2026-11-25 22:00:00,53.5,8,T
-Aranjuez,Comunidad de Madrid,40.033272,-3.591411,PM10,5.0,2026-11-25 22:00:00,3.3,22,T
-Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,NO2,10.0,2026-11-25 22:00:00,10.0,1,T
-Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,O3,50.0,2026-11-25 22:00:00,55.5,8,T
-Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,PM10,12.0,2026-11-25 22:00:00,12.7,22,T
-El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,NO2,1.0,2026-11-25 22:00:00,1.0,1,T
-El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,O3,71.0,2026-11-25 22:00:00,72.8,8,T
-El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM10,1.0,2026-11-25 22:00:00,1.1,22,T
-El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM2.5,1.0,2026-11-25 22:00:00,1.3,22,T
-Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,NO2,7.0,2026-11-25 22:00:00,7.0,1,T
-Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,O3,62.0,2026-11-25 22:00:00,66.6,8,T
-Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,PM10,1.0,2026-11-25 22:00:00,1.0,22,T
-Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,NO2,5.0,2026-11-25 22:00:00,5.0,1,T
-Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,O3,64.0,2026-11-25 22:00:00,60.1,8,T
-Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,PM2.5,1.0,2026-11-25 22:00:00,1.6,22,T
-Coslada,Comunidad de Madrid,40.4306602,-3.5424609,NO2,17.0,2026-11-25 22:00:00,17.0,1,T
-Coslada,Comunidad de Madrid,40.4306602,-3.5424609,O3,48.0,2026-11-25 22:00:00,47.5,8,T
-Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM10,4.0,2026-11-25 22:00:00,3.0,22,T
-Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM2.5,5.0,2026-11-25 22:00:00,3.5,22,T
-Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,NO2,16.0,2026-11-25 22:00:00,16.0,1,T
-Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,O3,52.0,2026-11-25 22:00:00,53.2,8,T
-Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,PM10,3.0,2026-11-25 22:00:00,1.8,20,T
-Getafe,Comunidad de Madrid,40.314577,-3.716879,NO2,15.0,2026-11-25 22:00:00,15.0,1,T
-Getafe,Comunidad de Madrid,40.314577,-3.716879,O3,56.0,2026-11-25 22:00:00,55.6,8,T
-Getafe,Comunidad de Madrid,40.314577,-3.716879,PM10,10.0,2026-11-25 22:00:00,8.6,22,T
-Getafe,Comunidad de Madrid,40.314577,-3.716879,PM2.5,4.0,2026-11-25 22:00:00,2.0,22,T
-Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,NO2,2.0,2026-11-25 22:00:00,2.0,1,T
-Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,O3,72.0,2026-11-25 22:00:00,72.0,8,T
-Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,PM10,4.0,2026-11-25 22:00:00,4.5,22,T
-Leganés,Comunidad de Madrid,40.339762,-3.754508,NO2,19.0,2026-11-25 22:00:00,19.0,1,T
-Leganés,Comunidad de Madrid,40.339762,-3.754508,O3,50.0,2026-11-25 22:00:00,53.2,8,T
-Leganés,Comunidad de Madrid,40.339762,-3.754508,PM10,6.0,2026-11-25 22:00:00,3.8,22,T
-Leganés,Comunidad de Madrid,40.339762,-3.754508,PM2.5,4.0,2026-11-25 22:00:00,2.0,22,T
-Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,NO2,5.0,2026-11-25 22:00:00,5.0,1,T
-Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,O3,69.0,2026-11-25 22:00:00,69.8,8,T
-Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,PM10,1.0,2026-11-25 22:00:00,1.1,22,T
-Móstoles,Comunidad de Madrid,40.324225,-3.876772,NO2,9.0,2026-11-25 22:00:00,9.0,1,T
-Móstoles,Comunidad de Madrid,40.324225,-3.876772,O3,58.0,2026-11-25 22:00:00,53.3,7,T
-Móstoles,Comunidad de Madrid,40.324225,-3.876772,PM10,6.0,2026-11-25 22:00:00,4.1,21,T
-Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,NO2,5.0,2026-11-25 22:00:00,5.0,1,T
-Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,O3,55.0,2026-11-25 22:00:00,63.1,8,T
-Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,PM10,4.0,2026-11-25 22:00:00,2.0,22,T
-Parla,Comunidad de Madrid,40.245917,-3.771389,NO2,20.0,2026-11-25 22:00:00,20.0,1,T
-Parla,Comunidad de Madrid,40.245917,-3.771389,O3,40.0,2026-11-25 22:00:00,49.2,8,T
-Parla,Comunidad de Madrid,40.245917,-3.771389,PM2.5,6.0,2026-11-25 22:00:00,3.8,22,T
-Rascafría,Comunidad de Madrid,40.8251,-3.9612,NO2,1.0,2026-11-25 22:00:00,1.0,1,T
-Rascafría,Comunidad de Madrid,40.8251,-3.9612,O3,72.0,2026-11-25 22:00:00,73.2,8,T
-Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM10,3.0,2026-11-25 22:00:00,5.1,22,T
-Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM2.5,4.0,2026-11-25 22:00:00,8.9,22,T
-Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,NO2,28.0,2026-11-25 22:00:00,28.0,1,T
-Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,O3,38.0,2026-11-25 22:00:00,47.1,8,T
-Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,PM10,8.0,2026-11-25 22:00:00,4.7,22,T
-Las Rozas,Comunidad de Madrid,40.500639,-3.885583,NO2,9.0,2026-11-25 22:00:00,9.0,1,T
-Las Rozas,Comunidad de Madrid,40.500639,-3.885583,O3,63.0,2026-11-25 22:00:00,58.4,8,T
-Las Rozas,Comunidad de Madrid,40.500639,-3.885583,PM10,3.0,2026-11-25 22:00:00,2.4,22,T
-San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,NO2,3.0,2026-11-25 22:00:00,3.0,1,T
-San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,O3,68.0,2026-11-25 22:00:00,70.8,8,T
-San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,PM10,2.0,2026-11-25 22:00:00,1.3,22,T
-San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,NO2,2.0,2026-11-25 22:00:00,2.0,1,T
-San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,O3,67.0,2026-11-25 22:00:00,68.9,8,T
-San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,PM10,1.0,2026-11-25 22:00:00,4.8,22,T
-Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,NO2,50.0,2026-11-25 22:00:00,50.0,1,T
-Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,O3,21.0,2026-11-25 22:00:00,42.8,8,T
-Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM10,12.0,2026-11-25 22:00:00,6.7,22,T
-Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM2.5,12.0,2026-11-25 22:00:00,3.1,22,T
-Valdemoro,Comunidad de Madrid,40.185241,-3.680265,NO2,7.0,2026-11-25 22:00:00,7.0,1,T
-Valdemoro,Comunidad de Madrid,40.185241,-3.680265,O3,52.0,2026-11-25 22:00:00,56.9,8,T
-Valdemoro,Comunidad de Madrid,40.185241,-3.680265,PM2.5,4.0,2026-11-25 22:00:00,2.3,22,T
-Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,NO2,5.0,2026-11-25 22:00:00,5.0,1,T
-Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,O3,37.0,2026-11-25 22:00:00,58.6,8,T
-Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM10,1.0,2026-11-25 22:00:00,1.5,22,T
-Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM2.5,1.0,2026-11-25 22:00:00,1.3,22,T
-Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,NO2,8.0,2026-11-25 22:00:00,8.0,1,T
-Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,O3,57.0,2026-11-25 22:00:00,62.0,8,T
-Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,PM2.5,1.0,2026-11-25 22:00:00,1.0,22,T
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,NO2,42.0,2026-11-26 08:00:00,42.0,1,T
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,O3,2.0,2026-11-26 08:00:00,10.9,8,T
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM10,22.0,2026-11-26 08:00:00,10.4,8,T
+Alcalá de Henares,Comunidad de Madrid,40.479328,-3.377949,PM2.5,14.0,2026-11-26 08:00:00,7.8,8,T
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,NO2,52.0,2026-11-26 08:00:00,52.0,1,T
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,O3,2.0,2026-11-26 08:00:00,20.4,8,T
+Alcobendas,Comunidad de Madrid,40.540351,-3.645253,PM10,29.0,2026-11-26 08:00:00,13.8,8,T
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,NO2,53.0,2026-11-26 08:00:00,53.0,1,T
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,O3,5.0,2026-11-26 08:00:00,44.1,8,T
+Alcorcón,Comunidad de Madrid,40.341909,-3.835735,PM2.5,4.0,2026-11-26 08:00:00,4.8,8,T
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,NO2,22.0,2026-11-26 08:00:00,22.0,1,T
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,O3,34.0,2026-11-26 08:00:00,44.5,8,T
+Algete,Comunidad de Madrid,40.599819444,-3.503286111,PM2.5,5.0,2026-11-26 08:00:00,3.6,8,T
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,NO2,20.0,2026-11-26 08:00:00,20.0,1,T
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,O3,8.0,2026-11-26 08:00:00,33.1,8,T
+Aranjuez,Comunidad de Madrid,40.033272,-3.591411,PM10,11.0,2026-11-26 08:00:00,7.8,8,T
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,NO2,35.0,2026-11-26 08:00:00,35.0,1,T
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,O3,4.0,2026-11-26 08:00:00,28.1,8,T
+Arganda del Rey,Comunidad de Madrid,40.300694444,-3.458830556,PM10,13.0,2026-11-26 08:00:00,10.0,8,T
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,NO2,1.0,2026-11-26 08:00:00,1.0,1,T
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,O3,71.0,2026-11-26 08:00:00,70.4,8,T
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM10,1.0,2026-11-26 08:00:00,1.0,8,T
+El Atazar,Comunidad de Madrid,40.909019444,-3.467902778,PM2.5,1.0,2026-11-26 08:00:00,1.1,8,T
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,NO2,59.0,2026-11-26 08:00:00,59.0,1,T
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,O3,16.0,2026-11-26 08:00:00,42.4,8,T
+Colmenar Viejo,Comunidad de Madrid,40.664649,-3.773865,PM10,9.0,2026-11-26 08:00:00,7.2,8,T
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,NO2,24.0,2026-11-26 08:00:00,24.0,1,T
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,O3,42.0,2026-11-26 08:00:00,59.6,8,T
+Collado-Villalba,Comunidad de Madrid,40.633089,-4.01425,PM2.5,1.0,2026-11-26 08:00:00,1.1,8,T
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,NO2,51.0,2026-11-26 08:00:00,51.0,1,T
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,O3,1.0,2026-11-26 08:00:00,17.2,8,T
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM10,18.0,2026-11-26 08:00:00,8.0,8,T
+Coslada,Comunidad de Madrid,40.4306602,-3.5424609,PM2.5,14.0,2026-11-26 08:00:00,9.0,8,T
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,NO2,60.0,2026-11-26 08:00:00,60.0,1,T
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,O3,9.0,2026-11-26 08:00:00,45.1,8,T
+Fuenlabrada,Comunidad de Madrid,40.281505,-3.800946,PM10,3.0,2026-11-26 08:00:00,1.9,8,T
+Getafe,Comunidad de Madrid,40.314577,-3.716879,NO2,66.0,2026-11-26 08:00:00,66.0,1,T
+Getafe,Comunidad de Madrid,40.314577,-3.716879,O3,3.0,2026-11-26 08:00:00,45.0,8,T
+Getafe,Comunidad de Madrid,40.314577,-3.716879,PM10,20.0,2026-11-26 08:00:00,11.8,8,T
+Getafe,Comunidad de Madrid,40.314577,-3.716879,PM2.5,10.0,2026-11-26 08:00:00,2.9,8,T
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,NO2,25.0,2026-11-26 08:00:00,25.0,1,T
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,O3,8.0,2026-11-26 08:00:00,42.5,8,T
+Guadalix de la Sierra,Comunidad de Madrid,40.780633333,-3.702147222,PM10,13.0,2026-11-26 08:00:00,7.2,8,T
+Leganés,Comunidad de Madrid,40.339762,-3.754508,NO2,63.0,2026-11-26 08:00:00,63.0,1,T
+Leganés,Comunidad de Madrid,40.339762,-3.754508,O3,1.0,2026-11-26 08:00:00,41.9,8,T
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM10,12.0,2026-11-26 08:00:00,2.8,8,T
+Leganés,Comunidad de Madrid,40.339762,-3.754508,PM2.5,5.0,2026-11-26 08:00:00,2.1,8,T
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,NO2,59.0,2026-11-26 08:00:00,59.0,1,T
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,O3,12.0,2026-11-26 08:00:00,49.9,8,T
+Majadahonda,Comunidad de Madrid,40.446102778,-3.868994444,PM10,9.0,2026-11-26 08:00:00,2.4,8,T
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,NO2,47.0,2026-11-26 08:00:00,47.0,1,T
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,O3,7.0,2026-11-26 08:00:00,47.2,8,T
+Móstoles,Comunidad de Madrid,40.324225,-3.876772,PM10,11.0,2026-11-26 08:00:00,4.0,8,T
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,NO2,3.0,2026-11-26 08:00:00,3.0,1,T
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,O3,44.0,2026-11-26 08:00:00,50.4,8,T
+Orusco del Tajuña,Comunidad de Madrid,40.287555556,-3.221094444,PM10,2.0,2026-11-26 08:00:00,2.2,8,T
+Parla,Comunidad de Madrid,40.245917,-3.771389,NO2,72.0,2026-11-26 08:00:00,72.0,1,T
+Parla,Comunidad de Madrid,40.245917,-3.771389,O3,3.0,2026-11-26 08:00:00,42.8,8,T
+Parla,Comunidad de Madrid,40.245917,-3.771389,PM2.5,4.0,2026-11-26 08:00:00,3.8,8,T
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,NO2,1.0,2026-11-26 08:00:00,1.0,1,T
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,O3,75.0,2026-11-26 08:00:00,74.9,8,T
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM10,1.0,2026-11-26 08:00:00,3.5,8,T
+Rascafría,Comunidad de Madrid,40.8251,-3.9612,PM2.5,2.0,2026-11-26 08:00:00,7.4,8,T
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,NO2,41.0,2026-11-26 08:00:00,41.0,1,T
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,O3,5.0,2026-11-26 08:00:00,22.0,8,T
+Rivas Vaciamadrid,Comunidad de Madrid,40.359705556,-3.542902778,PM10,17.0,2026-11-26 08:00:00,11.4,8,T
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,NO2,38.0,2026-11-26 07:00:00,38.0,1,T
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,O3,21.0,2026-11-26 07:00:00,56.0,7,T
+Las Rozas,Comunidad de Madrid,40.500639,-3.885583,PM10,7.0,2026-11-26 08:00:00,2.6,8,T
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,NO2,8.0,2026-11-26 08:00:00,8.0,1,T
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,O3,63.0,2026-11-26 08:00:00,70.1,8,T
+San Martín de Valdeiglesias,Comunidad de Madrid,40.367758333,-4.398116667,PM10,2.0,2026-11-26 08:00:00,1.1,8,T
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,NO2,4.0,2026-11-26 08:00:00,4.0,1,T
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,O3,4.0,2026-11-26 08:00:00,16.1,8,T
+San Sebastián de los Reyes,Comunidad de Madrid,40.569722,-3.635667,PM10,9.0,2026-11-26 08:00:00,7.6,8,T
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,NO2,43.0,2026-11-26 08:00:00,43.0,1,T
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,O3,6.0,2026-11-26 08:00:00,15.8,8,T
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM10,19.0,2026-11-26 08:00:00,14.5,8,T
+Torrejón de Ardoz,Comunidad de Madrid,40.449541,-3.477645,PM2.5,6.0,2026-11-26 08:00:00,6.0,8,T
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,NO2,54.0,2026-11-26 08:00:00,54.0,1,T
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,O3,3.0,2026-11-26 08:00:00,42.2,8,T
+Valdemoro,Comunidad de Madrid,40.185241,-3.680265,PM2.5,5.0,2026-11-26 08:00:00,8.2,8,T
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,NO2,5.0,2026-11-26 08:00:00,5.0,1,T
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,O3,17.0,2026-11-26 08:00:00,20.0,8,T
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM10,1.0,2026-11-26 08:00:00,2.0,8,T
+Villa del Prado,Comunidad de Madrid,40.247937,-4.27515,PM2.5,2.0,2026-11-26 08:00:00,1.6,8,T
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,NO2,54.0,2026-11-26 08:00:00,54.0,1,T
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,O3,3.0,2026-11-26 08:00:00,36.0,8,T
+Villarejo de Salvanés,Comunidad de Madrid,40.167227778,-3.276569444,PM2.5,6.0,2026-11-26 08:00:00,2.1,8,T

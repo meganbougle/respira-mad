@@ -664,8 +664,10 @@ function drawPlanner(data) {
   $("planner-title").textContent = data.demo ? "Planificador · vista del 24 mayo 2025" : "Planificador de 5 días";
   let html = "<span></span>" + data.blocks.map((b) => `<div class="planner-col">${esc(b.name)}<small>${esc(b.hours)}</small></div>`).join("");
   data.days.forEach((day, d) => {
+    // no confidence label on a row where nothing has a level (e.g. "Ninguno" and no air forecast)
     const dots = [1, 2, 3].map((n) => `<span class="${n <= CONFIDENCE_DOTS[day.confidence] ? "on" : ""}"></span>`).join("");
-    html += `<div class="planner-day"><b>${esc(day.label)}</b><span class="conf" title="Confianza ${esc(day.confidence)}"><i aria-hidden="true">${dots}</i>${esc(day.confidence)}</span></div>`;
+    const conf = day.confidence ? `<span class="conf" title="Confianza ${esc(day.confidence)}"><i aria-hidden="true">${dots}</i>${esc(day.confidence)}</span>` : "";
+    html += `<div class="planner-day"><b>${esc(day.label)}</b>${conf}</div>`;
     day.blocks.forEach((block, b) => {
       const level = block.level_index == null ? null : config.levels[block.level_index];
       // the temperature is its own element, never next to a dash (a dash before "9°" reads as minus nine)
@@ -675,7 +677,7 @@ function drawPlanner(data) {
       const pollen = !level && day.shown_pollen ? `<small class="pcell-pollen">polen ${esc(day.shown_pollen.level_name)}</small>` : "";
       const label = `${day.label}, ${block.name.toLowerCase()}: ${block.level_label}`
         + (block.weather ? `, ${num(block.weather.temperature_c)} grados` : "")
-        + (pollen ? `, polen ${day.shown_pollen.level_name}` : "") + `. Confianza ${day.confidence}.`;
+        + (pollen ? `, polen ${day.shown_pollen.level_name}` : "") + (day.confidence ? `. Confianza ${day.confidence}.` : ".");
       html += level
         ? `<button class="pcell" type="button" data-day="${d}" data-block="${b}" style="--c:${level.color};--ink-c:${level.text_color}" aria-label="${esc(label)}">${ICONS[block.level_index]}${temperature}${rain}</button>`
         : `<button class="pcell pcell-none" type="button" data-day="${d}" data-block="${b}" aria-label="${esc(label)}">${icon("circle-dashed", "pcell-nolevel")}${temperature}${rain}${pollen}</button>`;

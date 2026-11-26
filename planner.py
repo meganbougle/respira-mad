@@ -254,6 +254,9 @@ def plan(lat, lon, profile="general", allergy_types=(), now=None, demo=False):
         gap = int((date - model_station["last_reading"]).days) if model_station else None
         # the confidence describes what the level depends on: only the pollen types that count
         confidence, confidence_reason = _confidence(lead, [p for p in pollen_entries if p["counts"]], gap)
+        if all(b["level_index"] is None for b in blocks):
+            # nothing on this row has a level (e.g. "Ninguno" and no air forecast): there is nothing to be confident about
+            confidence, confidence_reason = None, None
         days.append({
             "date": date, "lead": lead,
             "label": "Hoy" if lead == 0 and not demo else f"{WEEKDAYS[date.dayofweek]} {date.day}",

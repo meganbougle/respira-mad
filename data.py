@@ -363,6 +363,36 @@ def load_air():
     return merged
 
 
+# columns of the hourly files that _hourly_long needs (MEMORY: the rest are not read)
+HOURLY_COLUMNS = ({"provincia", "municipio", "estacion", "magnitud", "ano", "mes", "dia"}
+                  | {f"h{h:02d}" for h in range(1, 25)} | {f"v{h:02d}" for h in range(1, 25)})
+
+
+def _fetch_air_today_hourly():
+    """Today's hour-by-hour NO2, O3, PM10, PM2.5 of both networks (station_code, pollutant, value, timestamp)."""
+    parts = []
+    for fetch in (lambda: _read_csv(_ckan_csv_url("calidad_aire_datos_dia"), columns=HOURLY_COLUMNS),   # Comunidad
+                  lambda: _read_csv(CITY_AIR_URL, columns=HOURLY_COLUMNS)):                              # Ayuntamiento
+        try:
+            parts.append(_hourly_long(fetch(), POLLUTANTS)[["station_code", "name", "value", "timestamp"]])
+        except Exception as error:
+            logging.getLogger("respira").warning("Hourly air file failed: %s", error)
+    if not parts:
+        raise RuntimeError("neither air network answered")
+    return pd.concat(parts, ignore_index=True).rename(columns={"name": "pollutant"})
+
+
+@st.cache_data(ttl=CACHE_SECONDS, show_spinner=False)
+def load_air_today_hourly():
+    """
+    Today's MEASURED hours of both networks, straight from the live files
+    (cached 15 min, with backup). The planner's past and current parts of
+    today use it together with backup/air_recent.csv, so they do not depend
+    on when GitHub Actions last ran (it is often hours late).
+    """
+    return _drop_future(_with_backup("air_today_hourly", _fetch_air_today_hourly))
+
+
 # ----------------------------------------------------------------------------
 # 3. Pollen (Comunidad de Madrid, Red Palinocam)
 # ----------------------------------------------------------------------------
