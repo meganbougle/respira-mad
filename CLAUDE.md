@@ -289,6 +289,11 @@ grains/m³. An hour slider (default 10:00) sets the time of day.
   outside a rough box around the Comunidad de Madrid.
 - Render free tier sleeps after 15 minutes without visits; the first visit
   after that takes about a minute. Open the site before a demo.
+- **26 Nov 2026: Render moved to the paid "standard" plan (1 CPU, 2 GB; `plan: standard` in
+  render.yaml, so a push does not set it back to free).** On the free plan (0.1 CPU) the page took
+  ~30 s to fill. Paid plans do not sleep. The header's "En directo" (`all_live` in `/api/freshness`)
+  ignores the Open-Meteo weather, which is often an hours-old copy when Open-Meteo is busy; the
+  freshness box still labels that line "Copia de seguridad".
 - **Memory (free plan = 512 MB; Render restarted the app for exceeding it,
   18 Nov 2026).** Measured locally (macOS footprint): peak 507 MB before,
   286 MB after the fixes for one visitor, 366 MB with 6 visitors + 2 chats.
